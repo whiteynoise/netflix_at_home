@@ -5,25 +5,24 @@ from fastapi.responses import ORJSONResponse
 from redis.asyncio import Redis
 
 from api.v1 import films
-from core import config
 from db import elastic, redis
+
+from core.config import REDIS_CONFIG, ES_CONFIG, PROJECT_NAME
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # setup connections to es and redis on startup
-    redis.redis = Redis(host=config.REDIS_HOST, port=config.REDIS_PORT)
-    elastic.es = AsyncElasticsearch(hosts=[f'{config.ELASTIC_HOST}:{config.ELASTIC_PORT}'])
-
+    redis.redis = Redis(**REDIS_CONFIG)
+    elastic.es = AsyncElasticsearch(hosts=['{host}:{port}'.format(**ES_CONFIG)])
     yield
-
     # close connections to es and redis on shutdown
     await redis.redis.close()
     await elastic.es.close()
 
 
 app = FastAPI(
-    title=config.PROJECT_NAME,
+    title=PROJECT_NAME,
     docs_url='/api/openapi',
     openapi_url='/api/openapi.json',
     default_response_class=ORJSONResponse,
