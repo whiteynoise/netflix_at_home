@@ -1,0 +1,12 @@
+.DS_Store
+.env
+*/venv
+*.env
+venv
+.idea
+.vscode
+__pycache__/
+redisdata/~
+.vscode
+*.mo
+*.pot

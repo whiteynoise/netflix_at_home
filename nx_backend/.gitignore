@@ -1,6 +1,0 @@
-.DS_Store
-.env
-.idea
-.vscode
-__pycache__/
-redisdata/
