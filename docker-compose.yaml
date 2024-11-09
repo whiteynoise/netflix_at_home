@@ -7,8 +7,6 @@ services:
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
-    ports:
-      - "9200:9200"
     volumes:
       - es_data:/usr/share/elasticsearch/data
     healthcheck:
@@ -49,8 +47,6 @@ services:
     container_name: frontend
     expose:
       - 8000
-    ports:
-      - "8000:80"
     volumes:
       - ./nx_frontend/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nx_frontend/configs:/etc/nginx/conf.d:ro
