@@ -1,6 +1,22 @@
 version: '3'
 
 services:
+
+  database:
+    image: postgres:16
+    container_name: database
+    env_file:
+      - ./nx_db/db.env
+    volumes:
+      - db_volume:/var/lib/postgresql/data
+      # - ./nx_db/init.sql:/docker-entrypoint-initdb.d/init_data.sql
+    restart: always
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready", "-U", "${POSTGRES_USER}" ]
+      interval: 15s
+      timeout: 15s
+      retries: 5
+
   elasticsearch:
     image: elasticsearch:8.6.2
     container_name: elasticsearch
@@ -14,7 +30,10 @@ services:
       interval: 30s
       timeout: 30s
       retries: 1
-
+    depends_on:
+      database:
+        condition: service_healthy
+    
   redis:
     image: redis
     container_name: redis
@@ -25,6 +44,20 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+
+  etl:
+    build: nx_etl/
+    container_name: etl
+    env_file:
+      - nx_etl/.env
+    restart: always
+    depends_on:
+      database:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
 
   app:
     build:
@@ -60,3 +93,4 @@ volumes:
   static_volume:
   redis_volume:
   es_data:
+  db_volume:
