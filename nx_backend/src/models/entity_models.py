@@ -34,5 +34,5 @@ class PersonFilms(BaseModel):
     roles: list
 
 
-class Person(PersonBase):
+class Persons(PersonBase):
     films: list[PersonFilms]

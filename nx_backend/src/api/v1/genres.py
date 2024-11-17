@@ -1,0 +1,37 @@
+from http import HTTPStatus
+from fastapi import APIRouter, Depends, HTTPException
+
+from services.genre import GenreService, get_film_service
+from src.models.response_models import Genre
+
+router = APIRouter()
+
+
+@router.get(
+    '/{genre_id}',
+    response_model=Genre,
+    summary='Информация о жанре',
+    description='Возращает информацию о жанре по id',
+)
+async def genre_getails(
+    genre_id: str, genre_service: GenreService = Depends(get_film_service)
+) -> Genre:
+    '''Возращает информацию о жанре по id'''
+    genre = await genre_service.get_by_id(genre_id)
+    if not genre:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='genre not found')
+    return Genre(id=str(genre.id), name=genre.name)
+
+
+@router.get(
+    '/',
+    response_model=list[Genre],
+    summary='Список жанров',
+    description='Возращает список жанров',
+)
+async def genres(
+    genre_service: GenreService = Depends(get_film_service),
+) -> list[Genre]:
+    '''Возращает список всех жанров'''
+    genres = await genre_service.get_genres()
+    return [Genre(id=str(genre.id), name=genre.name) for genre in genres]
