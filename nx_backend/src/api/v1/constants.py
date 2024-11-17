@@ -1,0 +1,1 @@
+SORT_CHOICES = {"-imdb_rating", "imdb_rating"}
