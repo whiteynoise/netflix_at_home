@@ -2,7 +2,7 @@ from http import HTTPStatus
 from fastapi import APIRouter, Depends, HTTPException
 
 
-
+from models.entity_models import FilmWork
 from services.film import FilmService, get_film_service
 from src.api.v1.constants import SORT_CHOICES
 from src.models.response_models import Film
@@ -12,7 +12,7 @@ router = APIRouter()
 
 @router.get(
     '/{film_id}',
-    response_model=Film,
+    response_model=FilmWork,
     summary='Информация о фильме',
     description='Возращает информацию о фильме по id',
 )
@@ -24,7 +24,7 @@ async def film_details(
     if not film:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='film not found')
 
-    return Film(id=str(film.id), title=film.title, imdb_rating=film.imdb_rating)
+    return film
 
 
 @router.get(
@@ -66,7 +66,9 @@ async def sorted_films(
     '''Возращает популярные фильмы и фильтруте по жанрам'''
 
     if sort not in SORT_CHOICES:
-        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail='invalid sort parametr')
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST, detail='invalid sort parametr'
+        )
 
     films = await film_service.sorted_films(sort, genre, page_number, page_size)
     if not films:

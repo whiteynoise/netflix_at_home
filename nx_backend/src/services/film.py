@@ -66,12 +66,45 @@ class FilmService:
             'query': {'bool': {'must': [], 'filter': []}},
         }
         if genre:
-            search_query['query']['bool']['filter'].append(
-                {'term': {'genres': genre}}
-            )
+            search_query['query']['bool']['filter'].append({'term': {'genres': genre}})
 
         result = await self.elastic.search(index='movies', body=search_query)
-    
+
+        hits = result.get('hits', {}).get('hits', [])
+        if not hits:
+            return
+
+        return [FilmWork(**hit['_source']) for hit in hits]
+
+    async def _get_films_by_person(self, person_id) -> list[FilmWork] | None:
+        '''Возращает найденные фильмы по личности'''
+        search_query = {
+            'query': {
+                'bool': {
+                    'should': [
+                        {
+                            'nested': {
+                                'path': 'directors',
+                                'query': {'term': {'directors.id': person_id}},
+                            }
+                        },
+                        {
+                            'nested': {
+                                'path': 'actors',
+                                'query': {'term': {'actors.id': person_id}},
+                            }
+                        },
+                        {
+                            'nested': {
+                                'path': 'writers',
+                                'query': {'term': {'writers.id': person_id}},
+                            }
+                        },
+                    ]
+                }
+            }
+        }
+        result = await self.elastic.search(index='movies', body=search_query)
         hits = result.get('hits', {}).get('hits', [])
         if not hits:
             return
@@ -83,7 +116,7 @@ class FilmService:
         try:
             doc = await self.elastic.get(index='movies', id=film_id)
         except NotFoundError:
-            return None
+            return
         return FilmWork(**doc['_source'])
 
     async def _film_from_cache(self, film_id: str) -> FilmWork | None:
@@ -99,7 +132,7 @@ class FilmService:
         await self.redis.set(
             str(film.id), film.model_dump_json(), FILM_CACHE_EXPIRE_IN_SECONDS
         )
-    
+
     @staticmethod
     def paginator(page_number: int | None, page_size: int | None):
         page_number = page_number or 1
