@@ -7,8 +7,6 @@ from db.elastic import get_elastic
 from db.redis import get_redis
 from models.entity_models import Genres
 
-FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5  # 5 минут
-
 
 class GenreService:
     def __init__(self, redis: Redis, elastic: AsyncElasticsearch):

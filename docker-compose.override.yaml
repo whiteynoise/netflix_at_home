@@ -4,4 +4,7 @@ services:
   frontend:
     ports:
       - "8000:80"
+  app:
+    ports:
+      - "8000:8000"
     

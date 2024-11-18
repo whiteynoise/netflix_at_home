@@ -24,7 +24,7 @@ class PersonService:
         return person
 
     async def search_persons(
-        self, get_query: str, page_number: int | None, page_size: int | None
+        self, get_query: str | None, page_number: int | None, page_size: int | None
     ) -> list[Persons] | None:
         '''Поиск личностей в Elasticsearch с поддержкой пагинации.'''
 
@@ -33,8 +33,10 @@ class PersonService:
         search_query = {
             'from': offset,
             'size': page_size,
-            'query': {'bool': {'must': [{'match': {'name': get_query}}]}},
         }
+
+        if get_query:
+            search_query['query'] = {'bool': {'must': [{'match': {'name': get_query}}]}}
 
         result = await self.elastic.search(index='persons', body=search_query)
 

@@ -5,14 +5,15 @@ services:
   database:
     image: postgres:16
     container_name: database
-    env_file:
-      - ./nx_db/db.env
     volumes:
-      - db_volume:/var/lib/postgresql/data
-      # - ./nx_db/init.sql:/docker-entrypoint-initdb.d/init_data.sql
+      - ./pg_dump.sql:/docker-entrypoint-initdb.d/init.sql
     restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready", "-U", "${POSTGRES_USER}" ]
+      test: [ "CMD", "pg_isready", "-d", "${POSTGRES_DB}", "-U", "${POSTGRES_USER}" ]
       interval: 15s
       timeout: 15s
       retries: 5
@@ -64,6 +65,8 @@ services:
       dockerfile:  Dockerfile
       context: ./nx_backend
     container_name: app
+    env_file:
+      - nx_backend/.env
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8000/api/openapi || exit 1"]
       interval: 30s

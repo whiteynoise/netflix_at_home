@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException
 
 
 from models.entity_models import FilmWork
+from services.redis_cache import redis_caching
 from services.film import FilmService, get_film_service
 from src.api.v1.constants import SORT_CHOICES
 from src.models.response_models import Film
@@ -16,11 +17,15 @@ router = APIRouter()
     summary='Информация о фильме',
     description='Возращает информацию о фильме по id',
 )
+@redis_caching(key_base='movies_uuid_', response_model=FilmWork, only_one=True)
 async def film_details(
-    film_id: str, film_service: FilmService = Depends(get_film_service)
-) -> Film:
+    film_id: str,
+    film_service: FilmService = Depends(get_film_service)
+) -> FilmWork:
     '''Возвращает информацию о кинопроизведении'''
+
     film = await film_service.get_by_id(film_id)
+
     if not film:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='film not found')
 
@@ -33,6 +38,7 @@ async def film_details(
     summary='Поиск по фильмам',
     description='Ищет кинопроизведения по названию.',
 )
+@redis_caching(key_base='movies_search_', response_model=Film)
 async def film_search(
     query: str = None,
     page_number: int = None,
@@ -40,7 +46,9 @@ async def film_search(
     film_service: FilmService = Depends(get_film_service),
 ) -> list[Film]:
     '''Ищет кинопроизведения по названию'''
+
     films = await film_service.search_films(query, page_number, page_size)
+
     if not films:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='film not found')
 
@@ -56,6 +64,7 @@ async def film_search(
     summary='Самые популярные фильмы',
     description='Возращает популярные фильмы и фильтруте по жанрам',
 )
+@redis_caching(key_base='movies_main_', response_model=Film)
 async def sorted_films(
     sort: str = '-imdb_rating',
     genre: str = None,
@@ -71,6 +80,7 @@ async def sorted_films(
         )
 
     films = await film_service.sorted_films(sort, genre, page_number, page_size)
+
     if not films:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='film not found')
 

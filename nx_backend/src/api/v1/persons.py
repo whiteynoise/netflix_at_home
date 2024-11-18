@@ -1,8 +1,10 @@
 from http import HTTPStatus
 from fastapi import APIRouter, Depends, HTTPException
+from pydantic import TypeAdapter
 
 
 from models.entity_models import Persons
+from services.redis_cache import redis_caching
 from services.persons import PersonService, get_person_service
 from services.film import FilmService, get_film_service
 from models.response_models import Film, Person, PersonFilm
@@ -16,13 +18,16 @@ router = APIRouter()
     summary='Информация о личности',
     description='Возращает информацию о личности по id',
 )
-async def film_details(
-    person_id: str, person_service: PersonService = Depends(get_person_service)
+@redis_caching(key_base='persons_uuid_', response_model=Persons, only_one=True)
+async def person_details(
+    person_id: str,
+    person_service: PersonService = Depends(get_person_service)
 ) -> Persons:
     '''Возвращает информацию о личности'''
     person = await person_service.get_by_id(person_id)
+
     if not person:
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='film not found')
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='person not found')
 
     return person
 
@@ -33,6 +38,7 @@ async def film_details(
     summary='Поиск по личностям',
     description='Ищет личностей по имени.',
 )
+@redis_caching(key_base='persons_search_', response_model=Persons)
 async def person_search(
     query: str = None,
     page_number: int = None,
@@ -41,9 +47,10 @@ async def person_search(
 ) -> list[Person]:
     '''Ищет личностей по имени'''
     persons = await person_service.search_persons(query, page_number, page_size)
-    if not persons:
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='film not found')
 
+    if not persons:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='person not found')
+    
     return [
         Person(
             id=str(person.id),
@@ -62,7 +69,8 @@ async def person_search(
     summary='Фильмы по личности',
     description='Возращает фильмы по личности',
 )
-async def film__by_person(
+@redis_caching(key_base='persons_film_', response_model=Film)
+async def film_by_person(
     person_id: str,
     film_service: FilmService = Depends(get_film_service),
 ) -> list[Film]:
