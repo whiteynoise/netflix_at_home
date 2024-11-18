@@ -2,18 +2,13 @@ from functools import lru_cache
 
 from elasticsearch import AsyncElasticsearch, NotFoundError
 from fastapi import Depends
-from redis.asyncio import Redis
 
 from db.elastic import get_elastic
-from db.redis import get_redis
 from models.entity_models import Persons
-
-FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5  # 5 минут
 
 
 class PersonService:
-    def __init__(self, redis: Redis, elastic: AsyncElasticsearch):
-        self.redis = redis
+    def __init__(self, elastic: AsyncElasticsearch):
         self.elastic = elastic
 
     async def get_by_id(self, person_id: str) -> Persons | None:
@@ -24,7 +19,7 @@ class PersonService:
         return person
 
     async def search_persons(
-        self, get_query: str, page_number: int | None, page_size: int | None
+        self, get_query: str | None, page_number: int | None, page_size: int | None
     ) -> list[Persons] | None:
         '''Поиск личностей в Elasticsearch с поддержкой пагинации.'''
 
@@ -33,8 +28,10 @@ class PersonService:
         search_query = {
             'from': offset,
             'size': page_size,
-            'query': {'bool': {'must': [{'match': {'name': get_query}}]}},
         }
+
+        if get_query:
+            search_query['query'] = {'bool': {'must': [{'match': {'name': get_query}}]}}
 
         result = await self.elastic.search(index='persons', body=search_query)
 
@@ -64,7 +61,6 @@ class PersonService:
 
 @lru_cache()
 def get_person_service(
-    redis: Redis = Depends(get_redis),
-    elastic: AsyncElasticsearch = Depends(get_elastic),
+    elastic: AsyncElasticsearch = Depends(get_elastic)
 ) -> PersonService:
-    return PersonService(redis, elastic)
+    return PersonService(elastic)

@@ -4,10 +4,10 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class NXBackendEnvSettings(BaseSettings):
     model_config = SettingsConfigDict(env_file='.env', extra='ignore')
 
-    project_name: str = 'movies'
+    project_name: str
 
-    redis_host: str = 'redis'
-    redis_port: int = 6379
+    redis_host: str
+    redis_port: int
 
-    elastic_host: str = 'http://elasticsearch'
-    elastic_port: int = 9200
+    elastic_host: str
+    elastic_port: int

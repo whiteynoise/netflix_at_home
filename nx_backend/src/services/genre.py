@@ -1,18 +1,13 @@
 from functools import lru_cache
 from elasticsearch import AsyncElasticsearch, NotFoundError
 from fastapi import Depends
-from redis.asyncio import Redis
 
 from db.elastic import get_elastic
-from db.redis import get_redis
 from models.entity_models import Genres
-
-FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5  # 5 минут
 
 
 class GenreService:
-    def __init__(self, redis: Redis, elastic: AsyncElasticsearch):
-        self.redis = redis
+    def __init__(self, elastic: AsyncElasticsearch):
         self.elastic = elastic
 
     async def get_by_id(self, genre_id: str) -> Genres | None:
@@ -43,7 +38,6 @@ class GenreService:
 
 @lru_cache()
 def get_film_service(
-    redis: Redis = Depends(get_redis),
-    elastic: AsyncElasticsearch = Depends(get_elastic),
+    elastic: AsyncElasticsearch = Depends(get_elastic)
 ) -> GenreService:
-    return GenreService(redis, elastic)
+    return GenreService(elastic)
