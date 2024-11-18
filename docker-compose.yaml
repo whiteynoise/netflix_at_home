@@ -1,17 +1,20 @@
 version: '3'
 
+x-env:
+  &default-env
+  env_file:
+    - .env
+
 services:
 
   database:
     image: postgres:16
     container_name: database
+    <<: *default-env 
     volumes:
       - ./pg_dump.sql:/docker-entrypoint-initdb.d/init.sql
+      - db_volume:/var/lib/postgresql/data
     restart: always
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     healthcheck:
       test: [ "CMD", "pg_isready", "-d", "${POSTGRES_DB}", "-U", "${POSTGRES_USER}" ]
       interval: 15s
@@ -30,7 +33,7 @@ services:
       test: [ "CMD-SHELL", "curl localhost:9200" ]
       interval: 30s
       timeout: 30s
-      retries: 1
+      retries: 3
     depends_on:
       database:
         condition: service_healthy
@@ -49,8 +52,7 @@ services:
   etl:
     build: nx_etl/
     container_name: etl
-    env_file:
-      - nx_etl/.env
+    <<: *default-env
     restart: always
     depends_on:
       database:
@@ -65,8 +67,7 @@ services:
       dockerfile:  Dockerfile
       context: ./nx_backend
     container_name: app
-    env_file:
-      - nx_backend/.env
+    <<: *default-env 
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8000/api/openapi || exit 1"]
       interval: 30s

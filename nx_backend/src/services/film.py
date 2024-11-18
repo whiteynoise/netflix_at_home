@@ -6,6 +6,7 @@ from fastapi import Depends
 
 from db.elastic import get_elastic
 from models.entity_models import FilmWork
+from services.utils.paginator_ import paginator
 
 
 class FilmService:
@@ -26,7 +27,7 @@ class FilmService:
     ) -> list[FilmWork] | None:
         '''Поиск фильмов в Elasticsearch с поддержкой пагинации.'''
 
-        page_number, page_size, offset = self.paginator(page_number, page_size)
+        page_number, page_size, offset = paginator(page_number, page_size)
 
         search_query = {
             'from': offset,
@@ -57,7 +58,7 @@ class FilmService:
         sort_order = 'desc' if sort[0] == '-' else 'asc'
         sort = sort.lstrip('-')
 
-        page_number, page_size, offset = self.paginator(page_number, page_size)
+        page_number, page_size, offset = paginator(page_number, page_size)
 
         search_query = {
             'from': offset,
@@ -119,15 +120,6 @@ class FilmService:
         except NotFoundError:
             return
         return FilmWork(**doc['_source'])
-
-    @staticmethod
-    def paginator(page_number: int | None, page_size: int | None):
-        page_number = page_number or 1
-        page_size = page_size or 50
-
-        # считаю смещение вручную
-        offset = (page_number - 1) * page_size
-        return page_number, page_size, offset
 
 
 @lru_cache()

@@ -5,6 +5,8 @@ from fastapi import Depends
 
 from db.elastic import get_elastic
 from models.entity_models import Persons
+from services.utils.paginator_ import paginator
+
 
 
 class PersonService:
@@ -23,7 +25,7 @@ class PersonService:
     ) -> list[Persons] | None:
         '''Поиск личностей в Elasticsearch с поддержкой пагинации.'''
 
-        page_number, page_size, offset = self.paginator(page_number, page_size)
+        page_number, page_size, offset = paginator(page_number, page_size)
 
         search_query = {
             'from': offset,
@@ -48,16 +50,7 @@ class PersonService:
         except NotFoundError:
             return None
         return Persons(**doc['_source'])
-
-    @staticmethod
-    def paginator(page_number: int | None, page_size: int | None):
-        page_number = page_number or 1
-        page_size = page_size or 50
-
-        # считаю смещение вручную
-        offset = (page_number - 1) * page_size
-        return page_number, page_size, offset
-
+    
 
 @lru_cache()
 def get_person_service(
