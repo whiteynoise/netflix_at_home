@@ -7,7 +7,7 @@ from db.redis import get_redis
 from functools import lru_cache, wraps
 
 
-FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5  # 5 минут
+FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5
 
 class RedisCache:
     def __init__(self, redis: Redis):
@@ -88,7 +88,7 @@ def redis_caching(
             data_object = await func(*args, **kwargs)
 
             await redis_instance.put_to_cache(cache_key, data_object, only_one)
-            
+
             return data_object
         
         return wrapper
