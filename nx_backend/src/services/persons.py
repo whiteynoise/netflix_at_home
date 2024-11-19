@@ -5,7 +5,7 @@ from fastapi import Depends
 
 from db.elastic import get_elastic
 from models.entity_models import Persons
-from services.utils.paginator_ import paginator
+from services.utils.paginator_ import get_offset
 
 
 
@@ -21,11 +21,11 @@ class PersonService:
         return person
 
     async def search_persons(
-        self, get_query: str | None, page_number: int | None, page_size: int | None
+        self, get_query: str | None, page_number: int, page_size: int
     ) -> list[Persons] | None:
         '''Поиск личностей в Elasticsearch с поддержкой пагинации.'''
 
-        page_number, page_size, offset = paginator(page_number, page_size)
+        offset = get_offset(page_number, page_size)
 
         search_query = {
             'from': offset,

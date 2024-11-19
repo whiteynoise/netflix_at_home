@@ -1,5 +1,6 @@
 from http import HTTPStatus
-from fastapi import APIRouter, Depends, HTTPException
+from typing import Annotated
+from fastapi import APIRouter, Depends, HTTPException, Query
 
 
 from models.entity_models import FilmWork
@@ -41,8 +42,8 @@ async def film_details(
 @redis_caching(key_base='movies_search_', response_model=Film)
 async def film_search(
     query: str = None,
-    page_number: int = None,
-    page_size: int = None,
+    page_number: Annotated[int, Query(ge=1)] = 1,
+    page_size: Annotated[int, Query(ge=1)] = 50,
     film_service: FilmService = Depends(get_film_service),
 ) -> list[Film]:
     '''Ищет кинопроизведения по названию'''
@@ -68,8 +69,8 @@ async def film_search(
 async def sorted_films(
     sort: str = '-imdb_rating',
     genre: str = None,
-    page_number: int = None,
-    page_size: int = None,
+    page_number: Annotated[int, Query(ge=1)] = 1,
+    page_size: Annotated[int, Query(ge=1)] = 50,
     film_service: FilmService = Depends(get_film_service),
 ) -> list[Film]:
     '''Возращает популярные фильмы и фильтруте по жанрам'''

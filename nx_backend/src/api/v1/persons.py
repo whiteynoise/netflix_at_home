@@ -1,5 +1,6 @@
 from http import HTTPStatus
-from fastapi import APIRouter, Depends, HTTPException
+from typing import Annotated
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import TypeAdapter
 
 
@@ -40,9 +41,9 @@ async def person_details(
 )
 @redis_caching(key_base='persons_search_', response_model=Persons)
 async def person_search(
-    query: str = None,
-    page_number: int = None,
-    page_size: int = None,
+    query: str | None = None,
+    page_number: Annotated[int, Query(ge=1)] = 1,
+    page_size: Annotated[int, Query(ge=1)] = 50,
     person_service: PersonService = Depends(get_person_service),
 ) -> list[Person]:
     '''Ищет личностей по имени'''
