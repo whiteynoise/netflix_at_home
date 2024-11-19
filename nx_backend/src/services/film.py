@@ -1,19 +1,18 @@
 from functools import lru_cache
-from typing import Optional
 
 from elasticsearch import AsyncElasticsearch, NotFoundError
 from fastapi import Depends
 
 from db.elastic import get_elastic
 from models.entity_models import FilmWork
-from services.utils.paginator_ import paginator
+from services.utils.paginator_ import get_offset
 
 
 class FilmService:
     def __init__(self, elastic: AsyncElasticsearch):
         self.elastic = elastic
 
-    async def get_by_id(self, film_id: str) -> Optional[FilmWork]:
+    async def get_by_id(self, film_id: str) -> FilmWork | None:
         '''Получение кинопроизведения по id'''
         film = await self._get_film_from_elastic(film_id)
 
@@ -23,11 +22,11 @@ class FilmService:
         return film
 
     async def search_films(
-        self, get_query: str | None, page_number: int | None, page_size: int | None
+        self, get_query: str | None, page_number: int, page_size: int
     ) -> list[FilmWork] | None:
         '''Поиск фильмов в Elasticsearch с поддержкой пагинации.'''
 
-        page_number, page_size, offset = paginator(page_number, page_size)
+        offset = get_offset(page_number, page_size)
 
         search_query = {
             'from': offset,
@@ -58,7 +57,7 @@ class FilmService:
         sort_order = 'desc' if sort[0] == '-' else 'asc'
         sort = sort.lstrip('-')
 
-        page_number, page_size, offset = paginator(page_number, page_size)
+        offset = get_offset(page_number, page_size)
 
         search_query = {
             'from': offset,
