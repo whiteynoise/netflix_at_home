@@ -30,7 +30,7 @@ import copy
 async def test_film_search(
     make_get_request,
     es_write_data,
-    test_cache,
+    cache_checkout,
     film_search_test_data: list[dict],
     test_params: dict,
     expected_answer: dict,
@@ -56,7 +56,7 @@ async def test_film_search(
     modified_cache['title'] = 'RedisTest'
     modified_cache: bytes = json.dumps([modified_cache]).encode('utf-8')
 
-    cached_data, modified_cache, new_response = await test_cache(
+    cached_data, modified_cache, new_response = await cache_checkout(
         redis_key=test_params['redis_key'],
         modified_cache=modified_cache,
         api_path=api_path,
