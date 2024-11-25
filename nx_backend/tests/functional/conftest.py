@@ -1,4 +1,6 @@
 import asyncio
+import copy
+import json
 import uuid
 import pytest_asyncio
 
@@ -83,63 +85,88 @@ def make_get_request(aiohttp_session: ClientSession):
         return response_dict
 
     return inner
+    
 
+@pytest_asyncio.fixture(name='cache_checkout')
+def cache_checkout(
+    redis_client: Redis,
+    make_get_request
+):
+    async def inner(
+        redis_key: str,
+        modified_cache: bytes,
+        api_path: str,
+        request_params: dict
+    ):
+        cached_data: bytes = await redis_client.get(name=redis_key)
 
-@pytest_asyncio.fixture(name='get_test_cache')
-def get_test_cache(redis_client: Redis):
-    async def inner(redis_key) -> bytes:
-        data = await redis_client.get(redis_key)
+        await redis_client.set(
+            name=redis_key,
+            value=modified_cache,
+            ex=60 * 5
+        )
+
+        new_response: dict = await make_get_request(
+            api_path=api_path,
+            params=request_params
+        )
+
         await redis_client.delete(redis_key)
-        return data
+
+        return (
+            cached_data,
+            modified_cache,
+            json.dumps(new_response['body']).encode('utf-8')
+        )
     
     return inner
 
 
-@pytest_asyncio.fixture(name='film_search_es_data')
-def film_search_es_data() -> list[dict]:
+@pytest_asyncio.fixture(name='film_search_test_data')
+def film_search_test_data() -> dict:
     # TODO: доработать потом фикстуру под нужды теста
     es_data = []
 
-    for _ in range(10):
-        film_id = str(uuid.uuid4())
-        es_data.append(
+    base_movie_data = {
+        'imdb_rating': 8.5,
+        'genres': ['Action', 'Sci-Fi'],
+        'title': 'The Star',
+        'description': 'New World',
+        'directors_names': ['Stan'],
+        'actors_names': ['Ann', 'Bob'],
+        'writers_names': ['Ben', 'Howard'],
+        'directors': [
             {
-                '_id': film_id,
-                'id': film_id,
-                'imdb_rating': 8.5,
-                'genres': ['Action', 'Sci-Fi'],
-                'title': 'The Star',
-                'description': 'New World',
-                'directors_names': ['Stan'],
-                'actors_names': ['Ann', 'Bob'],
-                'writers_names': ['Ben', 'Howard'],
-                'directors': [
-                    {
-                        'id': 'dc12b8fc-3c82-4d31-ad8e-72b69f4e3f95',
-                        'name': 'Stan'
-                    }
-                ],
-                'actors': [
-                    {
-                        'id': 'ef86b8ff-3c82-4d31-ad8e-72b69f4e3f95',
-                        'name': 'Ann'
-                    },
-                    {
-                        'id': 'fb111f22-121e-44a7-b78f-b19191810fbf',
-                        'name': 'Bob'
-                    }
-                ],
-                'writers': [
-                    {
-                        'id': 'caf76c67-c0fe-477e-8766-3ab3ff2574b5',
-                        'name': 'Ben'
-                    },
-                    {
-                        'id': 'b45bd7bc-2e16-46d5-b125-983d356768c6',
-                        'name': 'Howard'
-                    }
-                ]
+                'id': 'dc12b8fc-3c82-4d31-ad8e-72b69f4e3f95',
+                'name': 'Stan'
             }
-        )
-    
+        ],
+        'actors': [
+            {
+                'id': 'ef86b8ff-3c82-4d31-ad8e-72b69f4e3f95',
+                'name': 'Ann'
+            },
+            {
+                'id': 'fb111f22-121e-44a7-b78f-b19191810fbf',
+                'name': 'Bob'
+            }
+        ],
+        'writers': [
+            {
+                'id': 'caf76c67-c0fe-477e-8766-3ab3ff2574b5',
+                'name': 'Ben'
+            },
+            {
+                'id': 'b45bd7bc-2e16-46d5-b125-983d356768c6',
+                'name': 'Howard'
+            }
+        ]
+    }
+        
+    for _ in range(10):
+        data = copy.deepcopy(base_movie_data)
+        data['_id'] = str(uuid.uuid4())
+        data['id'] = data['_id']
+        es_data.append(data)
+
     return es_data

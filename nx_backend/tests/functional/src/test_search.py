@@ -1,5 +1,6 @@
 import pytest
 import json
+import copy
 
 
 @pytest.mark.parametrize(
@@ -29,25 +30,38 @@ import json
 async def test_film_search(
     make_get_request,
     es_write_data,
-    get_test_cache,
-    film_search_es_data: list[dict],
+    test_cache,
+    film_search_test_data: list[dict],
     test_params: dict,
     expected_answer: dict,
 ):
     # TODO: дописать тест
-    await es_write_data(film_search_es_data, 'movies')
+    await es_write_data(
+        data=film_search_test_data,
+        index_name='movies'
+    )
+
+    api_path: str = '/api/v1/films/search/'
+    request_params: dict = test_params['request_params']
 
     og_response: dict = await make_get_request(
-        api_path='/api/v1/films/search/',
-        params=test_params['request_params']
+        api_path=api_path,
+        params=request_params
     )
 
     assert og_response['status'] == expected_answer['status']
     assert len(og_response['body']) == expected_answer['length']
 
-    cached_data: bytes = await get_test_cache(
-        redis_key=test_params['redis_key']
+    modified_cache: dict = copy.deepcopy(og_response['body'][0])
+    modified_cache['title'] = 'RedisTest'
+    modified_cache: bytes = json.dumps([modified_cache]).encode('utf-8')
+
+    cached_data, modified_cache, new_response = await test_cache(
+        redis_key=test_params['redis_key'],
+        modified_cache=modified_cache,
+        api_path=api_path,
+        request_params=request_params
     )
 
-    # изменить данные в es, затем дернуть апи и сравнить результат с кэшем (?)
     assert cached_data == json.dumps(og_response['body']).encode('utf-8')
+    assert modified_cache == new_response
