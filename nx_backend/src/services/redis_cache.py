@@ -25,7 +25,7 @@ class RedisCache:
             only_one: bool
         ) -> None:
         '''Сохранение данных в кэше Redis'''
-        data = (data_object.model_dump_json() if only_one else
+        data = (dumps(data_object.model_dump()) if only_one else
                 dumps([_.model_dump() for _ in data_object]))
         
         await self.redis.set(
