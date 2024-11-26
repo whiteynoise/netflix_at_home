@@ -12,7 +12,7 @@ from utils.backoff import backoff
 
 class Extractor(Protocol):
     def get_data(self, *args, **kwargs):
-        """Получение данных для загрузки в ES."""
+        """Получение данных для загрузки."""
 
 
 class PGExtractor:

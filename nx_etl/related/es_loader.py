@@ -8,10 +8,10 @@ from utils.es_indexes import index_by_name
 
 class Loader(Protocol):
     def save_data(self, *args, **kwargs):
-        """Получение данных для загрузки в ES."""
+        """Получение данных для загрузки в Loader."""
 
     def prepare(self, *args, **kwargs):
-        """подготовка окружения для загрузки данных"""
+        """Подготовка окружения для загрузки данных"""
 
 
 class ESLoader:
