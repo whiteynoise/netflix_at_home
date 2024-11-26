@@ -13,7 +13,6 @@ import pytest
 )
 @pytest.mark.asyncio
 async def test_genre_redis(
-    # prepare_data_for_es,
     cache_checkout,
     api_path: str,
     redis_key: str,
