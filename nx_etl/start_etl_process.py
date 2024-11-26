@@ -1,42 +1,53 @@
-from time import sleep
-
 from related.es_loader import ESLoader
 from related.pg_extractor import PGExtractor
-from related.state import RedisStateStorage
 
-from configs.logger_config import logger
-from configs.settings import batchsize, sleep_time_etl
+from related.storage import RedisStateStorage
+from configs.settings import redis_config, pg_config, elastic_config
+from related.etl import Etl, PostgresToEsEtl
 
-from utils.es_indexes import index_by_name
-
-
-def etl_process() -> None:
-    """Процесс переливки данных из PG в ES."""
-    current_date: str = state.get_state()
-
-    if next_date_state := extractor.check_on_update(current_date):
-        for index_name in index_by_name.keys():
-            for batch in extractor.get_data(index_name, current_date, batchsize):
-                loader.save_data(batch, index_name)
-
-        state.set_state(next_date_state)
-    else:
-        logger.info("No new data to load.")
-    
-    logger.info("I'm going to sleep for %s seconds.", sleep_time_etl)
-
-    sleep(sleep_time_etl)
+from related.es_loader import Loader
+from related.pg_extractor import Extractor
+from related.storage import KeyValueStorage
 
 
-if __name__ == '__main__':
-    extractor = PGExtractor()
-    loader = ESLoader()
-    state = RedisStateStorage()
+class ETLProcess:
+    """Класс для инициализации ETL"""
 
-    for index_name, index_mapping in index_by_name.items():
-        loader.create_index_if_not_exists(index_name, index_mapping)
+    def __init__(self, extract_config: dict, loader_config: dict, storage_config: dict):
+        self.extract_config = extract_config
+        self.loader_config = loader_config
+        self.storage_config = storage_config
 
-    logger.info("Wake up, samurai, we have data to sync...")
+    def initialize(
+        self,
+        extractor: Extractor,
+        loader: Loader,
+        state: KeyValueStorage,
+        Etl: Etl,
+        *args,
+        **kwargs,
+    ):
+        self.extractor = extractor(self.extract_config)
+        self.loader = loader(self.loader_config)
+        self.state = state(self.storage_config)
 
-    while True:
-        etl_process()
+        self.Etl = Etl(self.extractor, self.loader, self.state, *args, **kwargs)
+
+    def start(self):
+        self.Etl.start_etl_process()
+
+
+if __name__ == "__main__":
+    etl_process = ETLProcess(
+        pg_config,
+        elastic_config,
+        redis_config,
+    )
+
+    etl_process.initialize(
+        PGExtractor,
+        ESLoader,
+        RedisStateStorage,
+        PostgresToEsEtl,
+    )
+    etl_process.start()
