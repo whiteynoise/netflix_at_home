@@ -1,0 +1,42 @@
+version: '3'
+
+services:
+  elasticsearch:
+    image: elasticsearch:8.6.2
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    
+  redis:
+    image: redis
+    container_name: redis
+
+  app:
+    build:
+      dockerfile: Dockerfile
+      context: ../../.
+    container_name: app
+    env_file:
+      - .env
+    image: fastapi-image
+    ports:
+      - "8000:8000"
+    command:
+      ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+  tests:
+    image: fastapi-image
+    env_file:
+      - .env
+    environment:
+      - PYTHONPATH=/app/tests
+    entrypoint: >
+      sh -c "pip install --no-cache-dir -r /app/tests/functional/requirements.txt
+      && python3 /app/tests/functional/utils/wait_for_es.py
+      && python3 /app/tests/functional/utils/wait_for_redis.py
+      && pytest /app/tests/functional/src"
+    depends_on:
+      - elasticsearch
+      - redis
+      - app

@@ -73,7 +73,8 @@ def redis_caching(
         async def wrapper(*args, **kwargs):
             redis_instance = get_redis_cache(await get_redis())
 
-            key_attrs = [str(v) for k, v in kwargs.items()
+            key_attrs = [(''.join(str(v).split())).lower()
+                         for k, v in kwargs.items()
                          if v and k not in ('film_service',
                                             'genre_service',
                                             'person_service')]
