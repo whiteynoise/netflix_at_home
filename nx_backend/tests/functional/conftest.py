@@ -6,11 +6,13 @@ import pytest_asyncio
 
 from aiohttp import ClientSession
 from redis.asyncio import Redis
+
 from elasticsearch import AsyncElasticsearch
 from elasticsearch.helpers import async_bulk
 
-from functional.testdata.es_indexes import base_index_settings, index_by_name
 from functional.settings import ES_CONFIG, REDIS_CONFIG, URL_APP
+from functional.testdata.es_indexes import base_index_settings, index_by_name
+from functional.testdata.base_test_rows import base_row_by_name
 
 
 @pytest_asyncio.fixture(scope='session')
@@ -73,7 +75,7 @@ def es_write_data(es_client: AsyncElasticsearch):
 
 @pytest_asyncio.fixture(name='make_get_request')
 def make_get_request(aiohttp_session: ClientSession):
-    async def inner(api_path: str, params: dict) -> dict:
+    async def inner(api_path: str, params: dict = {}) -> dict:
         response_dict = {}
         url = URL_APP + api_path
 
@@ -94,11 +96,31 @@ def cache_checkout(
 ):
     async def inner(
         redis_key: str,
-        modified_cache: bytes,
         api_path: str,
-        request_params: dict
+        key_to_modify: str,
+        request_params: dict = {}
     ):
-        cached_data: bytes = await redis_client.get(name=redis_key)
+        # TODO: разделить фикстуру на две (?)
+        old_response: dict = await make_get_request(
+            api_path=api_path
+        )
+
+        if old_response['status'] == 404:
+            raise('Записи нет в ES')
+
+        old_body = old_response['body']
+
+        if isinstance(old_body, list):
+            modified_cache: dict = copy.deepcopy(old_body[0])
+            modified_cache[key_to_modify] = 'SomeRandomRedisTest'
+            modified_cache: list[dict] = [modified_cache]
+        else:
+            modified_cache: dict = copy.deepcopy(old_body)
+            modified_cache[key_to_modify] = 'SomeRandomRedisTest'
+        
+        modified_cache: bytes = json.dumps(modified_cache).encode('utf-8')
+
+        old_cache: bytes = await redis_client.get(name=redis_key)
 
         await redis_client.set(
             name=redis_key,
@@ -114,59 +136,33 @@ def cache_checkout(
         await redis_client.delete(redis_key)
 
         return (
-            cached_data,
+            old_cache,
             modified_cache,
-            json.dumps(new_response['body']).encode('utf-8')
+            json.dumps(old_body).encode('utf-8'),
+            json.dumps(new_response['body']).encode('utf-8'),
         )
     
     return inner
 
 
-@pytest_asyncio.fixture(name='film_search_test_data')
-def film_search_test_data() -> dict:
-    # TODO: доработать потом фикстуру под нужды теста
-    es_data = []
+@pytest_asyncio.fixture(name='prepare_data_for_es')
+def prepare_data_for_es(es_write_data):
+    async def inner(
+        index_name: str,
+        len_of_prepared_data: int
+    ) -> dict:
+        base_row: dict = base_row_by_name[index_name]
+        es_data = [base_row]
 
-    base_movie_data = {
-        'imdb_rating': 8.5,
-        'genres': ['Action', 'Sci-Fi'],
-        'title': 'The Star',
-        'description': 'New World',
-        'directors_names': ['Stan'],
-        'actors_names': ['Ann', 'Bob'],
-        'writers_names': ['Ben', 'Howard'],
-        'directors': [
-            {
-                'id': 'dc12b8fc-3c82-4d31-ad8e-72b69f4e3f95',
-                'name': 'Stan'
-            }
-        ],
-        'actors': [
-            {
-                'id': 'ef86b8ff-3c82-4d31-ad8e-72b69f4e3f95',
-                'name': 'Ann'
-            },
-            {
-                'id': 'fb111f22-121e-44a7-b78f-b19191810fbf',
-                'name': 'Bob'
-            }
-        ],
-        'writers': [
-            {
-                'id': 'caf76c67-c0fe-477e-8766-3ab3ff2574b5',
-                'name': 'Ben'
-            },
-            {
-                'id': 'b45bd7bc-2e16-46d5-b125-983d356768c6',
-                'name': 'Howard'
-            }
-        ]
-    }
+        for _ in range(len_of_prepared_data - 1):
+            data = copy.deepcopy(base_row)
+            data['_id'] = str(uuid.uuid4())
+            data['id'] = data['_id']
+            es_data.append(data)
         
-    for _ in range(10):
-        data = copy.deepcopy(base_movie_data)
-        data['_id'] = str(uuid.uuid4())
-        data['id'] = data['_id']
-        es_data.append(data)
+        await es_write_data(
+            data=es_data,
+            index_name=index_name
+        )
 
-    return es_data
+    return inner
