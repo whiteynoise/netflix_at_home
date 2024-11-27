@@ -29,11 +29,14 @@ async def aiohttp_session():
     await session.close()
 
 
-@pytest_asyncio.fixture(name="es_client", scope="session", autouse=True)
-async def es_client():
+@pytest_asyncio.fixture(name="elastic_fill", scope="session", autouse=True)
+async def elastic_fill():
+    
     es_client = AsyncElasticsearch(
-        hosts=["{host}:{port}".format(**ES_CONFIG)], verify_certs=False
+        hosts=["{host}:{port}".format(**ES_CONFIG)],
+        verify_certs=False
     )
+
     len_of_prepared_data = 5
     indexes = ("movies", "genres", "persons")
 
@@ -65,9 +68,7 @@ async def es_client():
             raise Exception(
                 f"Ошибка записи данных в Elasticsearch в индексе {index_name}"
             )
-
-    if not await es_client.indices.exists(index="genres"):
-        raise Exception("НЕ СУЩ genres")
+    
     yield es_client
 
     for index_name in indexes:

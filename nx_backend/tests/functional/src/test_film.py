@@ -4,7 +4,13 @@ import pytest
 @pytest.mark.parametrize(
     "api_path, redis_key",
     [
-        ("/api/v1/films/", "movies_main_-imdb_rating_1_50"),
+        (
+            "/api/v1/films/search/",
+            "movies_search_1_50",
+        ),
+        (
+            "/api/v1/films/",
+            "movies_main_-imdb_rating_1_50"),
         (
             "/api/v1/films/d7bfb1fb-3157-4beb-a58a-7a58daa01845",
             "movies_uuid_d7bfb1fb-3157-4beb-a58a-7a58daa01845",
@@ -39,11 +45,6 @@ async def test_genre_all(make_get_request):
     assert response["status"] == 200
     assert len(response["body"]) == 5
 
-    # params: str = {"genre": "Sci-Fi", "page": 2}
-    # response: dict = await make_get_request(api_path=api_path, params=params)
-    # assert response["status"] == 200
-    # assert len(response["body"]) == 1
-
 
 @pytest.mark.parametrize(
     "uuid_film, status",
@@ -60,3 +61,39 @@ async def test_film_specific(make_get_request, uuid_film: str, status: dict):
     response: dict = await make_get_request(api_path=api_path)
 
     assert response["status"] == status
+
+
+@pytest.mark.parametrize(
+    "test_params, expected_answer",
+    [
+        (
+            {"query": "The Star"},
+            {"status": 200, "length": 5},
+        ),
+        (
+            {"page_size": 3},
+            {"status": 200, "length": 3},
+        ),
+        (
+            {"query": "SomeFunnyStaff"},
+            {"status": 404, "length": 1},
+        ),
+        (
+            {"page_size": 100, "page_number": 2},
+            {"status": 404, "length": 1},
+        ),
+    ],
+)
+@pytest.mark.asyncio
+async def test_film_search1(
+    make_get_request,
+    test_params: dict,
+    expected_answer: dict,
+):
+    api_path: str = "/api/v1/films/search/"
+    request_params: dict = test_params
+
+    response: dict = await make_get_request(api_path=api_path, params=request_params)
+
+    assert response["status"] == expected_answer["status"]
+    assert len(response["body"]) == expected_answer["length"]
