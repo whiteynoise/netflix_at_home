@@ -2,7 +2,7 @@ from http import HTTPStatus
 from fastapi import APIRouter, Depends, HTTPException
 
 from services.genre import GenreService, get_film_service
-from services.redis_cache import redis_caching
+from src.services.cacher import redis_caching
 from src.models.response_models import Genre
 
 router = APIRouter()

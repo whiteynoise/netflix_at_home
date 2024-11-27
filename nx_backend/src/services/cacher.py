@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from json import dumps, loads
 
 from typing import Any, Callable
@@ -9,14 +10,22 @@ from functools import lru_cache, wraps
 
 FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5
 
-class RedisCache:
+
+class CacheInterface(ABC):
+    @abstractmethod
+    async def put_to_cache(self, *args, **kwargs) -> None:
+        """Сохранить данные в кэш-хранилище."""
+        ...
+
+    @abstractmethod
+    async def get_from_cache(self, *args, **kwargs) -> Any | None:
+        """Получить данные из кэш-хранилища."""
+        ...
+
+
+class RedisCache(CacheInterface):
     def __init__(self, redis: Redis):
         self.redis = redis
-
-    @staticmethod
-    def get_key_for_cache(key_base: str, key_attrs: list):
-        '''Получение ключа для кэша в Redis'''
-        return f"{key_base}{'_'.join(key_attrs)}"
 
     async def put_to_cache(
             self,
@@ -24,7 +33,8 @@ class RedisCache:
             data_object: Any | list[Any],
             only_one: bool
         ) -> None:
-        '''Сохранение данных в кэше Redis'''
+        """Сохранить данные в Redis."""
+
         data = (dumps(data_object.model_dump()) if only_one else
                 dumps([_.model_dump() for _ in data_object]))
         
@@ -40,7 +50,8 @@ class RedisCache:
             pydantic_model: Any,
             only_one: bool
         ) -> Any | None:
-        '''Получение кинопроизведения из Redis'''
+        """Получить данные из Redis."""
+
         data = await self.redis.get(cache_key)
 
         if not data:
@@ -56,10 +67,24 @@ class RedisCache:
     
 
 @lru_cache()
-def get_redis_cache(
-    redis: Redis
-) -> RedisCache:
+def get_redis_cache(redis: Redis) -> RedisCache:
     return RedisCache(redis)
+
+
+def gen_key_for_redis(key_base: str, endpoint_params: list):
+    """Генерация ключа для кэша в Redis."""
+
+    ignore_params = (
+        'film_service',
+        'genre_service',
+        'person_service'
+    )
+
+    key_attrs = [(''.join(str(v).split())).lower()
+                 for k, v in endpoint_params.items()
+                 if v and k not in ignore_params]
+    
+    return f"{key_base}{'_'.join(key_attrs)}"
 
 
 def redis_caching(
@@ -67,19 +92,13 @@ def redis_caching(
         response_model: Any,
         only_one: bool = False
     ):
-    '''Декоратор для работы с кэшем Redis'''
+    """Декоратор для работы с кэшем Redis."""
     def inner(func: Callable):
         @wraps(func)
         async def wrapper(*args, **kwargs):
             redis_instance = get_redis_cache(await get_redis())
-
-            key_attrs = [(''.join(str(v).split())).lower()
-                         for k, v in kwargs.items()
-                         if v and k not in ('film_service',
-                                            'genre_service',
-                                            'person_service')]
             
-            cache_key = redis_instance.get_key_for_cache(key_base, key_attrs)
+            cache_key = gen_key_for_redis(key_base, kwargs)
 
             if data_object := await redis_instance.get_from_cache(cache_key,
                                                                   response_model,

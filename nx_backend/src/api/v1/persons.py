@@ -2,7 +2,7 @@ from http import HTTPStatus
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query
 
-from services.redis_cache import redis_caching
+from src.services.cacher import redis_caching
 from services.persons import PersonService, get_person_service
 from services.film import FilmService, get_film_service
 from models.response_models import Film, Person, PersonFilm

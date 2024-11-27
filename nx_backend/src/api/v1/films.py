@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 
 
 from models.response_models import FilmWork
-from services.redis_cache import redis_caching
+from src.services.cacher import redis_caching
 from services.film import FilmService, get_film_service
 from src.api.v1.constants import SORT_CHOICES
 from src.models.response_models import Film
