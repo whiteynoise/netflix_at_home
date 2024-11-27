@@ -17,7 +17,7 @@ class PersonFilm(BaseModel):
     id: str
     roles: list
 
-    @field_validator('id', mode='before')
+    @field_validator("id", mode="before")
     def double(value: UUID) -> str:
         return str(value)
 
@@ -27,6 +27,27 @@ class Person(BaseModel):
     name: str
     films: list[PersonFilm]
 
-    @field_validator('id', mode='before')
+    @field_validator("id", mode="before")
     def double(value: UUID) -> str:
         return str(value)
+
+
+class PersonBase(BaseModel):
+    id: str
+    name: str
+
+
+class FilmWork(BaseModel):
+    id: str
+    imdb_rating: float | None
+    genres: list
+    title: str
+    description: str | None
+
+    directors_names: list
+    actors_names: list
+    writers_names: list
+
+    directors: list[PersonBase]
+    actors: list[PersonBase]
+    writers: list[PersonBase]

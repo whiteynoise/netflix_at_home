@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query
 
 
-from models.entity_models import FilmWork
+from models.response_models import FilmWork
 from services.redis_cache import redis_caching
 from services.film import FilmService, get_film_service
 from src.api.v1.constants import SORT_CHOICES
@@ -13,45 +13,43 @@ router = APIRouter()
 
 
 @router.get(
-    '/{film_id}',
+    "/{film_id}",
     response_model=FilmWork,
-    summary='Информация о фильме',
-    description='Возращает информацию о фильме по id',
+    summary="Информация о фильме",
+    description="Возращает информацию о фильме по id",
 )
-@redis_caching(key_base='movies_uuid_', response_model=FilmWork, only_one=True)
+@redis_caching(key_base="movies_uuid_", response_model=FilmWork, only_one=True)
 async def film_details(
-    film_id: str,
-    film_service: FilmService = Depends(get_film_service)
+    film_id: str, film_service: FilmService = Depends(get_film_service)
 ) -> FilmWork:
-    '''Возвращает информацию о кинопроизведении'''
+    """Возвращает информацию о кинопроизведении"""
 
     film = await film_service.get_by_id(film_id)
 
     if not film:
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='film not found')
-
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="film not found")
     return film
 
 
 @router.get(
-    '/search/',
+    "/search/",
     response_model=list[Film],
-    summary='Поиск по фильмам',
-    description='Ищет кинопроизведения по названию.',
+    summary="Поиск по фильмам",
+    description="Ищет кинопроизведения по названию.",
 )
-@redis_caching(key_base='movies_search_', response_model=Film)
+@redis_caching(key_base="movies_search_", response_model=Film)
 async def film_search(
     query: str = None,
     page_number: Annotated[int, Query(ge=1)] = 1,
     page_size: Annotated[int, Query(ge=1)] = 50,
     film_service: FilmService = Depends(get_film_service),
 ) -> list[Film]:
-    '''Ищет кинопроизведения по названию'''
+    """Ищет кинопроизведения по названию"""
 
     films = await film_service.search_films(query, page_number, page_size)
 
     if not films:
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='film not found')
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="film not found")
 
     return [
         Film(id=str(film.id), title=film.title, imdb_rating=film.imdb_rating)
@@ -60,30 +58,30 @@ async def film_search(
 
 
 @router.get(
-    '/',
+    "/",
     response_model=list[Film],
-    summary='Самые популярные фильмы',
-    description='Возращает популярные фильмы и фильтруте по жанрам',
+    summary="Самые популярные фильмы",
+    description="Возращает популярные фильмы и фильтруте по жанрам",
 )
-@redis_caching(key_base='movies_main_', response_model=Film)
+@redis_caching(key_base="movies_main_", response_model=Film)
 async def sorted_films(
-    sort: str = '-imdb_rating',
+    sort: str = "-imdb_rating",
     genre: str = None,
     page_number: Annotated[int, Query(ge=1)] = 1,
     page_size: Annotated[int, Query(ge=1)] = 50,
     film_service: FilmService = Depends(get_film_service),
 ) -> list[Film]:
-    '''Возращает популярные фильмы и фильтруте по жанрам'''
+    """Возращает популярные фильмы и фильтруте по жанрам"""
 
     if sort not in SORT_CHOICES:
         raise HTTPException(
-            status_code=HTTPStatus.BAD_REQUEST, detail='invalid sort parametr'
+            status_code=HTTPStatus.BAD_REQUEST, detail="invalid sort parametr"
         )
 
     films = await film_service.sorted_films(sort, genre, page_number, page_size)
 
     if not films:
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='film not found')
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="film not found")
 
     return [
         Film(id=str(film.id), title=film.title, imdb_rating=film.imdb_rating)

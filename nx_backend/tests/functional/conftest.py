@@ -79,6 +79,7 @@ async def es_client():
 @pytest_asyncio.fixture(name="redis_client", scope="session")
 async def redis_client():
     redis_client = Redis(**REDIS_CONFIG)
+    await redis_client.flushall()
     yield redis_client
     await redis_client.aclose()
 
