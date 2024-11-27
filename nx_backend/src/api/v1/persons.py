@@ -1,10 +1,7 @@
 from http import HTTPStatus
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query
-from pydantic import TypeAdapter
 
-
-from models.entity_models import Persons
 from services.redis_cache import redis_caching
 from services.persons import PersonService, get_person_service
 from services.film import FilmService, get_film_service
@@ -15,15 +12,15 @@ router = APIRouter()
 
 @router.get(
     '/{person_id}',
-    response_model=Persons,
+    response_model=Person,
     summary='Информация о личности',
     description='Возращает информацию о личности по id',
 )
-@redis_caching(key_base='persons_uuid_', response_model=Persons, only_one=True)
+@redis_caching(key_base='persons_uuid_', response_model=Person, only_one=True)
 async def person_details(
     person_id: str,
     person_service: PersonService = Depends(get_person_service)
-) -> Persons:
+) -> Person:
     '''Возвращает информацию о личности'''
     person = await person_service.get_by_id(person_id)
 
@@ -39,7 +36,7 @@ async def person_details(
     summary='Поиск по личностям',
     description='Ищет личностей по имени.',
 )
-@redis_caching(key_base='persons_search_', response_model=Persons)
+@redis_caching(key_base='persons_search_', response_model=Person)
 async def person_search(
     query: str | None = None,
     page_number: Annotated[int, Query(ge=1)] = 1,

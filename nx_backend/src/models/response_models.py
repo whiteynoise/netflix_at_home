@@ -18,7 +18,7 @@ class PersonFilm(BaseModel):
     roles: list
 
     @field_validator("id", mode="before")
-    def double(value: UUID) -> str:
+    def change_uuid_to_str(value: UUID) -> str:
         return str(value)
 
 
@@ -28,7 +28,7 @@ class Person(BaseModel):
     films: list[PersonFilm]
 
     @field_validator("id", mode="before")
-    def double(value: UUID) -> str:
+    def change_uuid_to_str(value: UUID) -> str:
         return str(value)
 
 

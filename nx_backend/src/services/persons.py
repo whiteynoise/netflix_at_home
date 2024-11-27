@@ -4,7 +4,7 @@ from elasticsearch import AsyncElasticsearch, NotFoundError
 from fastapi import Depends
 
 from db.elastic import get_elastic
-from models.entity_models import Persons
+from models.response_models import Person
 from services.utils.paginator_ import get_offset
 
 
@@ -13,7 +13,7 @@ class PersonService:
     def __init__(self, elastic: AsyncElasticsearch):
         self.elastic = elastic
 
-    async def get_by_id(self, person_id: str) -> Persons | None:
+    async def get_by_id(self, person_id: str) -> Person | None:
         '''Получение личности по id'''
         person = await self._get_person_from_elastic(person_id)
         if not person:
@@ -22,7 +22,7 @@ class PersonService:
 
     async def search_persons(
         self, get_query: str | None, page_number: int, page_size: int
-    ) -> list[Persons] | None:
+    ) -> list[Person] | None:
         '''Поиск личностей в Elasticsearch с поддержкой пагинации.'''
 
         offset = get_offset(page_number, page_size)
@@ -41,15 +41,15 @@ class PersonService:
         if not hits:
             return
 
-        return [Persons(**hit['_source']) for hit in hits]
+        return [Person(**hit['_source']) for hit in hits]
 
-    async def _get_person_from_elastic(self, person_id: str) -> Persons | None:
+    async def _get_person_from_elastic(self, person_id: str) -> Person | None:
         '''Получение личности из ElasticSearch'''
         try:
             doc = await self.elastic.get(index='persons', id=person_id)
         except NotFoundError:
             return None
-        return Persons(**doc['_source'])
+        return Person(**doc['_source'])
     
 
 @lru_cache()

@@ -6,8 +6,8 @@ movie_test_base_row = {
     'title': 'The Star',
     'description': 'New World',
     'directors_names': ['Stan'],
-    'actors_names': ['Ann', 'Bob'],
-    'writers_names': ['Ben', 'Howard'],
+    'actors_names': ['Elizabeth', 'Bob'],
+    'writers_names': ['Ben', 'Elizabeth'],
     'directors': [
         {
             'id': 'dc12b8fc-3c82-4d31-ad8e-72b69f4e3f95',
@@ -16,8 +16,8 @@ movie_test_base_row = {
     ],
     'actors': [
         {
-            'id': 'ef86b8ff-3c82-4d31-ad8e-72b69f4e3f95',
-            'name': 'Ann'
+            'id': 'a5232057-cf81-47ca-9e46-5ccf27300678',
+            'name': 'Elizabeth'
         },
         {
             'id': 'fb111f22-121e-44a7-b78f-b19191810fbf',
@@ -30,8 +30,8 @@ movie_test_base_row = {
             'name': 'Ben'
         },
         {
-            'id': 'b45bd7bc-2e16-46d5-b125-983d356768c6',
-            'name': 'Howard'
+            'id': 'a5232057-cf81-47ca-9e46-5ccf27300678',
+            'name': 'Elizabeth'
         }
     ]
 }
@@ -39,15 +39,11 @@ movie_test_base_row = {
 persons_test_base_row = {
     '_id': 'a5232057-cf81-47ca-9e46-5ccf27300678',
     'id': 'a5232057-cf81-47ca-9e46-5ccf27300678',
-    'name': 'Elizabeth Kaufman',
+    'name': 'Elizabeth',
     'films': [
         {
-            'id': '10a10e2a-66dd-4398-a3ba-a22c3bb40db3',
-            'roles': ['actor', 'director']
-        },
-        {
-            'id': '0c98a005-fe93-4334-842e-0c3b1e532983',
-            'roles': ['writer', 'actor']
+            'id': 'd7bfb1fb-3157-4beb-a58a-7a58daa01845',
+            'roles': ['actor', 'writer']
         }
     ]
 }
