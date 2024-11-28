@@ -3,8 +3,8 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query
 
 from services.redis_cache import redis_caching
-from services.persons import PersonService, get_person_service
-from services.film import FilmService, get_film_service
+from services.persons import PersonService, person_service
+from services.film import FilmService, film_service
 from models.response_models import Film, Person, PersonFilm
 
 router = APIRouter()
@@ -19,7 +19,7 @@ router = APIRouter()
 @redis_caching(key_base='persons_uuid_', response_model=Person, only_one=True)
 async def person_details(
     person_id: str,
-    person_service: PersonService = Depends(get_person_service)
+    person_service: PersonService = Depends(person_service.get_service)
 ) -> Person:
     '''Возвращает информацию о личности'''
     person = await person_service.get_by_id(person_id)
@@ -41,7 +41,7 @@ async def person_search(
     query: str | None = None,
     page_number: Annotated[int, Query(ge=1)] = 1,
     page_size: Annotated[int, Query(ge=1)] = 50,
-    person_service: PersonService = Depends(get_person_service),
+    person_service: PersonService = Depends(person_service.get_service),
 ) -> list[Person]:
     '''Ищет личностей по имени'''
     persons = await person_service.search_persons(query, page_number, page_size)
@@ -70,7 +70,7 @@ async def person_search(
 @redis_caching(key_base='persons_film_', response_model=Film)
 async def film_by_person(
     person_id: str,
-    film_service: FilmService = Depends(get_film_service),
+    film_service: FilmService = Depends(film_service.get_service),
 ) -> list[Film]:
     '''Возращает фильмы по личности'''
     films = await film_service._get_films_by_person(person_id)

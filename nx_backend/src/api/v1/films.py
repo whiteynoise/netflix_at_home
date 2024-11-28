@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 
 from models.response_models import FilmWork
 from services.redis_cache import redis_caching
-from services.film import FilmService, get_film_service
+from services.film import FilmService, film_service
 from src.api.v1.constants import SORT_CHOICES
 from src.models.response_models import Film
 
@@ -20,7 +20,7 @@ router = APIRouter()
 )
 @redis_caching(key_base="movies_uuid_", response_model=FilmWork, only_one=True)
 async def film_details(
-    film_id: str, film_service: FilmService = Depends(get_film_service)
+    film_id: str, film_service: FilmService = Depends(film_service.get_service)
 ) -> FilmWork:
     """Возвращает информацию о кинопроизведении"""
 
@@ -42,7 +42,7 @@ async def film_search(
     query: str = None,
     page_number: Annotated[int, Query(ge=1)] = 1,
     page_size: Annotated[int, Query(ge=1)] = 50,
-    film_service: FilmService = Depends(get_film_service),
+    film_service: FilmService = Depends(film_service.get_service),
 ) -> list[Film]:
     """Ищет кинопроизведения по названию"""
 
@@ -69,7 +69,7 @@ async def sorted_films(
     genre: str = None,
     page_number: Annotated[int, Query(ge=1)] = 1,
     page_size: Annotated[int, Query(ge=1)] = 50,
-    film_service: FilmService = Depends(get_film_service),
+    film_service: FilmService = Depends(film_service.get_service),
 ) -> list[Film]:
     """Возращает популярные фильмы и фильтруте по жанрам"""
 
