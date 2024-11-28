@@ -1,3 +1,4 @@
+import copy
 from typing import Protocol
 import psycopg
 
@@ -16,7 +17,8 @@ class Extractor(Protocol):
 
 
 class PGExtractor:
-    def __init__(self, config: dict, batch_size: int = 250):
+    def __init__(self, config: dict = None, batch_size: int = 250):
+        config = copy.deepcopy(config)
         self._pg_client = None
         self._pg_config = config
         self.batch_size = batch_size
