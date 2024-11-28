@@ -4,6 +4,7 @@ import json
 import uuid
 import pytest_asyncio
 
+from http import HTTPStatus
 from aiohttp import ClientSession
 from redis.asyncio import Redis
 
@@ -87,11 +88,11 @@ async def redis_client():
 
 @pytest_asyncio.fixture(name="make_get_request")
 def make_get_request(aiohttp_session: ClientSession):
-    async def inner(api_path: str, params: dict = {}) -> dict:
+    async def inner(api_path: str, params: dict | None = None) -> dict:
         response_dict = {}
         url = URL_APP + api_path
-
-        async with aiohttp_session.get(url, params=params) as response:
+        
+        async with aiohttp_session.get(url, params=params or {}) as response:
             response_dict["body"] = await response.json()
             response_dict["headers"] = response.headers
             response_dict["status"] = response.status
@@ -104,12 +105,17 @@ def make_get_request(aiohttp_session: ClientSession):
 @pytest_asyncio.fixture(name="cache_checkout")
 def cache_checkout(redis_client: Redis, make_get_request):
     async def inner(
-        redis_key: str, api_path: str, key_to_modify: str, request_params: dict = {}
+        redis_key: str,
+        api_path: str,
+        key_to_modify: str,
+        request_params: dict | None = None
     ):
         # TODO: разделить фикстуру на две (?)
-        old_response: dict = await make_get_request(api_path=api_path)
+        old_response: dict = await make_get_request(
+            api_path=api_path, params=request_params
+        )
 
-        if old_response["status"] == 404:
+        if old_response["status"] == HTTPStatus.NOT_FOUND:
             raise ("Записи нет в ES")
 
         old_body = old_response["body"]

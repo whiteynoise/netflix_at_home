@@ -16,7 +16,7 @@ class Extractor(Protocol):
 
 
 class PGExtractor:
-    def __init__(self, config: dict = {}, batch_size: int = 250):
+    def __init__(self, config: dict, batch_size: int = 250):
         self._pg_client = None
         self._pg_config = config
         self.batch_size = batch_size

@@ -15,7 +15,7 @@ class Loader(Protocol):
 
 
 class ESLoader:
-    def __init__(self, config: dict = {}):
+    def __init__(self, config: dict):
         self._elastic_client = None
         self._elastic_config = config
         self.indexes = index_by_name

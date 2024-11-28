@@ -1,11 +1,14 @@
 from abc import ABC, abstractmethod
 from json import dumps, loads
 
+from functools import lru_cache, wraps
 from typing import Any, Callable
 from pydantic import TypeAdapter
+
 from redis.asyncio import Redis
 from db.redis import get_redis
-from functools import lru_cache, wraps
+
+from services.utils.constants import ignore_endpoint_params
 
 
 FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5
@@ -74,15 +77,9 @@ def get_redis_cache(redis: Redis) -> RedisCache:
 def gen_key_for_redis(key_base: str, endpoint_params: list):
     """Генерация ключа для кэша в Redis."""
 
-    ignore_params = (
-        'film_service',
-        'genre_service',
-        'person_service'
-    )
-
     key_attrs = [(''.join(str(v).split())).lower()
                  for k, v in endpoint_params.items()
-                 if v and k not in ignore_params]
+                 if v and k not in ignore_endpoint_params]
     
     return f"{key_base}{'_'.join(key_attrs)}"
 
@@ -97,8 +94,11 @@ def redis_caching(
         @wraps(func)
         async def wrapper(*args, **kwargs):
             redis_instance = get_redis_cache(await get_redis())
-            
-            cache_key = gen_key_for_redis(key_base, kwargs)
+
+            if request_params := kwargs.get('params'):
+                request_params = request_params.model_dump()
+
+            cache_key = gen_key_for_redis(key_base, request_params or kwargs)
 
             if data_object := await redis_instance.get_from_cache(cache_key,
                                                                   response_model,

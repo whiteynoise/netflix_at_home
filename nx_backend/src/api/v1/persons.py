@@ -1,10 +1,10 @@
 from http import HTTPStatus
-from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException
 
 from src.services.cacher import redis_caching
 from services.persons import PersonService, person_service
 from services.film import FilmService, film_service
+from src.models.entity_models import SearchParams
 from models.response_models import Film, Person, PersonFilm
 
 router = APIRouter()
@@ -38,13 +38,14 @@ async def person_details(
 )
 @redis_caching(key_base='persons_search_', response_model=Person)
 async def person_search(
-    query: str | None = None,
-    page_number: Annotated[int, Query(ge=1)] = 1,
-    page_size: Annotated[int, Query(ge=1)] = 50,
+    params: SearchParams = Depends(),
     person_service: PersonService = Depends(person_service.get_service),
 ) -> list[Person]:
     '''Ищет личностей по имени'''
-    persons = await person_service.search_persons(query, page_number, page_size)
+
+    persons = await person_service.search_persons(
+        params.query, params.page_number, params.page_size
+    )
 
     if not persons:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='person not found')

@@ -1,5 +1,15 @@
 from uuid import UUID
 from pydantic import BaseModel
+from src.models.utils_models import PaginatedParams
+
+
+class SearchParams(PaginatedParams):
+    query: str | None = None
+
+
+class SortFilms(PaginatedParams):
+    sort: str = "-imdb_rating"
+    genre: str | None = None
 
 
 class PersonBase(BaseModel):
