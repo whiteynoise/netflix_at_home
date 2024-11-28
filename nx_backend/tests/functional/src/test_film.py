@@ -85,7 +85,7 @@ async def test_film_specific(make_get_request, uuid_film: str, status: dict):
     ],
 )
 @pytest.mark.asyncio
-async def test_film_search1(
+async def test_film_search(
     make_get_request,
     test_params: dict,
     expected_answer: dict,

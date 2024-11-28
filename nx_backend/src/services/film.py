@@ -1,20 +1,16 @@
-from functools import lru_cache
-
-from elasticsearch import AsyncElasticsearch, NotFoundError
-from fastapi import Depends
-
 from db.elastic import get_elastic
 from models.response_models import FilmWork
+from services.abstract_models import ServiceManager, Storage
 from services.utils.paginator_ import get_offset
 
 
 class FilmService:
-    def __init__(self, elastic: AsyncElasticsearch):
-        self.elastic = elastic
+    def __init__(self, storage: Storage):
+        self.storage = storage
 
     async def get_by_id(self, film_id: str) -> FilmWork | None:
         """Получение кинопроизведения по id"""
-        film = await self._get_film_from_elastic(film_id)
+        film = await self._get_film_from_storage(film_id)
 
         if not film:
             return
@@ -24,7 +20,7 @@ class FilmService:
     async def search_films(
         self, get_query: str | None, page_number: int, page_size: int
     ) -> list[FilmWork] | None:
-        """Поиск фильмов в Elasticsearch с поддержкой пагинации."""
+        """Поиск фильмов в хранилище с поддержкой пагинации."""
 
         offset = get_offset(page_number, page_size)
 
@@ -38,7 +34,7 @@ class FilmService:
                 "bool": {"must": [{"match": {"title": get_query}}]}
             }
 
-        result = await self.elastic.search(index="movies", body=search_query)
+        result = await self.storage.search(index="movies", body=search_query)
 
         hits = result.get("hits", {}).get("hits", [])
 
@@ -71,7 +67,7 @@ class FilmService:
         if genre:
             search_query["query"]["bool"]["filter"].append({"term": {"genres": genre}})
 
-        result = await self.elastic.search(index="movies", body=search_query)
+        result = await self.storage.search(index="movies", body=search_query)
 
         hits = result.get("hits", {}).get("hits", [])
         if not hits:
@@ -107,22 +103,20 @@ class FilmService:
                 }
             }
         }
-        result = await self.elastic.search(index="movies", body=search_query)
+        result = await self.storage.search(index="movies", body=search_query)
         hits = result.get("hits", {}).get("hits", [])
         if not hits:
             return
 
         return [FilmWork(**hit["_source"]) for hit in hits]
 
-    async def _get_film_from_elastic(self, film_id: str) -> FilmWork | None:
-        """Получение кинопроизведения из ElasticSearch"""
+    async def _get_film_from_storage(self, film_id: str) -> FilmWork | None:
+        """Получение кинопроизведения из хранилища"""
         try:
-            doc = await self.elastic.get(index="movies", id=film_id)
-        except NotFoundError:
+            doc = await self.storage.get(index="movies", id=film_id)
+        except Exception:
             return
         return FilmWork(**doc["_source"])
 
 
-@lru_cache()
-def get_film_service(elastic: AsyncElasticsearch = Depends(get_elastic)) -> FilmService:
-    return FilmService(elastic)
+film_service = ServiceManager(FilmService, get_elastic)
