@@ -1,4 +1,5 @@
 import pytest
+from http import HTTPStatus
 
 
 @pytest.mark.parametrize(
@@ -39,9 +40,9 @@ async def test_persons_redis(
 @pytest.mark.parametrize(
     "uuid_person, status",
     [
-        ("a5232057-cf81-47ca-9e46-5ccf27300678", 200),
-        ("just_some_random_stuff", 404),
-        ("0a4dbb6c-1fe6-440b-a9bc-b20b7fc37e6c", 404),
+        ("a5232057-cf81-47ca-9e46-5ccf27300678", HTTPStatus.OK),
+        ("just_some_random_stuff", HTTPStatus.NOT_FOUND),
+        ("0a4dbb6c-1fe6-440b-a9bc-b20b7fc37e6c", HTTPStatus.NOT_FOUND),
     ],
 )
 @pytest.mark.asyncio
@@ -60,9 +61,9 @@ async def test_persons_specific(
 @pytest.mark.parametrize(
     "uuid_person, status",
     [
-        ("a5232057-cf81-47ca-9e46-5ccf27300678", 200),
-        ("just_some_random_stuff", 404),
-        ("0a4dbb6c-1fe6-440b-a9bc-b20b7fc37e6c", 404),
+        ("a5232057-cf81-47ca-9e46-5ccf27300678", HTTPStatus.OK),
+        ("just_some_random_stuff", HTTPStatus.NOT_FOUND),
+        ("0a4dbb6c-1fe6-440b-a9bc-b20b7fc37e6c", HTTPStatus.NOT_FOUND),
     ],
 )
 @pytest.mark.asyncio
@@ -83,28 +84,28 @@ async def test_persons_films_specific(
     [
         (
             {"query": "Elizabeth"},
-            {"status": 200, "length": 5},
+            {"status": HTTPStatus.OK, "length": 5},
         ),
         (
             {"page_size": 3},
-            {"status": 200, "length": 3},
+            {"status": HTTPStatus.OK, "length": 3},
         ),
         (
             {"query": "Tommy Wiseau"},
-            {"status": 404, "length": 1},
+            {"status": HTTPStatus.NOT_FOUND, "length": 1},
         ),
         (
             {"page_size": 100, "page_number": 2},
-            {"status": 404, "length": 1},
+            {"status": HTTPStatus.NOT_FOUND, "length": 1},
         ),
         (
             {},
-            {"status": 200, "length": 5},
+            {"status": HTTPStatus.OK, "length": 5},
         ),
     ],
 )
 @pytest.mark.asyncio
-async def test_persons_search_all(
+async def test_persons_search(
     make_get_request,
     test_params: dict,
     expected_answer: dict

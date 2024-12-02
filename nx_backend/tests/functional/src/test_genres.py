@@ -1,10 +1,14 @@
 import pytest
+from http import HTTPStatus
 
 
 @pytest.mark.parametrize(
     "api_path, redis_key",
     [
-        ("/api/v1/genres/", "genres_main_"),
+        (
+            "/api/v1/genres/",
+            "genres_main_"
+        ),
         (
             "/api/v1/genres/5a4d46b8-07ba-4d8f-b376-25ed30944094",
             "genres_uuid_5a4d46b8-07ba-4d8f-b376-25ed30944094",
@@ -31,16 +35,16 @@ async def test_genre_all(make_get_request):
 
     response: dict = await make_get_request(api_path=api_path)
 
-    assert response["status"] == 200
+    assert response["status"] == HTTPStatus.OK
     assert len(response["body"]) == 5
 
 
 @pytest.mark.parametrize(
     "uuid_genre, status",
     [
-        ("5a4d46b8-07ba-4d8f-b376-25ed30944094", 200),
-        ("just_some_random_stuff", 404),
-        ("0a4dbb6c-1fe6-440b-a9bc-b20b7fc37e6c", 404),
+        ("5a4d46b8-07ba-4d8f-b376-25ed30944094", HTTPStatus.OK),
+        ("just_some_random_stuff", HTTPStatus.NOT_FOUND),
+        ("0a4dbb6c-1fe6-440b-a9bc-b20b7fc37e6c", HTTPStatus.NOT_FOUND),
     ],
 )
 @pytest.mark.asyncio

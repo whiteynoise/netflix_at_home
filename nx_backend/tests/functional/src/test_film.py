@@ -1,4 +1,5 @@
 import pytest
+from http import HTTPStatus
 
 
 @pytest.mark.parametrize(
@@ -10,7 +11,7 @@ import pytest
         ),
         (
             "/api/v1/films/",
-            "movies_main_-imdb_rating_1_50"),
+            "movies_main_1_50_-imdb_rating"),
         (
             "/api/v1/films/d7bfb1fb-3157-4beb-a58a-7a58daa01845",
             "movies_uuid_d7bfb1fb-3157-4beb-a58a-7a58daa01845",
@@ -32,26 +33,28 @@ async def test_film_redis(
 
 
 @pytest.mark.asyncio
-async def test_genre_all(make_get_request):
+async def test_film_all(make_get_request):
     api_path: str = "/api/v1/films/"
 
     response: dict = await make_get_request(api_path=api_path)
 
-    assert response["status"] == 200
+    assert response["status"] == HTTPStatus.OK
     assert len(response["body"]) == 5
 
-    params: str = {"genre": "Sci-Fi"}
-    response: dict = await make_get_request(api_path=api_path, params=params)
-    assert response["status"] == 200
+    response: dict = await make_get_request(
+        api_path=api_path, params={"genre": "Sci-Fi"}
+    )
+
+    assert response["status"] == HTTPStatus.OK
     assert len(response["body"]) == 5
 
 
 @pytest.mark.parametrize(
     "uuid_film, status",
     [
-        ("d7bfb1fb-3157-4beb-a58a-7a58daa01845", 200),
-        ("just_some_random_stuff", 404),
-        (1, 404),
+        ("d7bfb1fb-3157-4beb-a58a-7a58daa01845", HTTPStatus.OK),
+        ("just_some_random_stuff", HTTPStatus.NOT_FOUND),
+        (1, HTTPStatus.NOT_FOUND),
     ],
 )
 @pytest.mark.asyncio
@@ -68,19 +71,19 @@ async def test_film_specific(make_get_request, uuid_film: str, status: dict):
     [
         (
             {"query": "The Star"},
-            {"status": 200, "length": 5},
+            {"status": HTTPStatus.OK, "length": 5},
         ),
         (
             {"page_size": 3},
-            {"status": 200, "length": 3},
+            {"status": HTTPStatus.OK, "length": 3},
         ),
         (
             {"query": "SomeFunnyStaff"},
-            {"status": 404, "length": 1},
+            {"status": HTTPStatus.NOT_FOUND, "length": 1},
         ),
         (
             {"page_size": 100, "page_number": 2},
-            {"status": 404, "length": 1},
+            {"status": HTTPStatus.NOT_FOUND, "length": 1},
         ),
     ],
 )
