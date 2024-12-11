@@ -5,8 +5,9 @@ class NXAuthSettings(BaseSettings):
 
     project_name: str
 
-    redis_host: str
-    redis_port: int
+    user: str
+    password: str
 
-    elastic_host: str
-    elastic_port: int
+    host: str
+    port: str
+    db: str
