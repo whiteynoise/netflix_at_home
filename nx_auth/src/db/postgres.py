@@ -1,10 +1,10 @@
-from core.config import settings
+from core.config import PG_CONFIG
 from sqlalchemy.orm import declarative_base, sessionmaker
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 
 Base = declarative_base()
 
-dsn = f'postgresql+asyncpg://{settings.user}:{settings.password}@{settings.host}:{settings.port}/{settings.db}'
+dsn = 'postgresql+asyncpg://{user}:{password}@{host}:{port}/{db}'.format(**PG_CONFIG)
 
 engine = create_async_engine(dsn, echo=True, future=True)
 
@@ -28,3 +28,4 @@ async def purge_database() -> None:
     '''Удаление всех таблиц'''
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
+        
