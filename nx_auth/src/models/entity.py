@@ -13,36 +13,37 @@ from db.postgres import Base
 user_roles = Table(
     'user_roles',
     Base.metadata,
-    Column('user_id', UUID(as_uuid=True), ForeignKey('users.id'), primary_key=True),
-    Column('role_id', UUID(as_uuid=True), ForeignKey('roles.id'), primary_key=True),
+    Column('user_role_id', UUID(as_uuid=True), primary_key=True, default=uuid.uuid4),
+    Column('user_id', UUID(as_uuid=True), ForeignKey('users.user_id')),
+    Column('role_id', UUID(as_uuid=True), ForeignKey('roles.role_id')),
     UniqueConstraint('user_id', 'role_id', name='uq_user_role'),
     schema='auth',
 )
 
 
-class User(Base):
+class Users(Base):
     __tablename__ = 'users'
     __table_args__ = {'schema': 'auth'}
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
+    user_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     username = Column(String(255), unique=True, nullable=False, index=True)
     password = Column(String(255), nullable=False)
-    email = Column(String, nullable=True, index=True)
-    first_name = Column(String(50), index=True)
+    email = Column(String, index=True)
+    first_name = Column(String(50))
     last_name = Column(String(50))
 
-    is_active= Column(Boolean, default=True)
-    is_stuff = Column(Boolean, default=False)
-    is_superuser = is_stuff = Column(Boolean(), default=False)
+    is_active = Column(Boolean, nullable=False, default=True)
+    is_stuff = Column(Boolean, nullable=False, default=False)
+    is_superuser = Column(Boolean, nullable=False, default=False)
 
-    last_login = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.now(timezone.utc))
 
     roles = relationship('Role', secondary=user_roles, back_populates='users')
 
-    def __init__(self, username: str, password: str, first_name:str, last_name: str) -> None:
+    def __init__(self, username: str, password: str, email: str, first_name: str, last_name: str) -> None:
         self.username = username
-        self.password = self.password = generate_password_hash(password)
+        self.password = generate_password_hash(password)
+        self.email = email
         self.first_name = first_name
         self.last_name = last_name
     
@@ -53,13 +54,46 @@ class User(Base):
         return f'<User {self.login}>' 
     
 
-class Role(Base):
+class Roles(Base):
     __tablename__ = 'roles'
     __table_args__ = {'schema': 'auth'}
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
-    title = Column(String(255), unique=True, nullable=False, index=True)
+    role_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    title = Column(String(50), unique=True, nullable=False)
     users = relationship('User', secondary=user_roles, back_populates='roles')
 
     def __repr__(self) -> str:
-        return f'<User {self.title}>' 
+        return f'<Role {self.title}>' 
+    
+
+class LoginHistory(Base):
+    __tablename__ = 'login_history'
+    __table_args__ = {'schema': 'auth'}
+
+    log_id = Column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+        comment='UUID лога'
+    )
+    user_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey('users.user_id'),
+        nullable=False,
+        comment='UUID пользователя'
+    )
+    is_active = Column(
+        Boolean,
+        default=True,
+        nullable=False,
+        comment='Активен ли текущий логин'
+    )
+    login_date = Column(
+        DateTime,
+        default=datetime.now(timezone.utc),
+        nullable=False,
+        comment='Дата логина'
+    )
+    token = Column(
+        String(255), nullable=False, comment='Refresh токен'
+    )
