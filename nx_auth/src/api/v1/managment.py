@@ -6,7 +6,7 @@ from db.postgres import get_session
 from services.tools import get_current_user
 
 
-router = APIRouter(prefix='/auth_managment', tags=['managment'])
+router = APIRouter(tags=['managment'])
 
 
 @router.post(
