@@ -13,14 +13,16 @@ from db.postgres import Base
 user_roles = Table(
     'user_roles',
     Base.metadata,
-        Column('user_id', UUID(as_uuid=True), ForeignKey('users.id'), primary_key=True),
-        Column('role_id', UUID(as_uuid=True), ForeignKey('roles.id'), primary_key=True),
-        UniqueConstraint('user_id', 'role_id', name='uq_user_role'),
+    Column('user_id', UUID(as_uuid=True), ForeignKey('users.id'), primary_key=True),
+    Column('role_id', UUID(as_uuid=True), ForeignKey('roles.id'), primary_key=True),
+    UniqueConstraint('user_id', 'role_id', name='uq_user_role'),
+    schema='auth',
 )
 
 
 class User(Base):
     __tablename__ = 'users'
+    __table_args__ = {'schema': 'auth'}
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
     username = Column(String(255), unique=True, nullable=False, index=True)
@@ -53,6 +55,7 @@ class User(Base):
 
 class Role(Base):
     __tablename__ = 'roles'
+    __table_args__ = {'schema': 'auth'}
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
     title = Column(String(255), unique=True, nullable=False, index=True)
