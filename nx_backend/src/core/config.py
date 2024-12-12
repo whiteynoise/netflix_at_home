@@ -17,7 +17,7 @@ ES_CONFIG = {
     'port': settings.elastic_port,
 }
 
-PROJECT_NAME = settings.project_name
+PROJECT_NAME: str = 'nx_backend'
 
 logging_config.dictConfig(LOGGING)
 
