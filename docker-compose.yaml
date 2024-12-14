@@ -12,7 +12,6 @@ services:
     container_name: database
     <<: *default-env 
     volumes:
-      - ./pg_dump.sql:/docker-entrypoint-initdb.d/init.sql
       - db_volume:/var/lib/postgresql/data
     restart: always
     healthcheck:
@@ -35,9 +34,7 @@ services:
       timeout: 30s
       retries: 3
     depends_on:
-      database:
-        condition: service_healthy
-    
+      - database
   redis:
     image: redis
     container_name: redis
@@ -55,12 +52,9 @@ services:
     <<: *default-env
     restart: always
     depends_on:
-      database:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      elasticsearch:
-        condition: service_healthy
+      - database
+      - redis
+      - elasticsearch
 
   nx_backend:
     build:
@@ -74,10 +68,8 @@ services:
       timeout: 10s
       retries: 3
     depends_on:
-      redis:
-        condition: service_healthy
-      elasticsearch:
-        condition: service_healthy
+      - redis
+      - elasticsearch
   
   nx_auth:
     build:
@@ -85,9 +77,10 @@ services:
       context: ./nx_auth
     container_name: nx_auth
     <<: *default-env
+    volumes:
+      - ./nx_auth:/app
     depends_on:
-      database:
-        condition: service_healthy
+      - database
 
 volumes:
   redis_volume:

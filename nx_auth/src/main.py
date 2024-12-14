@@ -1,3 +1,6 @@
+import asyncio
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from loguru import logger
@@ -5,8 +8,17 @@ from loguru import logger
 from api.v1 import auth, managment, token
 from core.config import PROJECT_NAME
 
+from alembic import command
+from alembic.config import Config
+
+
 logger.add("info.log", format="Log: [{extra[log_id]}:{time} - {level} - {message} ", level="INFO", enqueue=True)
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    loop = asyncio.get_event_loop()
+    await loop.run_in_executor(None, lambda: command.upgrade(Config("alembic.ini"), "head"))
+    yield
 
 app = FastAPI(
     version='0.0.1',
@@ -15,6 +27,7 @@ app = FastAPI(
     docs_url='/api/openapi',
     openapi_url='/api/openapi.json',
     default_response_class=ORJSONResponse,
+    lifespan=lifespan
 )
 
 
