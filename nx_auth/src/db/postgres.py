@@ -1,8 +1,11 @@
-from core.config import PG_CONFIG
-from sqlalchemy.orm import declarative_base, sessionmaker
+from src.core.config import PG_CONFIG
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import DeclarativeBase
+import sqlalchemy as sa
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 
-Base = declarative_base()
+class Base(DeclarativeBase):
+    metadata = sa.MetaData(schema="auth")
 
 dsn = 'postgresql+asyncpg://{user}:{password}@{host}:{port}/{db}'.format(**PG_CONFIG)
 
