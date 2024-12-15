@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from db.postgres import get_session
-
+from schemas.entity import UserAuth, UserCreate
 
 router = APIRouter(tags=['auth'])
 
@@ -14,7 +14,7 @@ router = APIRouter(tags=['auth'])
     summary='Регистрация пользователя',
     description='Регистрирует пользователя в системе'
 )
-async def register(db: Annotated[AsyncSession, Depends(get_session)], user):
+async def register(db: Annotated[AsyncSession, Depends(get_session)], user: UserCreate):
     '''Регистрация'''
     pass
 
@@ -24,7 +24,7 @@ async def register(db: Annotated[AsyncSession, Depends(get_session)], user):
     summary='Логин пользователя',
     description='Отдает токены пользователю для входа в систему'
     )
-async def login(db: Annotated[AsyncSession, Depends(get_session)]):
+async def login(db: Annotated[AsyncSession, Depends(get_session)], user: UserAuth):
     '''Логин'''
     pass
 
