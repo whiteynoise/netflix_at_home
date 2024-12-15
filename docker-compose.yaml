@@ -35,6 +35,7 @@ services:
       retries: 3
     depends_on:
       - database
+
   redis:
     image: redis
     container_name: redis

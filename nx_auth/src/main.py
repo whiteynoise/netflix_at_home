@@ -16,8 +16,8 @@ logger.add("info.log", format="Log: [{extra[log_id]}:{time} - {level} - {message
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    loop = asyncio.get_event_loop()
-    await loop.run_in_executor(None, lambda: command.upgrade(Config("alembic.ini"), "head"))
+    # loop = asyncio.get_event_loop()
+    # await loop.run_in_executor(None, lambda: command.upgrade(Config("alembic.ini"), "head"))
     yield
 
 app = FastAPI(

@@ -23,12 +23,15 @@ user_roles = Table(
 
 class Users(Base):
     __tablename__ = 'users'
-    __table_args__ = {'schema': 'auth'}
+    __table_args__ = (
+        {'schema': 'auth'},
+        UniqueConstraint('username', 'email', name='uq_username_email'),
+    )
 
     user_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    username = Column(String(255), unique=True, nullable=False, index=True)
+    username = Column(String(255), unique=True, nullable=False)
     password = Column(String(255), nullable=False)
-    email = Column(String, index=True)
+    email = Column(String, unique=True, nullable=False)
     first_name = Column(String(50))
     last_name = Column(String(50))
 

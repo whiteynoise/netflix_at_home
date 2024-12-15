@@ -6,9 +6,9 @@ from pydantic import BaseModel, EmailStr, Field
 class UserCreate(BaseModel):
     username: str = Field(..., description="Никнейм")
     password: str = Field(..., min_length=8, max_length=32, description="Пароль")
-    first_name: str | None
-    last_name: str | None
-    email: EmailStr | None
+    first_name: str | None = None
+    last_name: str | None = None
+    email: EmailStr
 
 
 class UserInDB(BaseModel):
