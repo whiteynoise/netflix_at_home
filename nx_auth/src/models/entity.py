@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import Boolean, Column, DateTime, String, Table, ForeignKey, UniqueConstraint
+from sqlalchemy import Boolean, Column, DateTime, String, Table, ForeignKey, UniqueConstraint, text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
@@ -36,22 +36,31 @@ class Users(Base):
     is_stuff = Column(Boolean, nullable=False, default=False)
     is_superuser = Column(Boolean, nullable=False, default=False)
 
-    created_at = Column(DateTime, default=datetime.now(timezone.utc))
+    created_at = Column(DateTime, default=text('current_timestamp'))
 
-    roles = relationship('Role', secondary=user_roles, back_populates='users')
+    roles = relationship('Roles', secondary=user_roles, back_populates='users')
 
-    def __init__(self, username: str, password: str, email: str, first_name: str, last_name: str) -> None:
+    def __init__(
+        self,
+        username: str,
+        password: str,
+        email: str | None = None,
+        first_name: str | None = None,
+        last_name: str | None = None,
+        is_superuser: bool = False
+    ) -> None:
         self.username = username
         self.password = generate_password_hash(password)
         self.email = email
         self.first_name = first_name
         self.last_name = last_name
+        self.is_superuser = is_superuser
     
     def check_password(self, password: str) -> bool:
         return check_password_hash(self.password, password)
 
     def __repr__(self) -> str:
-        return f'<User {self.login}>' 
+        return f'<User {self.username}>' 
     
 
 class Roles(Base):
@@ -60,7 +69,7 @@ class Roles(Base):
 
     role_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     title = Column(String(50), unique=True, nullable=False)
-    users = relationship('User', secondary=user_roles, back_populates='roles')
+    users = relationship('Users', secondary=user_roles, back_populates='roles')
 
     def __repr__(self) -> str:
         return f'<Role {self.title}>' 
@@ -90,7 +99,7 @@ class LoginHistory(Base):
     )
     login_date = Column(
         DateTime,
-        default=datetime.now(timezone.utc),
+        default=text('current_timestamp'),
         nullable=False,
         comment='Дата логина'
     )
