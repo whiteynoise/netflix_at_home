@@ -9,7 +9,8 @@ app = typer.Typer(help="CLI создания супер пользователя
 
 async def _create_super_user(
     username: str,
-    password: str
+    password: str,
+    email: str
 ) -> None:
     '''
     Создание супер пользователя.
@@ -21,7 +22,12 @@ async def _create_super_user(
         user_exists = result.scalars().first()
 
         if not user_exists:
-            user = Users(username=username, password=password, is_superuser=True)
+            user = Users(
+                username=username,
+                password=password,
+                email=email,
+                is_superuser=True
+            )
             db.add(user)
             await db.commit()
             typer.echo("Пользователь создан")
@@ -30,8 +36,12 @@ async def _create_super_user(
 
 
 @app.command()
-def create_super_user(username: str, password: str):
-   aiorun(_create_super_user(username=username, password=password))
+def create_super_user(
+    username: str,
+    password: str,
+    email: str
+):
+   aiorun(_create_super_user(username=username, password=password, email=email))
 
 
 if __name__ == "__main__":
