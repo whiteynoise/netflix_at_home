@@ -11,7 +11,7 @@ from fastapi import Depends
 class TokenService(BaseService):
     expire = settings.access_token_expire_minute
 
-    def __int__(self, storage):
+    def __init__(self, storage):
         super().__init__(storage)
 
     async def renew_access_token(self, user):

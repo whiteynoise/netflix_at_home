@@ -76,9 +76,6 @@ class Roles(Base):
     role_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     title = Column(String(50), unique=True, nullable=False)
     users = relationship('Users', secondary=user_roles, back_populates='roles')
-
-    def __repr__(self) -> str:
-        return f'<Role {self.title}>' 
     
 
 class LoginHistory(Base):

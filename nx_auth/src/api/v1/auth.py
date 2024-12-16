@@ -18,12 +18,12 @@ router = APIRouter(tags=['auth'])
     response_model=bool,
 )
 async def register(
-    user: UserCreate,
-    film_service: AuthService = Depends(get_auth_service),
+    user: UserCreate = Depends(),
+    auth_service: AuthService = Depends(get_auth_service),
 ):
     '''Регистрация'''
 
-    response: bool = await film_service.register(user)
+    response: bool = await auth_service.register(user)
 
     if not response:
         raise HTTPException(
@@ -39,7 +39,7 @@ async def register(
     '/login',
     summary='Логин пользователя',
     description='Отдает токены пользователю для входа в систему'
-    )
+)
 async def login(db: Annotated[AsyncSession, Depends(get_session)], user: UserAuth):
     '''Логин'''
     pass
@@ -49,7 +49,7 @@ async def login(db: Annotated[AsyncSession, Depends(get_session)], user: UserAut
     '/logout',
     summary='Логауит пользователя',
     description='Логаутит пользователя. Удаляет его токены'
-    )
+)
 async def logout(db: Annotated[AsyncSession, Depends(get_session)]):
     '''Логаут'''
     pass
@@ -59,7 +59,7 @@ async def logout(db: Annotated[AsyncSession, Depends(get_session)]):
     '/change_user',
     summary='Изменяет информацию о пароле и логине',
     description='Изменяет информацию о пароле и логине'
-    )
+)
 async def change_user_info(db: Annotated[AsyncSession, Depends(get_session)]):
     '''Смена информации о пользователе'''
     pass
@@ -69,7 +69,7 @@ async def change_user_info(db: Annotated[AsyncSession, Depends(get_session)]):
     '/enter_history',
     summary='История входов в аккаунт',
     description='История входов в аккаунт'
-    )
+)
 async def enter_history(db: Annotated[AsyncSession, Depends(get_session)]):
     '''История входов в аккаунт'''
     pass
