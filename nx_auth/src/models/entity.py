@@ -24,8 +24,11 @@ user_roles = Table(
 class Users(Base):
     __tablename__ = 'users'
     __table_args__ = (
-        {'schema': 'auth'},
         UniqueConstraint('username', 'email', name='uq_username_email'),
+        {
+            'schema': 'auth',
+            'comment': 'Пользователи'
+        },
     )
 
     user_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
