@@ -1,4 +1,3 @@
-import asyncio
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -11,14 +10,15 @@ from core.config import PROJECT_NAME
 from alembic import command
 from alembic.config import Config
 
+logger.add("info.log", format="Log: [{time} - {level} - {message}]", level="INFO", enqueue=True)
 
-logger.add("info.log", format="Log: [{extra[log_id]}:{time} - {level} - {message} ", level="INFO", enqueue=True)
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
-    # loop = asyncio.get_event_loop()
-    # await loop.run_in_executor(None, lambda: command.upgrade(Config("alembic.ini"), "head"))
+async def lifespan(app_: FastAPI):
+    # alembic_cfg = Config("alembic.ini")
+    # command.upgrade(alembic_cfg, "head")
     yield
+
 
 app = FastAPI(
     version='0.0.1',
@@ -27,9 +27,8 @@ app = FastAPI(
     docs_url='/api/openapi',
     openapi_url='/api/openapi.json',
     default_response_class=ORJSONResponse,
-    lifespan=lifespan
+    lifespan=lifespan,
 )
-
 
 app.include_router(auth.router, prefix='/api/v1/auth', tags=['auth'])
 app.include_router(managment.router, prefix='/api/v1/managment', tags=['managment'])
