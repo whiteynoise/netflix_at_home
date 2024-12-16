@@ -19,9 +19,20 @@ class UserInDB(BaseModel):
     class Config:
         orm_mode = True
 
+
 class UserAuth(BaseModel):
     username: str = Field(..., description="Никнейм")
     password: str = Field(..., min_length=8, max_length=32, description="Пароль")
+    
+
+class AddUserRoles(BaseModel):
+    user_id: UUID
+    role_id: UUID
+
+
+class ChangeRole(BaseModel):
+    role_id: UUID
+    title: str
 
 
 ### TOKEN ###

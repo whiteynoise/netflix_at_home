@@ -39,7 +39,7 @@ class AuthService(BaseService):
     async def change_user(self, body):
         pass
 
-    async def enter_history(self, user):
+    async def login_history(self, user):
         pass
 
     async def authenticate_user(self, username: str, password: str):
