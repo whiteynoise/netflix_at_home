@@ -1,4 +1,4 @@
-from src.core.config import PG_CONFIG
+from core.config import PG_CONFIG
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import DeclarativeBase
 import sqlalchemy as sa
@@ -31,4 +31,3 @@ async def purge_database() -> None:
     '''Удаление всех таблиц'''
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
-        
