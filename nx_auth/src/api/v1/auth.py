@@ -1,6 +1,8 @@
+from http import HTTPStatus
 
 from typing import Annotated
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
+from services.auth_service import AuthService, get_auth_service
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from db.postgres import get_session
@@ -12,11 +14,25 @@ router = APIRouter(tags=['auth'])
 @router.post(
     '/register',
     summary='Регистрация пользователя',
-    description='Регистрирует пользователя в системе'
+    description='Регистрирует пользователя в системе',
+    response_model=bool,
 )
-async def register(db: Annotated[AsyncSession, Depends(get_session)], user: UserCreate):
+async def register(
+    user: UserCreate,
+    film_service: AuthService = Depends(get_auth_service),
+):
     '''Регистрация'''
-    pass
+
+    response: bool = await film_service.register(user)
+
+    if not response:
+        raise HTTPException(
+            status_code=HTTPStatus.CONFLICT,
+            detail="User with this email or username already exists."
+        )
+    
+    return response
+
 
 
 @router.post(
