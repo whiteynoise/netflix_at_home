@@ -9,4 +9,8 @@ class GetRolesResponse(BaseModel):
 
     class Config:
         orm_mode = True
-        
+
+
+class Token(BaseModel):
+    access_token: str
+    refresh_token: str
