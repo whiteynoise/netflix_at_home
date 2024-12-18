@@ -12,4 +12,5 @@ class NXAuthSettings(BaseSettings):
     secret_key: str
     algorithm: str
     access_token_expire_minutes: int
+    refresh_token_expire_minutes: int
     

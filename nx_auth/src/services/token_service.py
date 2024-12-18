@@ -23,6 +23,7 @@ class TokenService(BaseService):
         ## тут надо юзать expire
         pass
 
+
 @lru_cache()
-def get_token_service(session: AsyncSession = Depends(get_session)) -> TokenService:
-    return TokenService(session)
+def get_token_service() -> TokenService:
+    return TokenService()

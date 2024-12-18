@@ -1,12 +1,17 @@
 from http import HTTPStatus
 
 from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Body
+
+from models.entity import Users
+from schemas.response import Token
 from services.auth_service import AuthService, get_auth_service
 from sqlalchemy.ext.asyncio import AsyncSession
+from loguru import logger
+from sqlalchemy.exc import IntegrityError
 
 from db.postgres import get_session
-from schemas.entity import UserAuth, UserCreate
+from schemas.entity import UserCreate, TokenData
 
 router = APIRouter(tags=['auth'])
 
@@ -18,31 +23,61 @@ router = APIRouter(tags=['auth'])
     response_model=bool,
 )
 async def register(
-    user: UserCreate = Depends(),
-    auth_service: AuthService = Depends(get_auth_service),
+        user: Annotated[UserCreate, Body()],
+        auth_service: Annotated[AuthService, Depends(get_auth_service)],
+        db: Annotated[AsyncSession, Depends(get_session)],
 ):
     '''Регистрация'''
 
-    response: bool = await auth_service.register(user)
-
-    if not response:
+    try:
+        await auth_service.register(user, db)
+        return True
+    except IntegrityError as e:
+        logger.error(f"Current user already exists: {str(e)}")
         raise HTTPException(
-            status_code=HTTPStatus.CONFLICT,
-            detail="User with this email or username already exists."
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+            detail="Current user already exists."
         )
-    
-    return response
-
+    except Exception as e:
+        logger.error(f"Error during register: {str(e)}")
+        raise HTTPException(
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+            detail="Error during register."
+        )
 
 
 @router.post(
     '/login',
     summary='Логин пользователя',
-    description='Отдает токены пользователю для входа в систему'
+    description='Url для получения токенов для входа в систему',
+    response_model=Token,
 )
-async def login(db: Annotated[AsyncSession, Depends(get_session)], user: UserAuth):
+async def login(
+        user: Annotated[TokenData, Body()],
+        auth_service: Annotated[AuthService, Depends(get_auth_service)],
+        db: Annotated[AsyncSession, Depends(get_session)],
+):
     '''Логин'''
-    pass
+    logger.error(f"Login user {user.user_id} {user.email} {user.username}")
+    user: Users | None = await auth_service.identificate_user(user, db)
+
+    if not user:
+        logger.error(f"User {user.user_id} {user.email} {user.username} not found")
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND,
+            detail="User with this email or username does not exists"
+        )
+
+    try:
+        tokens = await auth_service.token(user, db)
+    except Exception as e:
+        logger.error(f"Error during generating tokens: {str(e)}")
+        raise HTTPException(
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+            detail="Error during generating tokens."
+        )
+
+    return tokens
 
 
 @router.post(
@@ -73,4 +108,3 @@ async def change_user_info(db: Annotated[AsyncSession, Depends(get_session)]):
 async def enter_history(db: Annotated[AsyncSession, Depends(get_session)]):
     '''История входов в аккаунт'''
     pass
-

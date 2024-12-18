@@ -23,7 +23,11 @@ class UserInDB(BaseModel):
 class UserAuth(BaseModel):
     username: str = Field(..., description="Никнейм")
     password: str = Field(..., min_length=8, max_length=32, description="Пароль")
-    
+
+### ROLES ###
+class CreateRole(BaseModel):
+    role_title: str
+
 
 class AddUserRoles(BaseModel):
     user_id: UUID
@@ -38,5 +42,6 @@ class ChangeRole(BaseModel):
 ### TOKEN ###
 
 class TokenData(BaseModel):
-    user_id: str
+    user_id: UUID
     username: str | None
+    email: str | None
