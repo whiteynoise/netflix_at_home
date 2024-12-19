@@ -22,7 +22,12 @@ async_session = sessionmaker(
 async def get_session():
     '''Получение сессии'''
     async with async_session() as session:
-        yield session
+        try:
+            yield session
+            await session.commit()
+        except Exception as e:
+            await session.rollback()
+            raise e
 
 
 async def create_database() -> None:

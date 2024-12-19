@@ -32,17 +32,11 @@ async def register(
     try:
         await auth_service.register(user, db)
         return True
-    except IntegrityError as e:
-        logger.error(f"Current user already exists: {str(e)}")
+    
+    except IntegrityError:
         raise HTTPException(
-            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+            status_code=HTTPStatus.CONFLICT,
             detail="Current user already exists."
-        )
-    except Exception as e:
-        logger.error(f"Error during register: {str(e)}")
-        raise HTTPException(
-            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
-            detail="Error during register."
         )
 
 
@@ -85,7 +79,22 @@ async def login(
     summary='Логауит пользователя',
     description='Логаутит пользователя. Удаляет его токены'
 )
-async def logout(db: Annotated[AsyncSession, Depends(get_session)]):
+async def logout(
+    db: Annotated[AsyncSession, Depends(get_session)],
+
+):
+    '''Логаут'''
+    pass
+
+
+@router.post(
+    '/full_logout',
+    summary='Логауит пользователя',
+    description='Логаутит пользователя. Удаляет его токены'
+)
+async def full_logout(
+    db: Annotated[AsyncSession, Depends(get_session)]
+):
     '''Логаут'''
     pass
 
