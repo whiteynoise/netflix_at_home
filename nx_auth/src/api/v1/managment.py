@@ -29,20 +29,14 @@ async def create_role(
         db: Annotated[AsyncSession, Depends(get_session)],
 ):
     '''Создание роли'''
+
     try:
-        await management_service.create_role(**role.model_dump(), db=db)
-        return True
-    except IntegrityError as e:
-        logger.error(f"Current role already exists: {str(e)}")
+        return await management_service.create_role(**role.model_dump(), db=db)
+    
+    except IntegrityError:
         raise HTTPException(
-            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+            status_code=HTTPStatus.CONFLICT,
             detail="Current role already exists."
-        )
-    except Exception as e:
-        logger.error(f"Error during create role: {str(e)}")
-        raise HTTPException(
-            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
-            detail="Error during create role."
         )
 
 
@@ -64,15 +58,10 @@ async def delete_role(
             status_code=HTTPStatus.NOT_FOUND,
             detail=f"Role with id {role_id} does not exists."
         )
-    try:
-        await management_service.delete_role(role, db=db)
-        return True
-    except Exception as e:
-        logger.error(f"Error during delete role: {str(e)}")
-        raise HTTPException(
-            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
-            detail="Error during delete role."
-        )
+
+    await management_service.delete_role(role, db=db)
+
+    return True
 
 
 @router.delete(
@@ -97,30 +86,15 @@ async def delete_user_role(
             detail="Role not found."
         )
 
-    query = select(user_roles).where(
-        user_roles.c.user_id == params.user_id,
-        user_roles.c.role_id == params.role_id,
-    )
+    result = await management_service.delete_user_role(**params.model_dump(), db=db)
 
-    result = await db.execute(query)
-    user_role = result.scalar_one_or_none()
-    logger.info(f"User-role: {user_role}")
-
-    if not user_role:
-        logger.error(f"Current user have not got current role")
+    if not result:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND,
-            detail="Current user have not got current role"
+            detail="Current user hasn't current role"
         )
-    try:
-        await management_service.delete_user_role(user_role, db=db)
-        return True
-    except Exception as e:
-        logger.error(f"Error during delete role from user: {str(e)}")
-        raise HTTPException(
-            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
-            detail="Error during delete role from user"
-        )
+
+    return True
 
 
 @router.put(
@@ -141,7 +115,7 @@ async def change_role(
     if not result:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND,
-            detail="Nothing was updated. The role was probably not found."
+            detail="Nothing was updated. The role wasn't found."
         )
 
     return True
@@ -172,7 +146,14 @@ async def add_role_to_user(
             detail="Role not found."
         )
 
-    return await management_service.add_role_to_user(data_to_add=params.model_dump(), db=db)
+    try:
+        return await management_service.add_role_to_user(data_to_add=params.model_dump(), db=db)
+    
+    except IntegrityError:
+        raise HTTPException(
+            status_code=HTTPStatus.CONFLICT,
+            detail="Current user already has certain role."
+        )
 
 
 @router.get(

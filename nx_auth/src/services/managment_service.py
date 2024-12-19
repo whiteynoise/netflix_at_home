@@ -11,20 +11,24 @@ class ManagementService:
 
     async def create_role(self, role_title: str, db: AsyncSession):
         '''Создание роли'''
-        logger.info(f"Create role: {role_title}")
-        db.add(Roles(title=role_title))
-        await db.commit()
+        await db.execute(insert(Roles).values(title=role_title))
 
-    async def delete_role(self, role: Roles, db: AsyncSession):
+    async def delete_role(self, role, db: AsyncSession):
         '''Удаление роли'''
-        logger.info(f"Delete role: {role.role_id}")
         await db.delete(role)
-        await db.commit()
 
-    async def delete_user_role(self, user_role_id: UUID, db: AsyncSession):
+    async def delete_user_role(self, user_id: UUID, role_id: UUID, db: AsyncSession):
         '''Удаление роли у конкретного пользователя'''
-        await db.execute(delete(user_roles).where(user_roles.c.user_role_id == user_role_id))
-        await db.commit()
+        return (
+            await db.execute(
+                delete(user_roles)
+                .where(
+                    (user_roles.c.user_id == user_id) &
+                    (user_roles.c.role_id == role_id)
+                )
+                .returning(user_roles.c.user_id)
+            )
+        ).scalars().first()
 
     async def get_user_info_by_id(self, user_id: UUID, db: AsyncSession):
         '''Получение информации о пользователе по его uuid.'''
@@ -44,7 +48,7 @@ class ManagementService:
             )
         ).scalars().first()
 
-    async def change_role(self, role_id: str, title: str, db: AsyncSession):
+    async def change_role(self, role_id: UUID, title: str, db: AsyncSession):
         '''Изменение роли.'''
         returned_value = (
             await db.execute(
@@ -55,8 +59,6 @@ class ManagementService:
             )
         ).scalars().first()
 
-        await db.commit()
-
         return returned_value
 
     async def add_role_to_user(self, data_to_add: dict, db: AsyncSession):
@@ -65,7 +67,6 @@ class ManagementService:
             insert(user_roles)
             .values(data_to_add)
         )
-        await db.commit()
 
         return True
 
@@ -78,7 +79,7 @@ class ManagementService:
             )
         ).scalars().all()
 
-    async def get_user_roles(self, user_id: str, db: AsyncSession):
+    async def get_user_roles(self, user_id: UUID, db: AsyncSession):
         '''Получение всех ролей пользователя.'''
         return (
             await db.execute(
