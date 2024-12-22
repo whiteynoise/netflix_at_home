@@ -12,6 +12,8 @@ from sqlalchemy.exc import IntegrityError
 
 from db.postgres import get_session
 from schemas.entity import UserCreate, TokenData
+from services.token_service import TokenService, get_token_service
+from services.tools import get_current_user
 
 router = APIRouter(tags=['auth'])
 
@@ -49,6 +51,7 @@ async def register(
 async def login(
         get_user: Annotated[TokenData, Body()],
         auth_service: Annotated[AuthService, Depends(get_auth_service)],
+        token_service: Annotated[TokenService, Depends(get_token_service)],
         db: Annotated[AsyncSession, Depends(get_session)],
 ):
     '''Логин'''
@@ -68,14 +71,7 @@ async def login(
             detail="Wrong password."
         )
 
-    try:
-        tokens = await auth_service.token(user, db)
-    except Exception as e:
-        logger.error(f"Error during generating tokens: {str(e)}")
-        raise HTTPException(
-            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
-            detail="Error during generating tokens."
-        )
+    tokens = await auth_service.token(user, db, token_service)
 
     return tokens
 
