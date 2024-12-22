@@ -2,20 +2,17 @@ from typing import Annotated
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import Depends, HTTPException, Header
 from http import HTTPStatus
-from sqlalchemy.future import select
-from sqlalchemy import and_
 
 from core.config import settings
 from db.postgres import get_session
 import jwt
 from jwt import PyJWTError
 
-from models.entity import Users
+from schemas.entity import Token
 
 
 async def get_current_user(
         access_token: Annotated[str, Header(alias='Authorization')],
-        db:  Annotated[AsyncSession, Depends(get_session)]
 ):
     '''Получение пользователя по токену'''
     credentials_exception = HTTPException(
@@ -26,25 +23,24 @@ async def get_current_user(
 
     try:
         # TODO проверка в редисе что токен не в блеклисте
-        payload = jwt.decode(access_token, settings.secret_key, algorithms=[settings.algorithm])
-        email: str = payload.get("email")
-        username: str = payload.get("username")
+        payload = jwt.decode(
+            access_token,
+            settings.secret_key,
+            algorithms=[settings.algorithm],
+        )
+        token = Token(
+            user_id=payload.get("user_id"),
+            email=payload.get("email"),
+            username=payload.get("username"),
+        )
 
-        if not email or not username:
+        if not token.email or not token.username:
             return credentials_exception
 
-    except PyJWTError as e:
+    except PyJWTError:
         raise credentials_exception
 
-    query = select(Users).where(
-            and_(Users.username == username, Users.email == email)
-        )
-    result = await db.execute(query)
-    user = result.scalar_one_or_none()
-
-    if user is None:
-        raise credentials_exception
-    return user
+    return token
 
 
 async def authenticate_user(

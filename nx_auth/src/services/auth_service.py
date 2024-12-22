@@ -1,5 +1,8 @@
 import datetime
 from functools import lru_cache
+from typing import Annotated
+from fastapi import Depends
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from sqlalchemy.future import select
@@ -11,7 +14,8 @@ from schemas.response import Token
 from loguru import logger
 
 from models.entity import Users, LoginHistory
-import jwt
+
+from services.token_service import TokenService, get_token_service
 
 
 class AuthService:
@@ -47,8 +51,12 @@ class AuthService:
         return user.check_password(password)
 
 
-    @staticmethod
-    async def token(user: Users, db: AsyncSession) -> Token:
+    async def token(
+            self,
+            user: Users,
+            db: AsyncSession,
+            token_service: Annotated[TokenService, Depends(get_token_service)]
+    ) -> Token:
         '''Отдает токены для пользователя в системе.'''
         logger.info(f'Generate token for: {user.username}, {user.email}')
         payload = {
@@ -57,10 +65,7 @@ class AuthService:
             'email': user.email,
             'exp': datetime.datetime.now() + datetime.timedelta(minutes=settings.access_token_expire_minutes)
         }
-        access_token = jwt.encode(payload, settings.secret_key, algorithm=settings.algorithm)
-
-        payload['exp'] = datetime.datetime.now() + datetime.timedelta(minutes=settings.refresh_token_expire_minutes)
-        refresh_token = jwt.encode(payload, settings.secret_key, algorithm=settings.algorithm)
+        access_token, refresh_token = token_service.generate_access_refresh_token(payload)
 
         await db.execute(
             insert(LoginHistory)

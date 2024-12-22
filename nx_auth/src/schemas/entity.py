@@ -45,3 +45,8 @@ class TokenData(BaseModel):
     username: str | None
     email: str | None
     password: str | None
+
+class Token(BaseModel):
+    user_id: str | None
+    username: str | None
+    email: str | None
