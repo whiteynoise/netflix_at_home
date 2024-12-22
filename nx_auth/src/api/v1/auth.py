@@ -47,19 +47,25 @@ async def register(
     response_model=Token,
 )
 async def login(
-        user: Annotated[TokenData, Body()],
+        get_user: Annotated[TokenData, Body()],
         auth_service: Annotated[AuthService, Depends(get_auth_service)],
         db: Annotated[AsyncSession, Depends(get_session)],
 ):
     '''Логин'''
-    logger.error(f"Login user {user.user_id} {user.email} {user.username}")
-    user: Users | None = await auth_service.identificate_user(user, db)
+    logger.error(f"Login user {get_user.email} {get_user.username}")
+    user: Users | None = await auth_service.identificate_user(get_user, db)
 
     if not user:
-        logger.error(f"User {user.user_id} {user.email} {user.username} not found")
+        logger.error(f"User {user.email} {user.username} not found")
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND,
             detail="User with this email or username does not exists"
+        )
+    if not await auth_service.check_password(get_user.password, user):
+        logger.error(f"Wrong password")
+        raise HTTPException(
+            status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
+            detail="Wrong password."
         )
 
     try:

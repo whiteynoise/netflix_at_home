@@ -42,6 +42,6 @@ class ChangeRole(BaseModel):
 ### TOKEN ###
 
 class TokenData(BaseModel):
-    user_id: UUID
     username: str | None
     email: str | None
+    password: str | None

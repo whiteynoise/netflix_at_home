@@ -43,6 +43,11 @@ class AuthService:
         return user
 
     @staticmethod
+    async def check_password(password: str, user: Users):
+        return user.check_password(password)
+
+
+    @staticmethod
     async def token(user: Users, db: AsyncSession) -> Token:
         '''Отдает токены для пользователя в системе.'''
         logger.info(f'Generate token for: {user.username}, {user.email}')
