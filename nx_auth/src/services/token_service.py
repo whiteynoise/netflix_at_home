@@ -15,7 +15,7 @@ class TokenService(BaseService):
         super().__init__(storage)
 
     async def renew_access_token(self, user):
-        token = TokenData(user.id, user.username)
+        token = TokenData(username=user.username, email=user.email)
         self.generate_access_token(token)
         pass
 

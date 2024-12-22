@@ -69,10 +69,6 @@ class AuthService:
 
         return Token(access_token=access_token, refresh_token=refresh_token)
 
-    @staticmethod
-    async def authenticate_user(username: str, password: str):
-        user = "взять из бд, если есть -> проверить пароль"
-        user.check_password(password)
 
 
 @lru_cache()
