@@ -122,7 +122,7 @@ async def change_user_info(
     if not username and not email and not password:
         raise HTTPException(
             status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
-            detail="Email or username or password must be in form"
+            detail='Email or username or password must be in form'
         )
 
     if email:
@@ -136,16 +136,16 @@ async def change_user_info(
 
         try:
             return {
-                "access_token": token_service.generate_new_payload_access(change_info.token, data)
+                'access_token': token_service.generate_new_payload_access(change_info.token, data)
             }
         except InvalidSignatureError:
             raise HTTPException(
                 status_code=HTTPStatus.BAD_REQUEST,
-                detail="Incorrect data"
+                detail='Incorrect data'
             )
     raise HTTPException(
         status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
-        detail="failed update user info"
+        detail='failed update user info'
     )
 
 
