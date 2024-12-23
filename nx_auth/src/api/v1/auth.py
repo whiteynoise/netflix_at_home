@@ -79,10 +79,13 @@ async def login(
 
 @router.post(
     '/logout',
-    summary='Логауит пользователя',
+    summary='Логаутит пользователя',
     description='Логаутит пользователя. Удаляет его токены'
 )
 async def logout(
+    get_user: Annotated[TokenData, Body()],
+    auth_service: Annotated[AuthService, Depends(get_auth_service)],
+    token_service: Annotated[TokenService, Depends(get_token_service)],
     db: Annotated[AsyncSession, Depends(get_session)],
 
 ):
@@ -92,7 +95,7 @@ async def logout(
 
 @router.post(
     '/full_logout',
-    summary='Логауит пользователя',
+    summary='Логаутит пользователя',
     description='Логаутит пользователя. Удаляет его токены'
 )
 async def full_logout(

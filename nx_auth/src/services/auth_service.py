@@ -12,10 +12,12 @@ from sqlalchemy import insert, and_, update, desc
 
 from core.config import settings
 from schemas.entity import UserCreate, TokenData
-from schemas.response import Token, History
+from schemas.response import Token
+from db.const import constants
+from schemas.response import Token
 from loguru import logger
 
-from models.entity import Users, LoginHistory
+from models.entity import Users, LoginHistory, user_roles
 
 from services.token_service import TokenService, get_token_service
 
@@ -24,16 +26,21 @@ class AuthService:
 
     async def register(self, user: UserCreate, db: AsyncSession) -> None:
         '''Метод регистрации пользователя.'''
-        db.add(Users(**user.model_dump()))
-        await db.commit()
+        
+        new_user = Users(**user.model_dump())
+        db.add(new_user)
+        
+        await db.flush()
+
+        await db.execute(
+            insert(user_roles)
+            .values(
+                user_id=new_user.user_id,
+                role_id=constants.roles.get('base_user')
+            )
+        )
 
     async def logout(self, user):
-        pass
-
-    async def change_user(self, body):
-        pass
-
-    async def login_history(self, user):
         pass
 
     @staticmethod
