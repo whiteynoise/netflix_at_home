@@ -28,15 +28,3 @@ async def get_session():
         except Exception as e:
             await session.rollback()
             raise e
-
-
-async def create_database() -> None:
-    '''Создание всех таблиц'''
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-
-
-async def purge_database() -> None:
-    '''Удаление всех таблиц'''
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)

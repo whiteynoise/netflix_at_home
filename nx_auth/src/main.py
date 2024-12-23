@@ -6,17 +6,15 @@ from loguru import logger
 
 from api.v1 import auth, managment, token
 from core.config import PROJECT_NAME
-
-from alembic import command
-from alembic.config import Config
+from db.const import constants
 
 logger.add("info.log", format="Log: [{time} - {level} - {message}]", level="INFO", enqueue=True)
 
 
 @asynccontextmanager
 async def lifespan(app_: FastAPI):
-    # alembic_cfg = Config("alembic.ini")
-    # command.upgrade(alembic_cfg, "head")
+    logger.info("Loading constants...")
+    await constants.initialize()
     yield
 
 
