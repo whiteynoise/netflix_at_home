@@ -1,16 +1,18 @@
 import datetime
 from functools import lru_cache
 from typing import Annotated
+from uuid import UUID
+
 from fastapi import Depends
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from sqlalchemy.future import select
-from sqlalchemy import insert, and_
+from sqlalchemy import insert, and_, update, desc
 
 from core.config import settings
 from schemas.entity import UserCreate, TokenData
-from schemas.response import Token
+from schemas.response import Token, History
 from loguru import logger
 
 from models.entity import Users, LoginHistory
@@ -50,7 +52,6 @@ class AuthService:
     async def check_password(password: str, user: Users):
         return user.check_password(password)
 
-
     async def token(
             self,
             user: Users,
@@ -74,6 +75,17 @@ class AuthService:
 
         return Token(access_token=access_token, refresh_token=refresh_token)
 
+    async def update_user(self, user_id: UUID, data: dict, db: AsyncSession):
+        '''Обновление пользователя'''
+        query = update(Users).where(Users.user_id == user_id).values(**data)
+        await db.execute(query)
+        return True
+
+    async def get_login_history(self, user_id: UUID, db: AsyncSession):
+        '''Получает историю входов в систему'''
+        query = select(LoginHistory).where(LoginHistory.user_id == user_id).order_by(desc(LoginHistory.login_date))
+        result = await db.scalars(query)
+        return result
 
 
 @lru_cache()
