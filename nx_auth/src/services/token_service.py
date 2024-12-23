@@ -1,9 +1,12 @@
 import datetime
 from functools import lru_cache
+from http import HTTPStatus
 
 from core.config import settings
 from schemas.entity import TokenData
 import jwt
+from jwt import InvalidSignatureError
+from fastapi import HTTPException
 
 
 class TokenService:
@@ -25,6 +28,22 @@ class TokenService:
 
         return access_token, refresh_token
 
+    def generate_new_payload_access(self, access_token, get_payload):
+        # TODO старый токен кинуть в блеклист
+
+        data = jwt.decode(
+            access_token,
+            settings.secret_key,
+            algorithms=[settings.algorithm],
+        )
+        new_access_token_data = {
+            'user_id': data.get('user_id'),
+            'username': get_payload.get('username') or data.get('username'),
+            'email': get_payload.get('email') or data.get('email'),
+            'exp': data.get('exp'),
+        }
+        new_access_token_data = jwt.encode(new_access_token_data, settings.secret_key, algorithm=settings.algorithm)
+        return new_access_token_data
 
 @lru_cache()
 def get_token_service() -> TokenService:
