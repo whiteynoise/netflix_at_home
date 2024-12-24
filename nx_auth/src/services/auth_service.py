@@ -1,9 +1,6 @@
 import datetime
 from functools import lru_cache
-from typing import Annotated
 from uuid import UUID
-
-from fastapi import Depends
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -11,15 +8,17 @@ from sqlalchemy.future import select
 from sqlalchemy import insert, and_, update, desc
 
 from core.config import settings
+from db.redis import get_redis
 from schemas.entity import UserCreate, TokenData
-from schemas.response import Token
 from db.const import constants
 from schemas.response import Token
 from loguru import logger
 
 from models.entity import Users, LoginHistory, user_roles
+from services.managment_service import ManagementService
+from services.storage import get_redis_storage
 
-from services.token_service import TokenService, get_token_service
+from services.token_service import TokenService
 
 
 class AuthService:
@@ -59,18 +58,23 @@ class AuthService:
     async def check_password(password: str, user: Users):
         return user.check_password(password)
 
-    async def token(
+    async def login(
             self,
             user: Users,
             db: AsyncSession,
-            token_service: Annotated[TokenService, Depends(get_token_service)]
+            token_service: TokenService,
+            management_service: ManagementService,
     ) -> Token:
         '''Отдает токены для пользователя в системе.'''
         logger.info(f'Generate token for: {user.username}, {user.email}')
+
+        roles = await management_service.get_user_roles(user.user_id, db)
+
         payload = {
             'user_id': str(user.user_id),
             'username': user.username,
             'email': user.email,
+            'roles': [role.title for role in roles],
             'exp': datetime.datetime.now() + datetime.timedelta(minutes=settings.access_token_expire_minutes)
         }
         access_token, refresh_token = token_service.generate_access_refresh_token(payload)
@@ -79,6 +83,9 @@ class AuthService:
             insert(LoginHistory)
             .values(user_id=user.user_id, token=refresh_token)
         )
+
+        redis_storage = get_redis_storage(await get_redis())
+        await redis_storage.set_value(str(user.user_id), access_token)
 
         return Token(access_token=access_token, refresh_token=refresh_token)
 

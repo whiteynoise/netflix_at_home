@@ -1,3 +1,4 @@
+from typing import List
 from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, Field
@@ -27,7 +28,6 @@ class UserAuth(BaseModel):
 
 class UserChangeInfo(BaseModel):
     user_id: UUID
-    token: str
     username: str = None
     email: str = None
     password: str = None
@@ -63,7 +63,8 @@ class TokenData(BaseModel):
     email: str | None
     password: str | None
 
-class Token(BaseModel):
+class TokenPayload(BaseModel):
     user_id: str | None
     username: str | None
     email: str | None
+    roles: List[str]

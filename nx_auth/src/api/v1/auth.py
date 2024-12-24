@@ -13,8 +13,11 @@ from werkzeug.security import generate_password_hash
 
 from jwt import InvalidSignatureError
 from db.postgres import get_session
-from schemas.entity import UserCreate, TokenData, UserChangeInfo, UserHistory
+from schemas.entity import UserCreate, TokenData, UserChangeInfo, UserHistory, TokenPayload
+from services.managment_service import ManagementService, get_management_service
+from services.permissions import auth_required
 from services.token_service import TokenService, get_token_service
+from services.tools import get_current_user
 
 router = APIRouter(tags=['auth'])
 
@@ -53,6 +56,7 @@ async def login(
         get_user: Annotated[TokenData, Body()],
         auth_service: Annotated[AuthService, Depends(get_auth_service)],
         token_service: Annotated[TokenService, Depends(get_token_service)],
+        management_service: Annotated[ManagementService, Depends(get_management_service)],
         db: Annotated[AsyncSession, Depends(get_session)],
 ):
     '''Логин'''
@@ -72,8 +76,7 @@ async def login(
             detail="Wrong password."
         )
 
-    tokens = await auth_service.token(user, db, token_service)
-
+    tokens = await auth_service.login(user, db, token_service, management_service)
     return tokens
 
 
@@ -90,6 +93,7 @@ async def logout(
 
 ):
     '''Логаут'''
+    # TODO тут еще нужно добавлять в блеклист
     pass
 
 
@@ -102,6 +106,8 @@ async def full_logout(
     db: Annotated[AsyncSession, Depends(get_session)]
 ):
     '''Логаут'''
+    # TODO тут еще нужно добавлять в блеклист
+    # add_in_blacklist
     pass
 
 
@@ -111,6 +117,7 @@ async def full_logout(
     description='Изменяет информацию о пароле и логине',
 )
 async def change_user_info(
+        user: Annotated[TokenPayload, Depends(get_current_user)],
         change_info: Annotated[UserChangeInfo, Body()],
         token_service: Annotated[TokenService, Depends(get_token_service)],
         auth_service: Annotated[AuthService, Depends(get_auth_service)],
@@ -128,9 +135,9 @@ async def change_user_info(
             detail='Email or username or password must be in form'
         )
 
-    if email:
+    if email and email != user.email:
         data['email'] = email
-    if username:
+    if username and username != user.username:
         data['username'] = username
     if password:
         data['password'] = generate_password_hash(password)
@@ -158,14 +165,16 @@ async def change_user_info(
     description='История входов в аккаунт',
     response_model=list[History]
 )
+@auth_required
 async def enter_history(
-        user: Annotated[UserHistory, Depends()],
+        user: Annotated[TokenPayload, Depends(get_current_user)],
+        get_user: Annotated[UserHistory, Depends()],
         auth_service: Annotated[AuthService, Depends(get_auth_service)],
         db: Annotated[AsyncSession, Depends(get_session)]
 ):
     '''История входов в аккаунт'''
 
-    result = await auth_service.get_login_history(user.user_id, db)
+    result = await auth_service.get_login_history(get_user.user_id, db)
 
     history_list = [
         History(

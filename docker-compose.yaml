@@ -82,6 +82,7 @@ services:
       - ./nx_auth:/app
     depends_on:
       - database
+      - redis
 
 volumes:
   redis_volume:

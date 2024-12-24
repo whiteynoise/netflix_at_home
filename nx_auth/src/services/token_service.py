@@ -5,8 +5,6 @@ from http import HTTPStatus
 from core.config import settings
 from schemas.entity import TokenData
 import jwt
-from jwt import InvalidSignatureError
-from fastapi import HTTPException
 
 
 class TokenService:
@@ -23,6 +21,7 @@ class TokenService:
 
     def generate_access_refresh_token(self, payload):
         access_token = jwt.encode(payload, settings.secret_key, algorithm=settings.algorithm)
+        del payload['roles']
         payload['exp'] = datetime.datetime.now() + datetime.timedelta(minutes=settings.refresh_token_expire_minutes)
         refresh_token = jwt.encode(payload, settings.secret_key, algorithm=settings.algorithm)
 
