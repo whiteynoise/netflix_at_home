@@ -5,15 +5,17 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Body
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from loguru import logger
-
-from models.entity import Roles, user_roles
-from schemas.entity import ChangeRole, AddUserRoles, CreateRole
+from models.entity import Roles
+from schemas.entity import ChangeRole, AddUserRoles, CreateRole, TokenPayload
 from schemas.response import GetRolesResponse
 from services.managment_service import ManagementService, get_management_service
 from db.postgres import get_session
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
+from loguru import logger
+
+from services.permissions import required
+from services.tools import get_current_user
 
 router = APIRouter(tags=['managment'])
 
@@ -23,6 +25,7 @@ router = APIRouter(tags=['managment'])
     summary='Создание роли',
     description='Создание роли для пользователя'
 )
+@required(["admin"])
 async def create_role(
         role: Annotated[CreateRole, Body()],
         management_service: Annotated[ManagementService, Depends(get_management_service)],
@@ -45,6 +48,7 @@ async def create_role(
     summary='Удаление роли',
     description='Удаление роли'
 )
+@required(["admin"])
 async def delete_role(
         role_id: UUID,
         management_service: Annotated[ManagementService, Depends(get_management_service)],
@@ -65,36 +69,55 @@ async def delete_role(
 
 
 @router.delete(
-    '/delete_role/{user_id}/{role_id}',
+    '/delete_role',
     summary='Удаление роли у пользователя',
-    description='Удаление роли у пользователя'
+    description='Удаление роли у пользователя',
+    response_model=dict
 )
+@required(["admin"])
 async def delete_user_role(
-        params: Annotated[AddUserRoles, Depends()],
+        user: Annotated[TokenPayload, Depends(get_current_user)],
+        params: Annotated[AddUserRoles, Body()],
         management_service: Annotated[ManagementService, Depends(get_management_service)],
         db: Annotated[AsyncSession, Depends(get_session)],
 ):
+    '''Удаление роли'''
+
     if not await management_service.get_user_info_by_id(user_id=params.user_id, db=db):
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND,
             detail="User not found."
         )
 
-    if not await management_service.get_role_info_by_id(role_id=params.role_id, db=db):
+    if not (role := await management_service.get_role_info_by_id(role_id=params.role_id, db=db)):
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND,
             detail="Role not found."
         )
-
-    result = await management_service.delete_user_role(**params.model_dump(), db=db)
+    logger.info(f"{user.roles}, {role.title}")
+    try:
+        payload = {
+            'roles': user.roles.remove(role.title)
+        }
+        access_token = await management_service.generate_new_payload_access(user.token, payload)
+        result = await management_service.delete_user_role(**params.model_dump(), db=db)
+    except IntegrityError:
+        raise HTTPException(
+            status_code=HTTPStatus.CONFLICT,
+            detail="Current user already has certain role."
+        )
+    except ValueError:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND,
+            detail="Current role not in verify."
+        )
 
     if not result:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND,
             detail="Current user hasn't current role"
         )
-
-    return True
+    return {"access_token": access_token}
 
 
 @router.put(
@@ -103,6 +126,7 @@ async def delete_user_role(
     description='Изменение роли',
     response_model=bool
 )
+@required(["admin"])
 async def change_role(
         role: Annotated[ChangeRole, Depends()],
         management_service: Annotated[ManagementService, Depends(get_management_service)],
@@ -125,10 +149,12 @@ async def change_role(
     '/add_role_to_user',
     summary='Добавить роль пользователю',
     description='Добавить роль пользователю',
-    response_model=bool
+    response_model=dict
 )
+@required(["admin"])
 async def add_role_to_user(
-        params: Annotated[AddUserRoles, Depends()],
+        user: Annotated[TokenPayload, Depends(get_current_user)],
+        params: Annotated[AddUserRoles, Body()],
         management_service: Annotated[ManagementService, Depends(get_management_service)],
         db: Annotated[AsyncSession, Depends(get_session)],
 ):
@@ -140,14 +166,19 @@ async def add_role_to_user(
             detail="User not found."
         )
 
-    if not await management_service.get_role_info_by_id(role_id=params.role_id, db=db):
+    if not (role := await management_service.get_role_info_by_id(role_id=params.role_id, db=db)):
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND,
             detail="Role not found."
         )
 
     try:
-        return await management_service.add_role_to_user(data_to_add=params.model_dump(), db=db)
+        payload = {
+            'roles': user.roles.append(role.title)
+        }
+        access_token = await management_service.generate_new_payload_access(user.token, payload)
+        await management_service.add_role_to_user(data_to_add=params.model_dump(), db=db)
+        return {"access_token": access_token}
     
     except IntegrityError:
         raise HTTPException(
@@ -162,6 +193,7 @@ async def add_role_to_user(
     description='Получение всех ролей в системе',
     response_model=list[GetRolesResponse]
 )
+@required(["admin"])
 async def get_all_roles(
         management_service: ManagementService = Depends(get_management_service),
 ):
@@ -184,6 +216,7 @@ async def get_all_roles(
     description='Получение всех ролей пользователя',
     response_model=list[GetRolesResponse]
 )
+@required(["admin"])
 async def get_user_roles(
         user_id: str,
         management_service: ManagementService = Depends(get_management_service),

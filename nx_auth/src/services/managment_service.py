@@ -6,8 +6,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from models.entity import Users, Roles, user_roles
 from loguru import logger
 
+from services.token_service import TokenService
 
-class ManagementService:
+
+class ManagementService(TokenService):
 
     async def create_role(self, role_title: str, db: AsyncSession):
         '''Создание роли'''
@@ -90,6 +92,7 @@ class ManagementService:
                 .order_by(asc(Roles.title))
             )
         ).scalars().all()
+
 
 
 @lru_cache()

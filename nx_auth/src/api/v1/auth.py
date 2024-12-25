@@ -1,6 +1,8 @@
 from http import HTTPStatus
 
 from typing import Annotated
+from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException, Body
 
 from models.entity import Users
@@ -9,13 +11,12 @@ from services.auth_service import AuthService, get_auth_service
 from sqlalchemy.ext.asyncio import AsyncSession
 from loguru import logger
 from sqlalchemy.exc import IntegrityError
-from werkzeug.security import generate_password_hash
 
 from jwt import InvalidSignatureError
 from db.postgres import get_session
 from schemas.entity import UserCreate, TokenData, UserChangeInfo, UserHistory, TokenPayload
 from services.managment_service import ManagementService, get_management_service
-from services.permissions import auth_required
+from services.permissions import required
 from services.token_service import TokenService, get_token_service
 from services.tools import get_current_user
 
@@ -64,7 +65,7 @@ async def login(
     user: Users | None = await auth_service.identificate_user(get_user, db)
 
     if not user:
-        logger.error(f"User {user.email} {user.username} not found")
+        logger.error(f"User {get_user.email} {get_user.username} not found")
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND,
             detail="User with this email or username does not exists"
@@ -110,13 +111,14 @@ async def full_logout(
     # add_in_blacklist
     pass
 
-
 @router.patch(
-    '/change_user',
+    '/change_user/{user_id}',
     summary='Изменяет информацию о пароле и логине',
     description='Изменяет информацию о пароле и логине',
 )
+@required(["base_user"])
 async def change_user_info(
+        user_id: UUID,
         user: Annotated[TokenPayload, Depends(get_current_user)],
         change_info: Annotated[UserChangeInfo, Body()],
         token_service: Annotated[TokenService, Depends(get_token_service)],
@@ -124,29 +126,19 @@ async def change_user_info(
         db: Annotated[AsyncSession, Depends(get_session)],
 ):
     '''Смена информации о пользователе'''
-    data: dict = {}
-    username: str = change_info.username
-    email: str = change_info.email
-    password: str = change_info.password
 
-    if not username and not email and not password:
+    if not change_info.username and not change_info.email and not change_info.password:
         raise HTTPException(
             status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
             detail='Email or username or password must be in form'
         )
 
-    if email and email != user.email:
-        data['email'] = email
-    if username and username != user.username:
-        data['username'] = username
-    if password:
-        data['password'] = generate_password_hash(password)
+    data = change_info.model_dump(exclude_none=True)
 
-    if await auth_service.update_user(change_info.user_id, data, db):
-
+    if await auth_service.update_user(user_id, data, db):
         try:
             return {
-                'access_token': token_service.generate_new_payload_access(change_info.token, data)
+                'access_token': await token_service.generate_new_payload_access(user.token, data)
             }
         except InvalidSignatureError:
             raise HTTPException(
@@ -165,7 +157,7 @@ async def change_user_info(
     description='История входов в аккаунт',
     response_model=list[History]
 )
-@auth_required
+@required(["base_user"])
 async def enter_history(
         user: Annotated[TokenPayload, Depends(get_current_user)],
         get_user: Annotated[UserHistory, Depends()],

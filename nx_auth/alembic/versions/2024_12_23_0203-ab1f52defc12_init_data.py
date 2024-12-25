@@ -28,5 +28,5 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     op.execute("""
-        DELETE FROM auth.roles where role_id in ('admin', 'base_user', 'sub_user');
+        DELETE FROM auth.roles where title in ('admin', 'base_user', 'sub_user');
     """)

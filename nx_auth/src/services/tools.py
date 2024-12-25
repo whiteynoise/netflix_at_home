@@ -13,8 +13,8 @@ from services.storage import get_redis_storage
 
 
 async def get_current_user(
-        access_token: Annotated[str, Header(alias='Authorization')],
-):
+    access_token: Annotated[str, Header(alias='Authorization')],
+) -> TokenPayload | HTTPException:
     '''Получение пользователя по токену'''
     credentials_exception = HTTPException(
         status_code=HTTPStatus.UNAUTHORIZED,
@@ -22,9 +22,8 @@ async def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
     redis_storage = get_redis_storage(await get_redis())
-    if await redis_storage.check_in_blacklist(access_token):
+    if not await redis_storage.check_in_blacklist(access_token):
         return credentials_exception
-    logger.info(f"Get user {access_token}")
 
     try:
         payload = jwt.decode(
@@ -36,7 +35,8 @@ async def get_current_user(
             user_id=payload.get('user_id'),
             email=payload.get('email'),
             username=payload.get('username'),
-            roles=payload.get('roles')
+            roles=payload.get('roles'),
+            token=access_token
         )
 
         if not token.email or not token.username:
