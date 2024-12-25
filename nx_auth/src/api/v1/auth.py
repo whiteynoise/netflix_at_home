@@ -1,20 +1,19 @@
 from http import HTTPStatus
-
 from typing import Annotated
 from uuid import UUID
 
+from jwt import InvalidSignatureError
 from fastapi import APIRouter, Depends, HTTPException, Body
 
-from models.entity import Users
-from schemas.response import Token, History
-from services.auth_service import AuthService, get_auth_service
-from sqlalchemy.ext.asyncio import AsyncSession
-from loguru import logger
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from jwt import InvalidSignatureError
+from models.entity import Users
 from db.postgres import get_session
-from schemas.entity import UserCreate, TokenData, UserChangeInfo, UserHistory, TokenPayload
+from schemas.response import Token, History
+from schemas.entity import UserCreate, TokenData, UserChangeInfo, TokenPayload
+
+from services.auth_service import AuthService, get_auth_service
 from services.managment_service import ManagementService, get_management_service
 from services.permissions import required
 from services.token_service import TokenService, get_token_service
@@ -61,17 +60,15 @@ async def login(
         db: Annotated[AsyncSession, Depends(get_session)],
 ):
     '''Логин'''
-    logger.error(f"Login user {get_user.email} {get_user.username}")
+
     user: Users | None = await auth_service.identificate_user(get_user, db)
 
     if not user:
-        logger.error(f"User {get_user.email} {get_user.username} not found")
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND,
             detail="User with this email or username does not exists"
         )
     if not await auth_service.check_password(get_user.password, user):
-        logger.error(f"Wrong password")
         raise HTTPException(
             status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
             detail="Wrong password."
@@ -84,37 +81,37 @@ async def login(
 @router.post(
     '/logout',
     summary='Логаутит пользователя',
-    description='Логаутит пользователя. Удаляет его токены'
+    description='Логаутит пользователя, зн'
 )
+@required(["base_user"])
 async def logout(
-    get_user: Annotated[TokenData, Body()],
-    auth_service: Annotated[AuthService, Depends(get_auth_service)],
-    token_service: Annotated[TokenService, Depends(get_token_service)],
-    db: Annotated[AsyncSession, Depends(get_session)],
-
+        user: Annotated[TokenPayload, Depends(get_current_user)],
+        token_service: Annotated[TokenService, Depends(get_token_service)],
+        db: Annotated[AsyncSession, Depends(get_session)],
 ):
     '''Логаут'''
-    # TODO тут еще нужно добавлять в блеклист
-    pass
+    
+    await token_service.revoke_refresh(
+        id_user=user.id_user,
+        db=db
+    )
 
+    await token_service.revoke_access(
+        access_token=user.token,
+        detail_message='Logout by user'
+    )
 
-@router.post(
-    '/full_logout',
-    summary='Логаутит пользователя',
-    description='Логаутит пользователя. Удаляет его токены'
-)
-async def full_logout(
-    db: Annotated[AsyncSession, Depends(get_session)]
-):
-    '''Логаут'''
-    # TODO тут еще нужно добавлять в блеклист
-    # add_in_blacklist
-    pass
+    raise HTTPException(
+        status_code=HTTPStatus.UNAUTHORIZED,
+        detail='Logout',
+    )
+
 
 @router.patch(
     '/change_user/{user_id}',
     summary='Изменяет информацию о пароле и логине',
     description='Изменяет информацию о пароле и логине',
+    response_model=dict
 )
 @required(["base_user"])
 async def change_user_info(
@@ -138,13 +135,14 @@ async def change_user_info(
     if await auth_service.update_user(user_id, data, db):
         try:
             return {
-                'access_token': await token_service.generate_new_payload_access(user.token, data)
+                'access_token': await token_service.generate_new_access(user.token, data)
             }
         except InvalidSignatureError:
             raise HTTPException(
                 status_code=HTTPStatus.BAD_REQUEST,
                 detail='Incorrect data'
             )
+        
     raise HTTPException(
         status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
         detail='failed update user info'
@@ -160,13 +158,12 @@ async def change_user_info(
 @required(["base_user"])
 async def enter_history(
         user: Annotated[TokenPayload, Depends(get_current_user)],
-        get_user: Annotated[UserHistory, Depends()],
         auth_service: Annotated[AuthService, Depends(get_auth_service)],
         db: Annotated[AsyncSession, Depends(get_session)]
 ):
     '''История входов в аккаунт'''
 
-    result = await auth_service.get_login_history(get_user.user_id, db)
+    result = await auth_service.get_login_history(user.user_id, db)
 
     history_list = [
         History(
@@ -177,5 +174,3 @@ async def enter_history(
     ]
 
     return history_list
-
-

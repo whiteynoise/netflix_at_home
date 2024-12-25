@@ -7,12 +7,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy import insert, and_, update, desc
 
-from core.config import settings
 from db.redis import get_redis
 from schemas.entity import UserCreate, TokenData
 from db.const import constants
 from schemas.response import Token
-from loguru import logger
 
 from models.entity import Users, LoginHistory, user_roles
 from services.managment_service import ManagementService
@@ -39,14 +37,10 @@ class AuthService:
             )
         )
 
-    async def logout(self, user):
-        pass
-
     @staticmethod
     async def identificate_user(user: TokenData, db: AsyncSession):
         '''Индетификация пользователя на основе юзернейма и почты'''
 
-        logger.info(f'Identificate_user: {user.username}, {user.email}')
         query = select(Users).where(
             and_(Users.username == user.username, Users.email == user.email)
         )
@@ -66,7 +60,6 @@ class AuthService:
             management_service: ManagementService,
     ) -> Token:
         '''Отдает токены для пользователя в системе.'''
-        logger.info(f'Generate token for: {user.username}, {user.email}')
 
         roles = await management_service.get_user_roles(user.user_id, db)
 
@@ -75,7 +68,6 @@ class AuthService:
             'username': user.username,
             'email': user.email,
             'roles': [role.title for role in roles],
-            'exp': datetime.datetime.now() + datetime.timedelta(minutes=settings.access_token_expire_minutes)
         }
         access_token, refresh_token = token_service.generate_access_refresh_token(payload)
 

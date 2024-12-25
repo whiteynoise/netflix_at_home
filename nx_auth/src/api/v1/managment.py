@@ -3,6 +3,9 @@ from http import HTTPStatus
 
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Body
+
+from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from models.entity import Roles
@@ -10,9 +13,6 @@ from schemas.entity import ChangeRole, AddUserRoles, CreateRole, TokenPayload
 from schemas.response import GetRolesResponse
 from services.managment_service import ManagementService, get_management_service
 from db.postgres import get_session
-from sqlalchemy import select
-from sqlalchemy.exc import IntegrityError
-from loguru import logger
 
 from services.permissions import required
 from services.tools import get_current_user
@@ -46,7 +46,8 @@ async def create_role(
 @router.delete(
     '/delete_role/{role_id}',
     summary='Удаление роли',
-    description='Удаление роли'
+    description='Удаление роли',
+    response_model=bool
 )
 @required(["admin"])
 async def delete_role(
@@ -94,12 +95,12 @@ async def delete_user_role(
             status_code=HTTPStatus.NOT_FOUND,
             detail="Role not found."
         )
-    logger.info(f"{user.roles}, {role.title}")
+
     try:
         payload = {
             'roles': user.roles.remove(role.title)
         }
-        access_token = await management_service.generate_new_payload_access(user.token, payload)
+        access_token = await management_service.generate_new_access(user.token, payload)
         result = await management_service.delete_user_role(**params.model_dump(), db=db)
     except IntegrityError:
         raise HTTPException(
@@ -176,7 +177,7 @@ async def add_role_to_user(
         payload = {
             'roles': user.roles.append(role.title)
         }
-        access_token = await management_service.generate_new_payload_access(user.token, payload)
+        access_token = await management_service.generate_new_access(user.token, payload)
         await management_service.add_role_to_user(data_to_add=params.model_dump(), db=db)
         return {"access_token": access_token}
     

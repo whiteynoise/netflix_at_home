@@ -25,9 +25,6 @@ class RedisStorage(Storage):
     async def set_value(self, user_id: str, access_token: str):
         await self.redis.sadd(user_id, access_token)
 
-    async def get_value(self,  user_id: str, access_token: str) -> Any:
-        pass
-
     async def add_in_blacklist(self, access_token: str):
         await self.redis.sadd(BLACKLIST, access_token)
 
