@@ -13,4 +13,9 @@ PG_CONFIG = {
     "port": settings.postgres_port,
 }
 
+REDIS_CONFIG = {
+    'host': settings.redis_host,
+    'port': settings.redis_port,
+}
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

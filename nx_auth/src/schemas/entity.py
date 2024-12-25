@@ -1,6 +1,8 @@
+from typing import List
 from uuid import UUID
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, field_validator
+from werkzeug.security import generate_password_hash
 
 
 class UserCreate(BaseModel):
@@ -26,11 +28,13 @@ class UserAuth(BaseModel):
 
 
 class UserChangeInfo(BaseModel):
-    user_id: UUID
-    token: str
     username: str = None
     email: str = None
     password: str = None
+
+    @field_validator("password", mode="after")
+    def hash_password(value: str) -> str:
+        return generate_password_hash(value)
 
 
 class UserChangePassword(BaseModel):
@@ -63,7 +67,9 @@ class TokenData(BaseModel):
     email: str | None
     password: str | None
 
-class Token(BaseModel):
+class TokenPayload(BaseModel):
     user_id: str | None
     username: str | None
     email: str | None
+    roles: List[str]
+    token: str

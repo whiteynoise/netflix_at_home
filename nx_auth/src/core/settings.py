@@ -9,6 +9,10 @@ class NXAuthSettings(BaseSettings):
     postgres_password: str
     postgres_host: str
     postgres_port: int
+
+    redis_port: str
+    redis_host: str
+
     secret_key: str
     algorithm: str
     access_token_expire_minutes: int

@@ -5,8 +5,10 @@ from fastapi.responses import ORJSONResponse
 from loguru import logger
 
 from api.v1 import auth, managment, token
-from core.config import PROJECT_NAME
+from core.config import PROJECT_NAME, REDIS_CONFIG
 from db.const import constants
+from redis.asyncio import Redis
+from db import redis
 
 logger.add("info.log", format="Log: [{time} - {level} - {message}]", level="INFO", enqueue=True)
 
@@ -14,6 +16,7 @@ logger.add("info.log", format="Log: [{time} - {level} - {message}]", level="INFO
 @asynccontextmanager
 async def lifespan(app_: FastAPI):
     logger.info("Loading constants...")
+    redis.redis = Redis(**REDIS_CONFIG)
     await constants.initialize()
     yield
 
