@@ -81,7 +81,7 @@ async def login(
 @router.post(
     '/logout',
     summary='Логаутит пользователя',
-    description='Логаутит пользователя, зн'
+    description='Логаутит пользователя'
 )
 @required(["base_user"])
 async def logout(
