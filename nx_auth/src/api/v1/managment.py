@@ -8,6 +8,8 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from constants import RoleName
+
 from models.entity import Roles
 from schemas.entity import ChangeRole, AddUserRoles, CreateRole, TokenPayload
 from schemas.response import GetRolesResponse
@@ -25,8 +27,9 @@ router = APIRouter(tags=['managment'])
     summary='Создание роли',
     description='Создание роли для пользователя'
 )
-@required(["admin"])
+@required([RoleName.ADMIN])
 async def create_role(
+        user: Annotated[TokenPayload, Depends(get_current_user)],
         role: Annotated[CreateRole, Body()],
         management_service: Annotated[ManagementService, Depends(get_management_service)],
         db: Annotated[AsyncSession, Depends(get_session)],
@@ -49,8 +52,9 @@ async def create_role(
     description='Удаление роли',
     response_model=bool
 )
-@required(["admin"])
+@required([RoleName.ADMIN])
 async def delete_role(
+        user: Annotated[TokenPayload, Depends(get_current_user)],
         role_id: UUID,
         management_service: Annotated[ManagementService, Depends(get_management_service)],
         db: Annotated[AsyncSession, Depends(get_session)],
@@ -75,7 +79,7 @@ async def delete_role(
     description='Удаление роли у пользователя',
     response_model=dict
 )
-@required(["admin"])
+@required([RoleName.ADMIN])
 async def delete_user_role(
         user: Annotated[TokenPayload, Depends(get_current_user)],
         params: Annotated[AddUserRoles, Body()],
@@ -102,6 +106,7 @@ async def delete_user_role(
         }
         access_token = await management_service.generate_new_access(user.token, payload)
         result = await management_service.delete_user_role(**params.model_dump(), db=db)
+
     except IntegrityError:
         raise HTTPException(
             status_code=HTTPStatus.CONFLICT,
@@ -127,8 +132,9 @@ async def delete_user_role(
     description='Изменение роли',
     response_model=bool
 )
-@required(["admin"])
+@required([RoleName.ADMIN])
 async def change_role(
+        user: Annotated[TokenPayload, Depends(get_current_user)],
         role: Annotated[ChangeRole, Depends()],
         management_service: Annotated[ManagementService, Depends(get_management_service)],
         db: Annotated[AsyncSession, Depends(get_session)],
@@ -152,7 +158,7 @@ async def change_role(
     description='Добавить роль пользователю',
     response_model=dict
 )
-@required(["admin"])
+@required([RoleName.ADMIN])
 async def add_role_to_user(
         user: Annotated[TokenPayload, Depends(get_current_user)],
         params: Annotated[AddUserRoles, Body()],
@@ -194,8 +200,9 @@ async def add_role_to_user(
     description='Получение всех ролей в системе',
     response_model=list[GetRolesResponse]
 )
-@required(["admin"])
+@required([RoleName.ADMIN])
 async def get_all_roles(
+        user: Annotated[TokenPayload, Depends(get_current_user)],
         management_service: ManagementService = Depends(get_management_service),
 ):
     '''Получение всех ролей'''
@@ -217,9 +224,10 @@ async def get_all_roles(
     description='Получение всех ролей пользователя',
     response_model=list[GetRolesResponse]
 )
-@required(["admin"])
+@required([RoleName.ADMIN])
 async def get_user_roles(
         user_id: str,
+        user: Annotated[TokenPayload, Depends(get_current_user)],
         management_service: ManagementService = Depends(get_management_service),
 ):
     '''Получение всех ролей пользователя'''

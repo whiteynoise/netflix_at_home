@@ -1,21 +1,20 @@
-import datetime
 from functools import lru_cache
 from uuid import UUID
 
+from sqlalchemy import insert, and_, update, desc
+from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from sqlalchemy.future import select
-from sqlalchemy import insert, and_, update, desc
-
 from db.redis import get_redis
-from schemas.entity import UserCreate, TokenData
 from db.const import constants
+
+from schemas.entity import UserCreate, TokenData, PaginatedParams
 from schemas.response import Token
 
 from models.entity import Users, LoginHistory, user_roles
+
 from services.managment_service import ManagementService
 from services.storage import get_redis_storage
-
 from services.token_service import TokenService
 
 
@@ -87,11 +86,23 @@ class AuthService:
         await db.execute(query)
         return True
 
-    async def get_login_history(self, user_id: UUID, db: AsyncSession):
+    async def get_login_history(
+            self,
+            user_id: UUID,
+            pagination: PaginatedParams,
+            db: AsyncSession,
+        ):
         '''Получает историю входов в систему'''
-        query = select(LoginHistory).where(LoginHistory.user_id == user_id).order_by(desc(LoginHistory.login_date))
-        result = await db.scalars(query)
-        return result
+
+        return (
+            await db.execute(
+                select(LoginHistory)
+                .where(LoginHistory.user_id == user_id)
+                .order_by(desc(LoginHistory.login_date))
+                .limit(pagination.page_size)
+                .offset((pagination.page_number - 1) * pagination.page_size)
+            )
+        ).scalars().all()
 
 
 @lru_cache()
