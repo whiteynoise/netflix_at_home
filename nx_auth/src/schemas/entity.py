@@ -1,8 +1,10 @@
-from typing import List
+from fastapi import Query
+from typing import List, Annotated
 from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, Field, field_validator
 from werkzeug.security import generate_password_hash
+
 
 
 class UserCreate(BaseModel):
@@ -68,8 +70,15 @@ class TokenData(BaseModel):
     password: str | None
 
 class TokenPayload(BaseModel):
-    user_id: str | None
-    username: str | None
-    email: str | None
+    user_id: str
+    username: str
+    email: str
     roles: List[str]
     token: str
+
+
+### PAGINATION ###
+
+class PaginatedParams(BaseModel):
+    page_number: Annotated[int, Query(ge=1)] = 1
+    page_size: Annotated[int, Query(ge=1)] = 5

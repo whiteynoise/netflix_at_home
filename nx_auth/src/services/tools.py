@@ -24,8 +24,8 @@ async def get_current_user(
     )
     redis_storage = get_redis_storage(await get_redis())
 
-    if not await redis_storage.check_in_blacklist(jwt_token):
-        return credentials_exception
+    if await redis_storage.check_in_blacklist(jwt_token):
+        raise credentials_exception
 
     try:
         payload = jwt.decode(
@@ -35,21 +35,18 @@ async def get_current_user(
         )
         
         token = TokenPayload(
-            user_id=payload.get('user_id'),
-            email=payload.get('email'),
-            username=payload.get('username'),
+            user_id=payload['user_id'],
+            email=payload['email'],
+            username=payload['username'],
             roles=payload.get('roles'),
             token=jwt_token
         )
-
-        if not token.email or not token.username:
-            return credentials_exception
 
     except ExpiredSignatureError:
         raise HTTPException(
             status_code=HTTPStatus.UNAUTHORIZED
         )
-    except PyJWTError:
+    except (PyJWTError, KeyError):
         raise credentials_exception
 
     return token

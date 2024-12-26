@@ -1,8 +1,9 @@
-from core.config import PG_CONFIG
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm import DeclarativeBase
 import sqlalchemy as sa
+
+from sqlalchemy.orm import sessionmaker, DeclarativeBase
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+
+from core.config import PG_CONFIG
 
 
 class Base(DeclarativeBase):

@@ -18,7 +18,7 @@ class Token(BaseModel):
 
 
 class History(BaseModel):
-    log_id: str
+    log_id: UUID
     login_date: datetime
 
     class Config:

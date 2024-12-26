@@ -1,6 +1,5 @@
 from http import HTTPStatus
 from typing import Annotated
-from uuid import UUID
 
 from jwt import InvalidSignatureError
 from fastapi import APIRouter, Depends, HTTPException, Body
@@ -8,10 +7,13 @@ from fastapi import APIRouter, Depends, HTTPException, Body
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from constants import RoleName
+
 from models.entity import Users
 from db.postgres import get_session
+
 from schemas.response import Token, History
-from schemas.entity import UserCreate, TokenData, UserChangeInfo, TokenPayload
+from schemas.entity import UserCreate, TokenData, UserChangeInfo, TokenPayload, PaginatedParams
 
 from services.auth_service import AuthService, get_auth_service
 from services.managment_service import ManagementService, get_management_service
@@ -83,7 +85,7 @@ async def login(
     summary='Логаутит пользователя',
     description='Логаутит пользователя'
 )
-@required(["base_user"])
+@required([RoleName.BASE_USER])
 async def logout(
         user: Annotated[TokenPayload, Depends(get_current_user)],
         token_service: Annotated[TokenService, Depends(get_token_service)],
@@ -113,9 +115,8 @@ async def logout(
     description='Изменяет информацию о пароле и логине',
     response_model=dict
 )
-@required(["base_user"])
+@required([RoleName.BASE_USER])
 async def change_user_info(
-        user_id: UUID,
         user: Annotated[TokenPayload, Depends(get_current_user)],
         change_info: Annotated[UserChangeInfo, Body()],
         token_service: Annotated[TokenService, Depends(get_token_service)],
@@ -132,7 +133,7 @@ async def change_user_info(
 
     data = change_info.model_dump(exclude_none=True)
 
-    if await auth_service.update_user(user_id, data, db):
+    if await auth_service.update_user(user.user_id, data, db):
         try:
             return {
                 'access_token': await token_service.generate_new_access(user.token, data)
@@ -155,22 +156,17 @@ async def change_user_info(
     description='История входов в аккаунт',
     response_model=list[History]
 )
-@required(["base_user"])
+@required([RoleName.BASE_USER])
 async def enter_history(
         user: Annotated[TokenPayload, Depends(get_current_user)],
+        pagination: Annotated[PaginatedParams, Depends()],
         auth_service: Annotated[AuthService, Depends(get_auth_service)],
         db: Annotated[AsyncSession, Depends(get_session)]
 ):
     '''История входов в аккаунт'''
 
-    result = await auth_service.get_login_history(user.user_id, db)
-
-    history_list = [
-        History(
-            log_id=str(record.log_id),
-            login_date=record.login_date
-        )
-        for record in result
-    ]
-
-    return history_list
+    return await auth_service.get_login_history(
+        user_id=user.user_id,
+        pagination=pagination,
+        db=db
+    )

@@ -51,7 +51,7 @@ def upgrade() -> None:
     sa.Column('is_active', sa.Boolean(), nullable=False, comment='Активен ли текущий логин'),
     sa.Column('login_date', sa.DateTime(), nullable=False, comment='Дата логина'),
     sa.Column('token', sa.String(length=255), nullable=False, comment='Refresh токен'),
-    sa.ForeignKeyConstraint(['user_id'], ['auth.users.user_id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['auth.users.user_id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('log_id'),
     schema='auth'
     )
@@ -60,7 +60,7 @@ def upgrade() -> None:
     sa.Column('user_id', sa.UUID(), nullable=True),
     sa.Column('role_id', sa.UUID(), nullable=True),
     sa.ForeignKeyConstraint(['role_id'], ['auth.roles.role_id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['auth.users.user_id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['auth.users.user_id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('user_role_id'),
     sa.UniqueConstraint('user_id', 'role_id', name='uq_user_role'),
     schema='auth'

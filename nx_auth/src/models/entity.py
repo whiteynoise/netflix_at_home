@@ -13,7 +13,7 @@ user_roles = Table(
     'user_roles',
     Base.metadata,
     Column('user_role_id', UUID(as_uuid=True), primary_key=True, default=uuid.uuid4),
-    Column('user_id', UUID(as_uuid=True), ForeignKey('users.user_id')),
+    Column('user_id', UUID(as_uuid=True), ForeignKey('users.user_id', ondelete="CASCADE")),
     Column('role_id', UUID(as_uuid=True), ForeignKey('roles.role_id')),
     UniqueConstraint('user_id', 'role_id', name='uq_user_role'),
     schema='auth',
@@ -43,7 +43,7 @@ class Users(Base):
 
     created_at = Column(DateTime, default=text('current_timestamp'))
 
-    roles = relationship('Roles', secondary=user_roles, back_populates='users')
+    roles = relationship('Roles', secondary=user_roles, back_populates='users', cascade="all, delete")
 
     def __init__(
         self,
@@ -89,7 +89,7 @@ class LoginHistory(Base):
     )
     user_id = Column(
         UUID(as_uuid=True),
-        ForeignKey('users.user_id'),
+        ForeignKey('users.user_id', ondelete="CASCADE"),
         nullable=False,
         comment='UUID пользователя'
     )
