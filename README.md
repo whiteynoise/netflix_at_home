@@ -1,5 +1,17 @@
 # Проект netflix_at_home
 
+## Используемый стэк технологий
+<div>
+    <img src="https://img.shields.io/badge/FastAPI-005571?style=flat&logo=fastapi"/>&nbsp;
+    <img src="https://img.shields.io/badge/SqlAlchemy-%2307405e.svg?&style=flat&logo=SqlAlchemy&logoColor=white"alt="SQLAlchemy"/>&nbsp;
+    <img src="https://img.shields.io/badge/docker-%230db7ed.svg?style=flat&logo=docker&logoColor=white"/>&nbsp;
+    <img src="https://img.shields.io/badge/-Swagger-%23Clojure?style=flat&logo=swagger&logoColor=white"/>&nbsp;
+    <img src="https://img.shields.io/badge/Alembic-%23075e.svg?&style=flat&logo=Alembic&logoColor=white"/>&nbsp;
+    <img src="https://img.shields.io/badge/Pydantic-%23e75e.svg?&style=flat&logo=Alembic&logoColor=white"/>&nbsp;
+    <img src="https://img.shields.io/badge/JWT-black?style=flat&logo=JSON%20web%20tokens"/>&nbsp;
+    <img src="https://img.shields.io/badge/PostgreSQL-%23316192.svg?style=flat&logo=postgresql&logoColor=white" title="PostgreSQL" alt="PostgreSQL"/>&nbsp;
+</div>
+
 ##  Локальный запуск
 
 1) Добавить .env в корень проекта и папки сервисов
