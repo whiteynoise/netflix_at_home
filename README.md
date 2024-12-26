@@ -46,4 +46,4 @@ REFRESH_TOKEN_EXPIRE_MINUTES=
 
 ---
 Схема
-
+![вот же она](https://github.com/whiteynoise/netflix_at_home/blob/main/schema.jpg)
