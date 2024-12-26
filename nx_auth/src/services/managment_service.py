@@ -4,7 +4,6 @@ from sqlalchemy import select, insert, update, asc, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from models.entity import Users, Roles, user_roles
-from loguru import logger
 
 from services.token_service import TokenService
 
@@ -92,7 +91,6 @@ class ManagementService(TokenService):
                 .order_by(asc(Roles.title))
             )
         ).scalars().all()
-
 
 
 @lru_cache()
