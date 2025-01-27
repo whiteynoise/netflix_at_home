@@ -13,6 +13,7 @@ services:
     <<: *default-env 
     volumes:
       - db_volume:/var/lib/postgresql/data
+      - ./database/init_db.sql:/docker-entrypoint-initdb.d/init_data.sql
     restart: always
     healthcheck:
       test: [ "CMD", "pg_isready", "-d", "${POSTGRES_DB}", "-U", "${POSTGRES_USER}" ]
@@ -84,7 +85,39 @@ services:
       - database
       - redis
 
+  backend:
+    build: movies_admin/
+    container_name: backend
+    <<: *default-env
+    restart: always
+    depends_on:
+      - database
+    healthcheck:
+      test: [ "CMD", "curl", "--fail", "localhost:8000/admin" ]
+      interval: 15s
+      timeout: 15s
+      retries: 5
+    volumes:
+      - static_volume:/opt/app/static
+
+  nginx:
+    image: nginx:latest
+    container_name: frontend
+    restart: always
+    expose:
+      - 8000
+    ports:
+      - "8000:80"
+    volumes:
+      - ./frontend/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./frontend/configs:/etc/nginx/conf.d:ro
+      - static_volume:/static
+    depends_on:
+      - database
+      - backend
+
 volumes:
   redis_volume:
   es_data:
   db_volume:
+  static_volume:

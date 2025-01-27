@@ -200,14 +200,15 @@ async def add_role_to_user(
     description='Получение всех ролей в системе',
     response_model=list[GetRolesResponse]
 )
-@required([RoleName.ADMIN])
+# @required([RoleName.ADMIN])
 async def get_all_roles(
         user: Annotated[TokenPayload, Depends(get_current_user)],
-        management_service: ManagementService = Depends(get_management_service),
+        management_service: Annotated[ManagementService, Depends(get_management_service)],
+        db: Annotated[AsyncSession, Depends(get_session)]
 ):
     '''Получение всех ролей'''
 
-    result = await management_service.get_all_roles()
+    result = await management_service.get_all_roles(db=db)
 
     if not result:
         raise HTTPException(
@@ -224,7 +225,7 @@ async def get_all_roles(
     description='Получение всех ролей пользователя',
     response_model=list[GetRolesResponse]
 )
-@required([RoleName.ADMIN])
+# @required([RoleName.ADMIN])
 async def get_user_roles(
         user_id: str,
         user: Annotated[TokenPayload, Depends(get_current_user)],

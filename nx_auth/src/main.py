@@ -9,6 +9,7 @@ from core.config import PROJECT_NAME, REDIS_CONFIG
 from db.const import constants
 from redis.asyncio import Redis
 from db import redis
+from services.middleware import RateLimitMiddleware
 
 logger.add("info.log", format="Log: [{time} - {level} - {message}]", level="INFO", enqueue=True)
 
@@ -34,3 +35,7 @@ app = FastAPI(
 app.include_router(auth.router, prefix='/api/v1/auth', tags=['auth'])
 app.include_router(managment.router, prefix='/api/v1/managment', tags=['managment'])
 app.include_router(token.router, prefix='/api/v1/token', tags=['token'])
+
+
+# middlewares
+app.add_middleware(RateLimitMiddleware, redis_=Redis(**REDIS_CONFIG))
