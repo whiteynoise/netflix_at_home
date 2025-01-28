@@ -1,0 +1,16 @@
+*/__pycache__/
+.idea/
+*.pyc
+*.pyo
+*.pyd
+/locate/
+
+*.log
+*/.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
