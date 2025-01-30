@@ -1,10 +1,10 @@
-import datetime
 import time
 
-from fastapi import FastAPI, Request
-from loguru import logger
+from fastapi import FastAPI, Request, status
+from opentelemetry import trace
 from redis.asyncio import Redis
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
+from fastapi.responses import ORJSONResponse
 
 from starlette.responses import Response, JSONResponse
 
@@ -51,3 +51,26 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         # самая старая запись должна быть старше, чем минута
         return time.time() - float(result_data[-1]) <= self.WINDOW_SIZE
 
+
+class RequestIdMiddleware(BaseHTTPMiddleware):
+    """Middleware для проверки request_id и записи его в спан"""
+    
+    async def dispatch(self, request: Request, call_next):
+        request_id = request.headers.get("X-Request-Id")
+
+        if not request_id:
+            return ORJSONResponse(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                content={"detail": "X-Request-Id is required"}
+            )
+
+        tracer = trace.get_tracer(__name__)
+
+        with tracer.start_as_current_span("auth-request-span") as span:
+            if request_id:
+                span.set_attribute("http.request_id", request_id)
+            
+            response = await call_next(request)
+
+        return response
+    
