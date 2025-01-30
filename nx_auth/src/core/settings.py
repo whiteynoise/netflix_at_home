@@ -17,4 +17,9 @@ class NXAuthSettings(BaseSettings):
     algorithm: str
     access_token_expire_minutes: int
     refresh_token_expire_minutes: int
+
+    jaeger_host: str
+    jaeger_port: int
+
+    dev_auth_mode: bool
     

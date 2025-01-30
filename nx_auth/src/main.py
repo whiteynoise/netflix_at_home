@@ -1,15 +1,17 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, APIRouter
 from fastapi.responses import ORJSONResponse
 from loguru import logger
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
 from api.v1 import auth, managment, token
-from core.config import PROJECT_NAME, REDIS_CONFIG
+from core.config import PROJECT_NAME, REDIS_CONFIG, JAEGER_CONFIG, DEV_MODE
+from core.tracer import configure_tracer
 from db.const import constants
 from redis.asyncio import Redis
 from db import redis
-from services.middleware import RateLimitMiddleware
+from services.middleware import RateLimitMiddleware, RequestIdMiddleware
 
 logger.add("info.log", format="Log: [{time} - {level} - {message}]", level="INFO", enqueue=True)
 
@@ -32,10 +34,26 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-app.include_router(auth.router, prefix='/api/v1/auth', tags=['auth'])
-app.include_router(managment.router, prefix='/api/v1/managment', tags=['managment'])
-app.include_router(token.router, prefix='/api/v1/token', tags=['token'])
+
+# routing
+api_router_main = APIRouter(prefix='/auth-service')
+
+api_router_v1 = APIRouter(prefix='/api/v1')
+
+api_router_v1.include_router(auth.router, prefix='/auth', tags=['auth'])
+api_router_v1.include_router(managment.router, prefix='/managment', tags=['managment'])
+api_router_v1.include_router(token.router, prefix='/token', tags=['token'])
+
+api_router_main.include_router(api_router_v1)
+
+app.include_router(api_router_main)
 
 
 # middlewares
+configure_tracer(config=JAEGER_CONFIG)
+FastAPIInstrumentor.instrument_app(app)
+
 app.add_middleware(RateLimitMiddleware, redis_=Redis(**REDIS_CONFIG))
+
+if not DEV_MODE:
+    app.add_middleware(RequestIdMiddleware)

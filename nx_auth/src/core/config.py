@@ -18,4 +18,11 @@ REDIS_CONFIG = {
     'port': settings.redis_port,
 }
 
+JAEGER_CONFIG = {
+    'host': settings.jaeger_host,
+    'port': settings.jaeger_port
+}
+
+DEV_MODE = settings.dev_auth_mode
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
