@@ -71,10 +71,11 @@ services:
       - "8000:80"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./configs:/etc/nginx/conf.d:ro
       - static_volume:/static
     depends_on:
       - database
-      # - backend
+      - backend
 
   nx_etl:
     build: nx_etl/
@@ -118,8 +119,6 @@ services:
     container_name: backend
     <<: *default-env
     restart: always
-    depends_on:
-      - database
     healthcheck:
       test: [ "CMD", "curl", "--fail", "localhost:8000/admin" ]
       interval: 15s

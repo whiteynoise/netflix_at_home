@@ -22,5 +22,3 @@ COPY . .
 EXPOSE 8000
 
 ENTRYPOINT [ "scripts/run_uwsgi.sh" ]
-
-CMD [ "scripts/init.sh" ] 

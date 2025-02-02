@@ -69,6 +69,10 @@ class TokenData(BaseModel):
     email: str | None
     password: str | None
 
+class UserShortData(BaseModel):
+    username: str | None
+    password: str | None
+
 class TokenPayload(BaseModel):
     user_id: str
     username: str
