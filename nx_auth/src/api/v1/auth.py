@@ -3,6 +3,7 @@ from typing import Annotated
 
 from jwt import InvalidSignatureError
 from fastapi import APIRouter, Depends, HTTPException, Body
+from loguru import logger
 
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -12,8 +13,8 @@ from constants import RoleName
 from models.entity import Users
 from db.postgres import get_session
 
-from schemas.response import Token, History
-from schemas.entity import UserCreate, TokenData, UserChangeInfo, TokenPayload, PaginatedParams
+from schemas.response import Token, History, UserLoginFullInfo
+from schemas.entity import UserCreate, TokenData, UserChangeInfo, TokenPayload, PaginatedParams, UserShortData
 
 from services.auth_service import AuthService, get_auth_service
 from services.managment_service import ManagementService, get_management_service
@@ -78,6 +79,51 @@ async def login(
 
     tokens = await auth_service.login(user, db, token_service, management_service)
     return tokens
+
+
+@router.post(
+    '/extra_login',
+    summary='Логин пользователя для сервисов',
+    description='Url для получения токенов для входа в систему для сервисов',
+    response_model=UserLoginFullInfo,
+)
+async def extra_login(
+        get_user: Annotated[UserShortData, Body()],
+        auth_service: Annotated[AuthService, Depends(get_auth_service)],
+        management_service: Annotated[ManagementService, Depends(get_management_service)],
+        db: Annotated[AsyncSession, Depends(get_session)],
+) -> UserLoginFullInfo:
+    '''Логин для сервисов (передаем ЛИБО е-mail либо юзернейм)'''
+    logger.info("User: %s" % get_user.username)
+
+    user: Users | None = await auth_service.identificate_user(get_user, db)
+
+    if not user:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND,
+            detail="User with this email or username does not exists"
+        )
+    if not await auth_service.check_password(get_user.password, user):
+        raise HTTPException(
+            status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
+            detail="Wrong password."
+        )
+
+    roles = await management_service.get_user_roles(user_id=user.user_id, db=db)
+    roles = [role.title for role in roles]
+
+    logger.info("USER: %s %s" % (roles, user.user_id))
+    return UserLoginFullInfo(
+        user_id=user.user_id,
+        username=user.username,
+        email=user.email,
+        first_name=user.first_name,
+        last_name=user.last_name,
+        roles=roles,
+        is_active=user.is_active,
+        is_stuff=user.is_stuff,
+        is_superuser=user.is_superuser
+    )
 
 
 @router.post(

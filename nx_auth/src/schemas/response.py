@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import List
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -15,6 +16,18 @@ class GetRolesResponse(BaseModel):
 class Token(BaseModel):
     access_token: str
     refresh_token: str
+
+
+class UserLoginFullInfo(BaseModel):
+    user_id: UUID
+    username: str
+    email: str
+    first_name: str
+    last_name: str
+    roles: List[str]
+    is_active: bool
+    is_stuff: bool
+    is_superuser: bool
 
 
 class History(BaseModel):

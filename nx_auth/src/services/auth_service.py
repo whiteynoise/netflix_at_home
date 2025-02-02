@@ -1,7 +1,7 @@
 from functools import lru_cache
 from uuid import UUID
 
-from sqlalchemy import insert, and_, update, desc
+from sqlalchemy import insert, and_, update, desc, or_
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -41,7 +41,7 @@ class AuthService:
         '''Индетификация пользователя на основе юзернейма и почты'''
 
         query = select(Users).where(
-            and_(Users.username == user.username, Users.email == user.email)
+            or_(Users.username == user.username)
         )
         result = await db.execute(query)
         user = result.scalar_one_or_none()

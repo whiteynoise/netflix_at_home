@@ -1,3 +1,6 @@
+import uuid
+
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 from movies.mixins import TimeStampedMixin, UUIDMixin
@@ -10,7 +13,6 @@ class Genre(UUIDMixin, TimeStampedMixin):
     description = models.TextField(_("description"), blank=True, null=True)
 
     class Meta:
-        db_table = 'content"."genre'
         verbose_name = _("Genre")
         verbose_name_plural = _("Genres")
 
@@ -30,7 +32,6 @@ class GenreFilmWork(UUIDMixin):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        db_table = 'content"."genre_film_work'
         verbose_name = _("Genre of film")
         verbose_name_plural = _("Genres of film")
 
@@ -48,7 +49,6 @@ class Person(UUIDMixin, TimeStampedMixin):
     full_name = models.CharField(_("full name"), max_length=255)
 
     class Meta:
-        db_table = 'content"."person'
         verbose_name = _("Person")
         verbose_name_plural = _("Persons")
 
@@ -76,7 +76,6 @@ class PersonFilmWork(UUIDMixin):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        db_table = 'content"."person_film_work'
         verbose_name = _("Participation in the cinema")
         verbose_name_plural = _("Participation in the cinema")
 
@@ -111,7 +110,7 @@ class FilmWork(UUIDMixin, TimeStampedMixin):
         validators=[MinValueValidator(0), MaxValueValidator(100)],
     )
     type = models.CharField(
-        _("type"), choices=FilmTypes.choices, default=FilmTypes.MOVIE
+        _("type"), max_length=150, choices=FilmTypes.choices, default=FilmTypes.MOVIE
     )
     genres = models.ManyToManyField(
         Genre,
@@ -127,7 +126,6 @@ class FilmWork(UUIDMixin, TimeStampedMixin):
     )
 
     class Meta:
-        db_table = 'content"."film_work'
         verbose_name = _("Film work")
         verbose_name_plural = _("Film works")
 
@@ -139,3 +137,12 @@ class FilmWork(UUIDMixin, TimeStampedMixin):
 
     def __str__(self):
         return f"{self.title}, {self.creation_date}"
+
+
+class CustomUser(AbstractUser):
+    """Кастомный пользователь"""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    def __str__(self):
+        return self.username
