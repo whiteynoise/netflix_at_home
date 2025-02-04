@@ -50,3 +50,14 @@ async def refresh_access_token(
     )
 
     return {'access_token': access_token}
+
+
+@router.get(
+    "/get_user_from_token",
+    summary='Получение информации по юзеру из токена',
+    description='Проверка аксесса и получение информации из него по юзеру'
+)
+async def get_user_from_token(
+        user: Annotated[TokenPayload, Depends(get_current_user)],
+):
+    return user

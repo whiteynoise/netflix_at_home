@@ -17,6 +17,8 @@ ES_CONFIG = {
     'port': settings.elastic_port,
 }
 
+AUTH_SERVICE_URL = settings.auth_service_url
+
 PROJECT_NAME: str = 'nx_backend'
 
 logging_config.dictConfig(LOGGING)
