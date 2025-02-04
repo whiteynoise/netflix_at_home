@@ -9,3 +9,6 @@ class NXBackendEnvSettings(BaseSettings):
 
     elastic_host: str
     elastic_port: int
+
+    auth_service_url: str
+    

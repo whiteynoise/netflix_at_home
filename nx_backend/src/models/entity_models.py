@@ -1,5 +1,7 @@
 from uuid import UUID
 from pydantic import BaseModel
+from typing import List
+
 from src.models.utils_models import PaginatedParams
 
 
@@ -46,3 +48,12 @@ class PersonFilms(BaseModel):
 
 class Persons(PersonBase):
     films: list[PersonFilms]
+
+
+class TokenPayload(BaseModel):
+    user_id: str
+    username: str
+    email: str
+    roles: List[str]
+    token: str
+    
