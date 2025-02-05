@@ -1,3 +1,5 @@
+import core.session as session
+from aiohttp import ClientSession
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, APIRouter
@@ -18,10 +20,13 @@ logger.add("info.log", format="Log: [{time} - {level} - {message}]", level="INFO
 
 @asynccontextmanager
 async def lifespan(app_: FastAPI):
+    session.aiohttp_session = ClientSession()
     logger.info("Loading constants...")
     redis.redis = Redis(**REDIS_CONFIG)
     await constants.initialize()
     yield
+    await session.aiohttp_session.close()
+    session.aiohttp_session = None
 
 
 app = FastAPI(
