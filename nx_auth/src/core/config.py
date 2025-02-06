@@ -25,4 +25,6 @@ JAEGER_CONFIG = {
 
 DEV_MODE = settings.dev_auth_mode
 
+YNDX_AUTH_URL: str = 'https://login.yandex.ru/info?format=json'
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

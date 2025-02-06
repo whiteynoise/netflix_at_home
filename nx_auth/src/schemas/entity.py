@@ -67,7 +67,7 @@ class ChangeRole(BaseModel):
 class TokenData(BaseModel):
     username: str | None
     email: str | None
-    password: str | None
+    password: str | None = None
 
 class UserShortData(BaseModel):
     username: str | None

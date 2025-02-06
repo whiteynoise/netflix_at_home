@@ -1,3 +1,4 @@
+import secrets
 from http import HTTPStatus
 from typing import Annotated
 
@@ -21,6 +22,8 @@ from services.managment_service import ManagementService, get_management_service
 from services.permissions import required
 from services.token_service import TokenService, get_token_service
 from services.tools import get_current_user
+
+from integration.yandex import get_user_info_yndx
 
 router = APIRouter(tags=['auth'])
 
@@ -47,6 +50,77 @@ async def register(
             status_code=HTTPStatus.CONFLICT,
             detail="Current user already exists."
         )
+
+
+@router.post(
+    '/register_via_yndx',
+    summary='Регистрация пользователя через Яндекс',
+    description='Регистрирует пользователя посредством входа через Яндекс',
+    response_model=bool,
+)
+async def register_via_yndx(
+        yndx_data: Annotated[dict, Depends(get_user_info_yndx)],
+        auth_service: Annotated[AuthService, Depends(get_auth_service)],
+        db: Annotated[AsyncSession, Depends(get_session)],
+):
+    '''Регистрация через Яндекс.'''
+
+    login, email = yndx_data['login'], yndx_data['default_email']
+
+    if await auth_service.identificate_user(
+        user=TokenData(username=login, email=email), db=db
+    ):
+        raise HTTPException(
+            status_code=HTTPStatus.CONFLICT,
+            detail="Current user already exists."
+        )
+    
+    user = UserCreate(
+        username=login,
+        email=email,
+        first_name=yndx_data.get('first_name'),
+        last_name=yndx_data.get('last_name'),
+        password=secrets.token_urlsafe(16)
+    )
+
+    await auth_service.register(user=user, db=db)
+    return True
+
+
+@router.post(
+    '/login_via_yndx',
+    summary='Логин через Яндекс',
+    description='Вход в сервис посредством входа через Яндекс',
+    response_model=Token,
+)
+async def login_via_yndx(
+        yndx_data: Annotated[dict, Depends(get_user_info_yndx)],
+        auth_service: Annotated[AuthService, Depends(get_auth_service)],
+        token_service: Annotated[TokenService, Depends(get_token_service)],
+        management_service: Annotated[ManagementService, Depends(get_management_service)],
+        db: Annotated[AsyncSession, Depends(get_session)],
+):
+    """Логин через Яндекс."""
+
+    user: Users | None = await auth_service.identificate_user(
+        user=TokenData(username=yndx_data['login'], email=yndx_data['default_email']),
+        db=db
+    )
+
+    if not user:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND,
+            detail="User with this email or username doesn't exist."
+        )
+    
+    tokens: Token = await auth_service.login(
+        db=db,
+        user=user,
+        token_service=token_service,
+        management_service=management_service
+    )
+
+    return tokens
 
 
 @router.post(
@@ -83,7 +157,7 @@ async def login(
 
 @router.post(
     '/extra_login',
-    summary='Логин пользователя для сервисов',
+    summary='Логин пользователя для внутренних сервисов',
     description='Url для получения токенов для входа в систему для сервисов',
     response_model=UserLoginFullInfo,
 )
