@@ -37,3 +37,11 @@ class History(BaseModel):
     class Config:
         orm_mode = True
 
+
+class SocialNetworks(BaseModel):
+    user_social_id: UUID
+    user_id: UUID
+    provider: str
+
+    class Config:
+        orm_mode = True

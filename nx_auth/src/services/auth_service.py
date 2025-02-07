@@ -11,7 +11,7 @@ from db.const import constants
 from schemas.entity import UserCreate, TokenData, PaginatedParams
 from schemas.response import Token
 
-from models.entity import Users, LoginHistory, user_roles
+from models.entity import Users, LoginHistory, UserSocial, user_roles
 
 from services.managment_service import ManagementService
 from services.storage import get_redis_storage
@@ -20,7 +20,12 @@ from services.token_service import TokenService
 
 class AuthService:
 
-    async def register(self, user: UserCreate, db: AsyncSession) -> None:
+    async def register(
+            self,
+            user: UserCreate,
+            db: AsyncSession,
+            provider: str | None = None
+        ) -> None:
         '''Метод регистрации пользователя.'''
         
         new_user = Users(**user.model_dump())
@@ -35,6 +40,13 @@ class AuthService:
                 role_id=constants.roles.get('base_user')
             )
         )
+
+        if provider:
+            new_user_social = UserSocial(
+                user_id=new_user.user_id,
+                provider=provider
+            )
+            db.add(new_user_social)
 
     @staticmethod
     async def identificate_user(user: TokenData, db: AsyncSession):
@@ -101,6 +113,20 @@ class AuthService:
                 .order_by(desc(LoginHistory.login_date))
                 .limit(pagination.page_size)
                 .offset((pagination.page_number - 1) * pagination.page_size)
+            )
+        ).scalars().all()
+    
+    async def get_user_social_networks(
+            self,
+            user_id: UUID,
+            db: AsyncSession
+    ):
+        '''Получает привязанные соц.сети по пользователю'''
+
+        return (
+            await db.execute(
+                select(UserSocial)
+                .where(UserSocial.user_id == user_id)
             )
         ).scalars().all()
 

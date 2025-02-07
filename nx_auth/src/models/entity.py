@@ -41,6 +41,8 @@ class Users(Base):
     is_stuff = Column(Boolean, nullable=False, default=False)
     is_superuser = Column(Boolean, nullable=False, default=False)
 
+    outer_oauth_only = Column(Boolean, nullable=False, default=False)
+
     created_at = Column(DateTime, default=text('current_timestamp'))
 
     roles = relationship('Roles', secondary=user_roles, back_populates='users', cascade="all, delete")
@@ -52,7 +54,8 @@ class Users(Base):
         email: str | None = None,
         first_name: str | None = None,
         last_name: str | None = None,
-        is_superuser: bool = False
+        is_superuser: bool = False,
+        outer_oauth_only: bool = False
     ) -> None:
         self.username = username
         self.password = generate_password_hash(password)
@@ -60,6 +63,7 @@ class Users(Base):
         self.first_name = first_name
         self.last_name = last_name
         self.is_superuser = is_superuser
+        self.outer_oauth_only = outer_oauth_only
     
     def check_password(self, password: str) -> bool:
         return check_password_hash(self.password, password)
@@ -107,4 +111,32 @@ class LoginHistory(Base):
     )
     token = Column(
         String(255), nullable=False, comment='Refresh токен'
+    )
+
+
+class UserSocial(Base):
+    __tablename__ = 'user_social'
+    __table_args__ = (
+        UniqueConstraint('user_id', 'provider', name='uq_user_id_provider'),
+        {
+            'schema': 'auth',
+            'comment': 'Привязанные соц.сети пользователей'
+        },
+    )
+
+    user_social_id = Column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+    )
+    user_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey('users.user_id', ondelete="CASCADE"),
+        nullable=False,
+        comment='UUID пользователя'
+    )
+    provider = Column(
+        String(40),
+        nullable=False,
+        comment='Наименование соц.сети'
     )

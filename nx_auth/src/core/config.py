@@ -23,7 +23,11 @@ JAEGER_CONFIG = {
     'port': settings.jaeger_port
 }
 
-DEV_MODE = settings.dev_auth_mode
+ENABLE_TRACER = settings.enable_tracer
+
+PROVIDERS_URL: dict[str, str] = {
+    'yandex': 'https://login.yandex.ru/info?format=json',
+}
 
 YNDX_AUTH_URL: str = 'https://login.yandex.ru/info?format=json'
 

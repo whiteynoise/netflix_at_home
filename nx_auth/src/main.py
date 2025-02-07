@@ -8,7 +8,7 @@ from loguru import logger
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
 from api.v1 import auth, managment, token
-from core.config import PROJECT_NAME, REDIS_CONFIG, JAEGER_CONFIG, DEV_MODE
+from core.config import PROJECT_NAME, REDIS_CONFIG, JAEGER_CONFIG, ENABLE_TRACER
 from core.tracer import configure_tracer
 from db.const import constants
 from redis.asyncio import Redis
@@ -55,10 +55,10 @@ app.include_router(api_router_main)
 
 
 # middlewares
-configure_tracer(config=JAEGER_CONFIG)
-FastAPIInstrumentor.instrument_app(app)
-
 app.add_middleware(RateLimitMiddleware, redis_=Redis(**REDIS_CONFIG))
 
-if not DEV_MODE:
+if ENABLE_TRACER:
+    configure_tracer(config=JAEGER_CONFIG)
+    FastAPIInstrumentor.instrument_app(app)
+    
     app.add_middleware(RequestIdMiddleware)
