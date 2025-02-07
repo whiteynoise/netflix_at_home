@@ -21,5 +21,5 @@ class NXAuthSettings(BaseSettings):
     jaeger_host: str
     jaeger_port: int
 
-    dev_auth_mode: bool
+    enable_tracer: bool
     

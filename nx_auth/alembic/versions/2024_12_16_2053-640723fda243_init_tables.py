@@ -37,6 +37,7 @@ def upgrade() -> None:
     sa.Column('is_active', sa.Boolean(), nullable=False),
     sa.Column('is_stuff', sa.Boolean(), nullable=False),
     sa.Column('is_superuser', sa.Boolean(), nullable=False),
+    sa.Column('outer_oauth_only', sa.Boolean(), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.PrimaryKeyConstraint('user_id'),
     sa.UniqueConstraint('email'),
@@ -53,6 +54,15 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['user_id'], ['auth.users.user_id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('user_role_id'),
     sa.UniqueConstraint('user_id', 'role_id', name='uq_user_role'),
+    schema='auth'
+    )
+    op.create_table('user_social',
+    sa.Column('user_social_id', sa.UUID(), nullable=False),
+    sa.Column('user_id', sa.UUID(), nullable=False, comment='UUID пользователя'),
+    sa.Column('provider', sa.String(length=40), nullable=False, comment='Наименование соц.сети'),
+    sa.ForeignKeyConstraint(['user_id'], ['auth.users.user_id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('user_social_id'),
+    sa.UniqueConstraint('user_id', 'provider', name='uq_user_id_provider'),
     schema='auth'
     )
     op.execute('''

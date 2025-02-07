@@ -1,9 +1,9 @@
-import secrets
+from secrets import token_urlsafe
 from http import HTTPStatus
 from typing import Annotated
 
 from jwt import InvalidSignatureError
-from fastapi import APIRouter, Depends, HTTPException, Body
+from fastapi import APIRouter, Depends, HTTPException, Body, Header
 from loguru import logger
 
 from sqlalchemy.exc import IntegrityError
@@ -14,8 +14,9 @@ from constants import RoleName
 from models.entity import Users
 from db.postgres import get_session
 
-from schemas.response import Token, History, UserLoginFullInfo
+from schemas.response import Token, History, UserLoginFullInfo, SocialNetworks
 from schemas.entity import UserCreate, TokenData, UserChangeInfo, TokenPayload, PaginatedParams, UserShortData
+from schemas.integration import UniUserOAuth
 
 from services.auth_service import AuthService, get_auth_service
 from services.managment_service import ManagementService, get_management_service
@@ -23,7 +24,7 @@ from services.permissions import required
 from services.token_service import TokenService, get_token_service
 from services.tools import get_current_user
 
-from integration.yandex import get_user_info_yndx
+from integration.outer_oauth import get_user_info_oauth
 
 router = APIRouter(tags=['auth'])
 
@@ -53,22 +54,28 @@ async def register(
 
 
 @router.post(
-    '/register_via_yndx',
-    summary='Регистрация пользователя через Яндекс',
-    description='Регистрирует пользователя посредством входа через Яндекс',
+    '/register_via_oauth',
+    summary='Регистрация пользователя через внешний OAuth',
+    description='Регистрирует пользователя посредством входа через внешний Oauth',
     response_model=bool,
 )
-async def register_via_yndx(
-        yndx_data: Annotated[dict, Depends(get_user_info_yndx)],
+async def register_via_oauth(
+        oauth_token: Annotated[str, Header(alias='Authorization')],
+        provider: str,
         auth_service: Annotated[AuthService, Depends(get_auth_service)],
         db: Annotated[AsyncSession, Depends(get_session)],
 ):
-    '''Регистрация через Яндекс.'''
+    '''Регистрация через внешний OAuth.'''
 
-    login, email = yndx_data['login'], yndx_data['default_email']
+    user_info: UniUserOAuth = await get_user_info_oauth(
+        provider=provider,
+        oauth_token=oauth_token
+    )
+
+    username, email = user_info.username, user_info.email
 
     if await auth_service.identificate_user(
-        user=TokenData(username=login, email=email), db=db
+        user=TokenData(username=username), db=db
     ):
         raise HTTPException(
             status_code=HTTPStatus.CONFLICT,
@@ -76,35 +83,41 @@ async def register_via_yndx(
         )
     
     user = UserCreate(
-        username=login,
-        email=email,
-        first_name=yndx_data.get('first_name'),
-        last_name=yndx_data.get('last_name'),
-        password=secrets.token_urlsafe(16)
+        username=username,
+        email=email or f'{token_urlsafe(5)}@netflix_at_home.com',
+        first_name=user_info.first_name,
+        last_name=user_info.last_name,
+        password=token_urlsafe(16),
+        outer_oauth_only=True
     )
 
-    await auth_service.register(user=user, db=db)
+    await auth_service.register(user=user, db=db, provider=provider)
     return True
 
 
 @router.post(
-    '/login_via_yndx',
-    summary='Логин через Яндекс',
-    description='Вход в сервис посредством входа через Яндекс',
+    '/login_via_oauth',
+    summary='Логин через внешний OAuth',
+    description='Вход в сервис посредством входа через внешний OAuth',
     response_model=Token,
 )
-async def login_via_yndx(
-        yndx_data: Annotated[dict, Depends(get_user_info_yndx)],
+async def login_via_oauth(
+        oauth_token: Annotated[str, Header(alias='Authorization')],
+        provider: str,
         auth_service: Annotated[AuthService, Depends(get_auth_service)],
         token_service: Annotated[TokenService, Depends(get_token_service)],
         management_service: Annotated[ManagementService, Depends(get_management_service)],
         db: Annotated[AsyncSession, Depends(get_session)],
 ):
-    """Логин через Яндекс."""
+    """Логин через внешний OAuth."""
+
+    user_info: UniUserOAuth = await get_user_info_oauth(
+        provider=provider,
+        oauth_token=oauth_token
+    )
 
     user: Users | None = await auth_service.identificate_user(
-        user=TokenData(username=yndx_data['login'], email=yndx_data['default_email']),
-        db=db
+        user=TokenData(username=user_info.username), db=db
     )
 
     if not user:
@@ -288,5 +301,25 @@ async def enter_history(
     return await auth_service.get_login_history(
         user_id=user.user_id,
         pagination=pagination,
+        db=db
+    )
+
+
+@router.get(
+    '/social_networks',
+    summary='Список привязанных соц.сетей',
+    description='Получить список привязанных соц.сетей',
+    response_model=list[SocialNetworks]
+)
+@required([RoleName.BASE_USER])
+async def social_networks(
+        user: Annotated[TokenPayload, Depends(get_current_user)],
+        auth_service: Annotated[AuthService, Depends(get_auth_service)],
+        db: Annotated[AsyncSession, Depends(get_session)]
+):
+    '''Получить список привязанных соц.сетей.'''
+
+    return await auth_service.get_user_social_networks(
+        user_id=user.user_id,
         db=db
     )
