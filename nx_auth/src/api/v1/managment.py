@@ -200,7 +200,7 @@ async def add_role_to_user(
     description='Получение всех ролей в системе',
     response_model=list[GetRolesResponse]
 )
-# @required([RoleName.ADMIN])
+@required([RoleName.ADMIN])
 async def get_all_roles(
         user: Annotated[TokenPayload, Depends(get_current_user)],
         management_service: Annotated[ManagementService, Depends(get_management_service)],
