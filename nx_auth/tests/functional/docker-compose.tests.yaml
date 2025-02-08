@@ -1,0 +1,46 @@
+version: '3'
+
+services:
+  database:
+    image: postgres:16
+    container_name: database
+    environment:
+      - POSTGRES_DB=movies
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=1111
+    restart: always
+
+  redis:
+    image: redis
+    container_name: redis
+
+  app:
+    build:
+      dockerfile: Dockerfile
+      context: ../../.
+    container_name: app
+    env_file:
+      - ../../../.env
+    image: fastapi-image
+    ports:
+      - "8003:8003"
+    command:
+      ["sh", "-c", "alembic upgrade head && uvicorn src.main:app --host 0.0.0.0 --port 8003"]
+
+  tests:
+    image: fastapi-image
+    container_name: tests
+    env_file:
+      - ../../../.env
+    environment:
+      - PYTHONPATH=/app:/app/tests:/app/src
+    entrypoint: >
+      sh -c "pip install --no-cache-dir -r /app/tests/functional/requirements.txt
+      && python3 /app/tests/functional/utils/waiter_for_postgres.py
+      && pytest -v /app/tests/functional/src"
+
+networks:
+  default:
+    driver: bridge
+    driver_opts:
+      com.docker.network.driver.mtu: 1450
