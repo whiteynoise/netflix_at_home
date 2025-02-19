@@ -12,4 +12,11 @@ services:
       - "8001:8001"
     command:
       ["sh", "-c", "alembic upgrade head && uvicorn src.main:app --host 0.0.0.0 --port 8001"]
-  
+
+  ugc:
+    ports:
+      - "5000:5000"
+
+  kafka-ui:
+    ports:
+      - "8080:8080"
