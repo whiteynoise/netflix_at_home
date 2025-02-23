@@ -8,4 +8,3 @@ consumer = KafkaConsumer(
     auto_offset_reset='earliest',
     group_id=os.getenv("GROUP_ID"),
 )
-

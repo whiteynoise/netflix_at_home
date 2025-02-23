@@ -217,11 +217,11 @@ services:
 
   consumer_film:
     build: kafka_clickhouse_etl/
-    restart: always
     environment:
       - TOPIC=film
       - GROUP_ID=film
       - PYTHONUNBUFFERED=1
+    # restart: always
 
   consumer_user:
     build: kafka_clickhouse_etl/
@@ -229,7 +229,7 @@ services:
       - TOPIC=user
       - GROUP_ID=user
       - PYTHONUNBUFFERED=1
-    restart: always
+    # restart: always
 
 volumes:
   redis_volume:
