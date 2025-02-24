@@ -57,3 +57,6 @@ services:
       - ./clickhouse_data/node4/init_db.sql:/docker-entrypoint-initdb.d/init_db.sql
     depends_on:
       - zookeeper
+      - clickhouse-node3
+      - clickhouse-node2
+      - clickhouse-node1

@@ -23,11 +23,7 @@ services:
       - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
       - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka-0:9092,EXTERNAL://127.0.0.1:9094
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
-    depends_on:
-      - kafka-init
-      - kafka-1
-      - kafka-2
-      - kafka-ui
+      - KAFKA_LOG4J_LOGGERS=kafka.controller=ERROR,kafka.producer.async.DefaultEventHandler=ERROR,state.change.logger=INFO
     volumes:
       - kafka_0_data:/bitnami/kafka
 
@@ -74,7 +70,6 @@ services:
       - kafka-1
       - kafka-2
       - kafka-ui
-      - ugc
     entrypoint: [ "/bin/sh", "-c" ]
     command: |
       "

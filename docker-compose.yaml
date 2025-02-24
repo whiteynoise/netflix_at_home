@@ -117,11 +117,15 @@ services:
     build: nx_ugc/
     container_name: ugc
     <<: *default-env
+    depends_on:
+      - consumer_user
+      - consumer_film
     healthcheck:
       test: [ "CMD", "curl", "--fail", "http://localhost:5000/ping" ]
       interval: 30s
       timeout: 10s
       retries: 3
+    restart: always
 
   backend:
     build: movies_admin/

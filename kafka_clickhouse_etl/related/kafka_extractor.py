@@ -14,14 +14,14 @@ class KafkaExtractor:
         batch: list = []
 
         for message in self.consumer:
-            message: dict = self.prepare_data(message)
-            batch.append(message)
+            message_: dict = self.prepare_data(message.value)
+            batch.append(message_)
 
             if len(batch) >= self.batch_size:
                 yield batch
                 batch = []
 
-    def prepare_data(self, message: bytes):
+    def prepare_data(self, message: bytes) -> dict:
         """Конвертирует сообщение в словарь."""
         message: dict = json.loads(message.decode("utf-8"))
         message['event_time'] = datetime.strptime(message['event_time'], "%Y-%m-%d %H:%M:%S")

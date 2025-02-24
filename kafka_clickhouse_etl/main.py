@@ -1,9 +1,8 @@
-import os
 from time import sleep
 
-from clickhouse_driver import Client
+from configs.constants import TOPIC
 from configs.logger_config import logger
-from related.consumer import consumer
+from kafka_clickhouse_etl.utils.waiters import clickhouse_client_create, kafka_consumer_create
 from related.ch_loader import ClickHouseLoader
 from related.kafka_extractor import KafkaExtractor
 from utils.ch_queries import queries_by_topic
@@ -11,11 +10,11 @@ from utils.ch_queries import queries_by_topic
 
 def start_etl_process():
     sleep_time_etl: int = 600
-    query: str = queries_by_topic.get(os.getenv("TOPIC"))
+    query: str = queries_by_topic.get(TOPIC)
 
-    extractor: KafkaExtractor = KafkaExtractor(consumer=consumer)
+    extractor: KafkaExtractor = KafkaExtractor(consumer=kafka_consumer_create())
     loader: ClickHouseLoader = ClickHouseLoader(
-        client=Client(host='clickhouse-node1')
+        client=clickhouse_client_create()
     )
 
     while True:
