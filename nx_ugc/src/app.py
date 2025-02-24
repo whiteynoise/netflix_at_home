@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 from flask_marshmallow import Marshmallow
 from marshmallow import ValidationError
 
-from schema import EventSchema
+from schema import UserEventSchema, FilmEventSchema
 from utils import send_to_kafka
 
 app = Flask(__name__)
@@ -16,7 +16,7 @@ def health():
 
 @app.route('/film_event', methods=["POST"])
 def film_event():
-    schema = EventSchema()
+    schema = FilmEventSchema()
     try:
         json_data = request.get_json()
         validated_data = schema.load(json_data)
@@ -28,7 +28,7 @@ def film_event():
 
 @app.route('/user_event', methods=["POST"])
 def user_event():
-    schema = EventSchema()
+    schema = UserEventSchema()
     try:
         json_data = request.get_json()
         validated_data = schema.load(json_data)

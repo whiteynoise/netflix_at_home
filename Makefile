@@ -1,26 +1,13 @@
-up:
-	docker-compose up -d
+up all:
+	docker-compose -f docker-compose.yaml -f docker-compose.prod.yaml -f docker-compose.kafka.yaml
+	-f docker-compose.clickhouse.yaml up -d
 
-down:
-	docker-compose down
+up kafka_&_ugc:
+    docker-compose -f docker-compose.kafka.yaml -f docker-compose.yaml ugc up -d
 
-up_prod:
-	docker-compose -f docker-compose.yaml -f docker-compose.prod.yaml up
+up clickhouse:
+    docker-compose -f docker-compose.clickhouse.yaml up -d
 
-down_prod:
-	docker-compose -f docker-compose.yaml -f docker-compose.prod.yaml down
-
-clear_down:
-	docker-compose down -v
-
-build:
-	docker-compose up -d --build
-
-restart:
-	docker-compose up restart
-
-build_db:
-	docker-compose up -d --build database
-
-up_bd:
-	docker-compose up -d database
+up kafka_&_clickhouse_&_ugc:
+    docker-compose -f docker-compose.kafka.yaml docker-compose -f docker-compose.kafka.yaml
+    -f docker-compose.yaml ugc up -d

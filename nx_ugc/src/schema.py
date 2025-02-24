@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import jwt
 from flask import request
 from marshmallow import fields, Schema, pre_load, ValidationError
@@ -9,6 +11,7 @@ class EventSchema(Schema):
     type = fields.Str()
     tag = fields.Str(allow_none=True)
     user_id = fields.UUID(allow_none=True, required=False)
+    event_time = fields.DateTime(format='%Y-%m-%d %H:%M:%S', default=datetime.utcnow)
 
     @pre_load
     def extract_user_id(self, data, **kwargs):
@@ -24,3 +27,11 @@ class EventSchema(Schema):
         except jwt.InvalidTokenError:
             raise ValidationError('Invalid token')
         return data
+
+
+class UserEventSchema(EventSchema):
+    pass
+
+
+class FilmEventSchema(EventSchema):
+    film_id = fields.UUID()
