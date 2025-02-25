@@ -38,6 +38,9 @@ REFRESH_TOKEN_EXPIRE_MINUTES=
 
 ---
 
+## Схема решений
+![схема](https://github.com/whiteynoise/netflix_at_home/blob/main/schema_.jpg)
+
 ## Сервисы
 
 + ### nx_backend
