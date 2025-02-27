@@ -9,7 +9,6 @@ user_bp = Blueprint("/user_event", __name__, url_prefix="/user_event")
 
 @user_bp.route('/', methods=["POST"])
 def user_event():
-    print("Here")
     schema = UserEventSchema()
     try:
         json_data = request.get_json()

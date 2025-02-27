@@ -5,16 +5,17 @@ from kafka import KafkaConsumer
 import backoff
 from kafka.errors import NoBrokersAvailable
 
-from configs.constants import TOPIC, BOOTSTRAP_SERVERS, GROUP_ID, CLICKHOUSE_NODE_MAIN
+from configs.constants import settings
 
 
 @backoff.on_exception(backoff.expo, max_tries=10, exception=NoBrokersAvailable)
 def kafka_consumer_create():
     consumer = KafkaConsumer(
-        TOPIC,
-        bootstrap_servers=BOOTSTRAP_SERVERS,
+        settings.TOPIC,
+        bootstrap_servers=settings.BOOTSTRAP_SERVERS,
         auto_offset_reset="earliest",
-        group_id=GROUP_ID,
+        group_id=settings.GROUP_ID,
+        enable_auto_commit=False
     )
     return consumer
 
@@ -28,5 +29,5 @@ def kafka_consumer_create():
     ),
 )
 def clickhouse_client_create():
-    client = Client(host=CLICKHOUSE_NODE_MAIN)
+    client = Client(host=settings.CLICKHOUSE_NODE_MAIN)
     return client

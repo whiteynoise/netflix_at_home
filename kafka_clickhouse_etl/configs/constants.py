@@ -1,6 +1,19 @@
-import os
+from typing import List
 
-TOPIC = os.getenv("TOPIC")
-BOOTSTRAP_SERVERS = os.getenv("BOOTSTRAP_SERVERS").split(",")
-GROUP_ID = os.getenv("GROUP_ID")
-CLICKHOUSE_NODE_MAIN = os.getenv("CLICKHOUSE_NODE_MAIN")
+from pydantic_settings import BaseSettings
+
+
+class Settings(BaseSettings):
+    TOPIC: str
+    BOOTSTRAP_SERVERS: List[str]
+    GROUP_ID: str
+    CLICKHOUSE_NODE_MAIN: str
+
+    @classmethod
+    def create(cls):
+        settings = cls()
+        settings.BOOTSTRAP_SERVERS = [server.strip() for server in settings.BOOTSTRAP_SERVERS]
+        return settings
+
+
+settings = Settings.create()

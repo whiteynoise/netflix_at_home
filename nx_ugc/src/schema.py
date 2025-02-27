@@ -1,13 +1,11 @@
 import time
 
 from flask import request
-from marshmallow import fields, Schema, pre_load, ValidationError
-
-from constants import SECRET_KEY, ALGORITHM
+from marshmallow import fields, Schema, pre_load
 
 
 class UserEventSchema(Schema):
-    user_event_tag = fields.Str(allow_none=True)
+    user_event_tag = fields.Str()
     user_id = fields.Str(allow_none=True, required=False)
     event_time = fields.Str(required=False)
 
@@ -18,13 +16,6 @@ class UserEventSchema(Schema):
         if not token:
             data["user_id"] = "2e991ac8-a0d5-46bf-973a-ee65199e06f0"
             return data
-        # try:
-        #     payload = decode(token, SECRET_KEY, algorithms=ALGORITHM)
-        #     data['user_id'] = payload.get('user_id')
-        # except InvalidSignatureError:
-        #     raise ValidationError('Token expired')
-        # except PyJWTError:
-        #     raise ValidationError('Invalid token')
         return data
 
 
@@ -41,11 +32,4 @@ class FilmEventSchema(Schema):
         if not token:
             data["user_id"] = "2e991ac8-a0d5-46bf-973a-ee65199e06f0"
             return data
-        # try:
-        #     payload = decode(token, SECRET_KEY, algorithms=ALGORITHM)
-        #     data['user_id'] = payload.get('user_id')
-        # except InvalidSignatureError:
-        #     raise ValidationError('Token expired')
-        # except PyJWTError:
-        #     raise ValidationError('Invalid token')
         return data

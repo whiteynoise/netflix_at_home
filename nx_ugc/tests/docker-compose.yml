@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+
+  test_api:
+    build:
+      context: ..
+      dockerfile: tests/Dockerfile
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_RUN_HOST=0.0.0.0
+    volumes:
+      - ..:/app
+    command: pytest --disable-warnings -v
