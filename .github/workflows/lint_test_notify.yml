@@ -15,6 +15,6 @@ jobs:
         uses: appleboy/telegram-action@master
         with:
           token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          chat_id: ${{ secrets.CHAT_ID_AW }}
+          to:: ${{ secrets.CHAT_ID_AW }}
           message: "Птицы наблюдают..."
           
