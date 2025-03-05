@@ -14,7 +14,14 @@ jobs:
       - name: Send Telegram Notification
         uses: appleboy/telegram-action@master
         with:
+          to: ${{ secrets.CHAT_ID_AW }}
           token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          to:: ${{ secrets.CHAT_ID_AW }}
-          message: "Птицы наблюдают..."
+          message: |
+            $Птицы наблюдают за {{ github.actor }}, cоздавшим коммит:
+            со следующим посланием: ${{ github.event.commits[0].message }}
+            
+            Репозиторий (он вообще-то один): ${{ github.repository }}
+            
+            Узри: https://github.com/${{ github.repository }}/commit/${{github.sha}}
+
           
