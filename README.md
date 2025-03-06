@@ -62,3 +62,6 @@ REFRESH_TOKEN_EXPIRE_MINUTES=
 ---
 # Исследование по выбору хранилища:
 https://github.com/whiteynoise/netflix_at_home/blob/main/DB_research.md
+
+# Спринт 9 Исследование по выбору хранилища:
+https://github.com/whiteynoise/netflix_at_home/blob/main/DB_research_2.md
