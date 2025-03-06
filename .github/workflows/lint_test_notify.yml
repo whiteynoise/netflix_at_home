@@ -1,0 +1,26 @@
+name: LTN
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Send Telegram Notification
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.CHAT_ID_AW }}
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          message: |
+            Птицы наблюдают за ${{ github.actor }}, cоздавшим коммит:
+            со следующим посланием: ${{ github.event.commits[0].message }}
+            
+            Репозиторий (он вообще-то один): ${{ github.repository }}
+            
+            Узри: https://github.com/${{ github.repository }}/commit/${{github.sha}}
+            

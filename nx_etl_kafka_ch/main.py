@@ -2,7 +2,7 @@ from time import sleep
 
 from configs.constants import settings
 from configs.logger_config import logger
-from kafka_clickhouse_etl.utils.waiters import clickhouse_client_create, kafka_consumer_create
+from utils.waiters import clickhouse_client_create, kafka_consumer_create
 from related.ch_loader import ClickHouseLoader
 from related.kafka_extractor import KafkaExtractor
 from utils.ch_queries import queries_by_topic
