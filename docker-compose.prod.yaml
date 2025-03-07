@@ -8,3 +8,7 @@ services:
   nx_auth:
     command:
       ["gunicorn", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "src.main:app", "--bind", "0.0.0.0:8001"]
+
+  nx_ugc:
+    command:
+      ["gunicorn", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "src.main:app", "--bind", "0.0.0.0:8005"]
