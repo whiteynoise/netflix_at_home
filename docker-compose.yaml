@@ -1,5 +1,3 @@
-version: '3'
-
 x-env:
   &default-env
   env_file:
@@ -76,8 +74,20 @@ services:
       - database
       - backend
 
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    restart: unless-stopped
+
   nx_etl:
-    build: nx_etl/
+    build: nx_etl_pg_es/
     container_name: nx_etl
     <<: *default-env
     restart: always
@@ -86,10 +96,22 @@ services:
       - redis
       - elasticsearch
 
+  nx_ugc:
+    build:
+      dockerfile: Dockerfile
+      context: ./nx_ugc
+    container_name: nx_ugc
+    <<: *default-env
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8005/api/openapi || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
   nx_backend:
     build:
       dockerfile: Dockerfile
-      context: ./nx_backend
+      context: ./nx_content
     container_name: nx_backend
     <<: *default-env 
     healthcheck:
@@ -100,7 +122,7 @@ services:
     depends_on:
       - redis
       - elasticsearch
-  
+
   nx_auth:
     build:
       dockerfile: Dockerfile
@@ -114,7 +136,7 @@ services:
       - redis
 
   ugc:
-    build: nx_ugc/
+    build: nx_metrics/
     container_name: ugc
     <<: *default-env
     depends_on:
@@ -128,7 +150,7 @@ services:
     restart: always
 
   backend:
-    build: movies_admin/
+    build: nx_admin/
     container_name: backend
     <<: *default-env
     restart: always
@@ -140,25 +162,23 @@ services:
     volumes:
       - static_volume:/opt/app/static
 
-
   consumer_film:
-    build: kafka_clickhouse_etl/
+    build: nx_etl_kafka_ch/
     environment:
       - TOPIC=film
       - GROUP_ID=film
       - PYTHONUNBUFFERED=1
-    # restart: always
 
   consumer_user:
-    build: kafka_clickhouse_etl/
+    build: nx_etl_kafka_ch/
     environment:
       - TOPIC=user
       - GROUP_ID=user
       - PYTHONUNBUFFERED=1
-    # restart: always
 
 volumes:
   redis_volume:
   es_data:
   db_volume:
+  mongo_data:
   static_volume:
