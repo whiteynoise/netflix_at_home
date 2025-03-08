@@ -2,9 +2,9 @@ name: LTN
 
 on:
   push:
-    branches: [ test_workflow ]
+    branches: [ main ]
   pull_request:
-    branches: [ test_workflow ]
+    branches: [ main ]
 
 jobs:
   lint:
