@@ -7,8 +7,54 @@ on:
     branches: [ main ]
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    outputs:
+      flake_output: ${{ steps.artifact-upload-step.outputs.artifact-url }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: |
+          pip install wemake-python-styleguide flake8-html
+
+      - name: Linter Check
+        run: |
+          flake8 . --select=WPS --format=html --htmldir=flake-report || exit 1
+
+      - name: Run Mypy
+        run: |
+          mypy . || exit 1
+          
+      - name: Upload Linter Report
+        id: artifact-upload-step
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: flake8-report
+          path: flake-report
+
+  mypy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: pip install mypy
+
+      - name: Run Mypy
+        run: |
+          mypy . || exit 1
+
   notify:
     runs-on: ubuntu-latest
+    needs: [lint, mypy]
+    if: always()
 
     steps:
       - name: Send Telegram Notification
@@ -17,10 +63,18 @@ jobs:
           to: ${{ secrets.CHAT_ID_AW }}
           token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           message: |
-            Птицы наблюдают за ${{ github.actor }}, cоздавшим коммит:
-            со следующим посланием: ${{ github.event.commits[0].message }}
-            
-            Репозиторий (он вообще-то один): ${{ github.repository }}
-            
-            Узри: https://github.com/${{ github.repository }}/commit/${{github.sha}}
+            🐦‍⬛️ Птицы наблюдают за успехами действий ${{ github.actor }}.
+
+            🔍 Results:
+                Статус проверки flake: ${{ needs.lint.result == 'success' && ' 🟢' || ' 🔴' }}
+                Статус проверки mypy: ${{ needs.mypy.result == 'success' && '🟢' || '🔴' }}
+                
+            💻 Commit:
+            https://github.com/${{ github.repository }}/commit/${{ github.sha }}
+
+            🛠 Run:
+            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+            ${{ needs.lint.result != 'success' && '📋 Report from flake:' || '' }}
+            ${{ needs.lint.outputs.flake_output }}
             
