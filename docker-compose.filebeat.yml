@@ -1,0 +1,11 @@
+version: "3.8"
+
+services:
+  filebeat:
+    image: elastic/filebeat:8.10.2
+    volumes:
+      - ./deploy/filebeat.yml:/usr/share/filebeat/filebeat.yml
+    depends_on:
+      - ugc
+    links:
+      - logstash

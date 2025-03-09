@@ -1,3 +1,7 @@
+import logging
+
+import logstash
+
 import core.session as session
 from aiohttp import ClientSession
 from contextlib import asynccontextmanager
@@ -15,8 +19,10 @@ from redis.asyncio import Redis
 from db import redis
 from services.middleware import RateLimitMiddleware, RequestIdMiddleware
 
-logger.add("info.log", format="Log: [{time} - {level} - {message}]", level="INFO", enqueue=True)
+logger.remove()
+logger.add(logstash.TCPLogstashHandler("logstash", 5044, version=1), serialize=True, level="INFO")
 
+logger.add("info.log", format="Log: [{time} - {level} - {message}]", level="INFO", enqueue=True)
 
 @asynccontextmanager
 async def lifespan(app_: FastAPI):
@@ -60,5 +66,5 @@ app.add_middleware(RateLimitMiddleware, redis_=Redis(**REDIS_CONFIG))
 if ENABLE_TRACER:
     configure_tracer(config=JAEGER_CONFIG)
     FastAPIInstrumentor.instrument_app(app)
-    
+
     app.add_middleware(RequestIdMiddleware)

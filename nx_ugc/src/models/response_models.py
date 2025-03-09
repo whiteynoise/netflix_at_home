@@ -24,9 +24,27 @@ class AvgFilmRating(BaseModel):
     avg_rating: float
 
 
-class LikeResp(BaseModel):
-    ...
+class LikeList(BaseModel):
+    user_id: str
+    review_id: str
+    action: bool
+    created_at: datetime
+
+    class Config:
+        orm_mode = True
 
 
-class ReviewResp(BaseModel):
-    ...
+# review
+class LikeEntry(BaseModel):
+    user_id: str
+    action: bool
+
+class ListReview(BaseModel):
+    review_id: str
+    user_id: str
+    film_id: str
+    review_text: str
+    edited_at: None | datetime
+    rating_by_user: int
+    likes: list[LikeEntry]
+    created_at: datetime

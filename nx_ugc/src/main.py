@@ -1,3 +1,7 @@
+from pathlib import Path
+
+from loguru import logger
+
 import core.session as session
 from aiohttp import ClientSession
 from contextlib import asynccontextmanager
@@ -15,6 +19,7 @@ from core.token import get_user_from_auth_service
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    logger.info("Starting server...")
     session.aiohttp_session = ClientSession()
     client = AsyncIOMotorClient(
         'mongodb://{user}:{password}@{host}:{port}'.format(**MONGODB_CONFIG),
@@ -29,6 +34,15 @@ async def lifespan(app: FastAPI):
     client.close()
 
 
+BASE_DIR = Path(__file__).resolve().parent
+logger.remove()
+logger.add(
+    BASE_DIR / "nx_ugc.log",
+    level="INFO",
+    format="{message}",
+    serialize=True,
+)
+
 app = FastAPI(
     title=PROJECT_NAME,
     description='Сервис обработки запрос, связанных с контентом, созданным пользователями.',
@@ -37,7 +51,6 @@ app = FastAPI(
     default_response_class=ORJSONResponse,
     lifespan=lifespan
 )
-
 
 # routing
 api_router_main = APIRouter(

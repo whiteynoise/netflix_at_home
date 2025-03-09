@@ -85,6 +85,11 @@ services:
     volumes:
       - mongo_data:/data/db
     restart: unless-stopped
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh mongodb://localhost:27017 --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   nx_etl:
     build: nx_etl_pg_es/
@@ -96,17 +101,33 @@ services:
       - redis
       - elasticsearch
 
+  filebeat:
+    image: elastic/filebeat:8.10.2
+    user: root
+    volumes:
+      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - ./nx_ugc/src/nx_ugc.log:/logs/nx_ugc.log
+    links:
+      - logstash
+
   nx_ugc:
     build:
       dockerfile: Dockerfile
       context: ./nx_ugc
     container_name: nx_ugc
     <<: *default-env
+    depends_on:
+      nx_auth:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+    volumes:
+      - ./nx_ugc/src:/app/src
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8005/api/openapi || exit 1"]
       interval: 30s
       timeout: 10s
-      retries: 3
+      retries: 5
 
   nx_backend:
     build:
@@ -131,9 +152,16 @@ services:
     <<: *default-env
     volumes:
       - ./nx_auth:/app
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8001/api/openapi || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     depends_on:
-      - database
-      - redis
+      redis:
+        condition: service_healthy
+      database:
+        condition: service_healthy
 
   ugc:
     build: nx_metrics/

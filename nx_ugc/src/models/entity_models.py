@@ -40,3 +40,24 @@ class RatingUpd(RatingBase):
 
 class RatingGet(BaseModel):
     film_id: str | None = None
+
+
+class CreateLike(BaseModel):
+    review_id: str
+    action: bool
+
+# review
+class LikeEntry(BaseModel):
+    user_id: str
+    action: bool
+
+
+class UpdateReview(BaseModel):
+    review_text: str = None
+    rating_by_user: str = None
+
+
+class CreateReview(BaseModel):
+    film_id: str
+    review_text: str
+    rating_by_user: int

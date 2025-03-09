@@ -50,3 +50,5 @@ backoff==2.2.1
 beanie==1.29.0
 motor==3.7.0
 pymongo==4.9.0
+python-logstash==0.4.8
+loguru==0.7.3

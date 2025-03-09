@@ -1,7 +1,6 @@
 import os
 from logging import config as logging_config
 
-from core.logger import LOGGING
 from models.settings_model import NXBackendEnvSettings
 
 
@@ -23,6 +22,5 @@ AUTH_SERVICE_URL = settings.auth_service_url
 
 PROJECT_NAME: str = 'nx_ugc'
 
-logging_config.dictConfig(LOGGING)
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

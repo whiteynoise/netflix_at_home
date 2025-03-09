@@ -41,6 +41,7 @@ async def register(
         db: Annotated[AsyncSession, Depends(get_session)],
 ):
     '''Регистрация'''
+    logger.info("{\"message\": \"Hello\"}")
 
     try:
         await auth_service.register(user, db)

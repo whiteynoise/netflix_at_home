@@ -1,17 +1,18 @@
+import uuid
+
 import pymongo
 from pymongo import IndexModel
 
-from beanie import Document
+from beanie import Document, before_event, Update
 from datetime import datetime
-from pydantic import Field
-from typing import List
+from pydantic import Field, BaseModel
+
+from models.entity_models import LikeEntry
 
 
 class BaseCollection(Document):
     user_id: str
-    created_at: datetime = Field(
-        default_factory=lambda: datetime.now()
-    )
+    created_at: datetime = Field(default_factory=lambda: datetime.now())
 
 
 class Bookmark(BaseCollection):
@@ -53,8 +54,39 @@ class Rating(BaseCollection):
 
 
 class Like(BaseCollection):
-    ...
+    review_id: str
+    action: bool
+
+    class Settings:
+        indexes = [
+            IndexModel(
+                [
+                    ("user_id", pymongo.ASCENDING),
+                    ("review_id", pymongo.ASCENDING),
+                ],
+                name="like_user_review_uq_ASCENDING",
+                unique=True,
+            ),
+        ]
 
 
 class Review(BaseCollection):
-    ...
+    review_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    film_id: str
+    review_text: str
+    edited_at: None | datetime = None
+    rating_by_user: int
+    likes: list[LikeEntry] = Field(default_factory=list)
+
+    class Settings:
+        indexes = [
+            IndexModel(
+                [
+                    ("user_id", pymongo.ASCENDING),
+                    ("film_id", pymongo.ASCENDING),
+                ],
+                name="user_review_uq_ASCENDING",
+                unique=True,
+            ),
+        ]
