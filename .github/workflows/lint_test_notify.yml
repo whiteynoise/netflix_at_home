@@ -19,7 +19,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install wemake-python-styleguide flake8-html
+          pip install flake8-html
 
       - name: Linter Check
         run: |
