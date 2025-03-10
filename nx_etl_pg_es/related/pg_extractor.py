@@ -1,14 +1,11 @@
-import copy
-from typing import Protocol
-import psycopg
-
-from psycopg.rows import dict_row
-
 from datetime import datetime
+from typing import Protocol
 
+import psycopg
 import utils.sql_queries as sql_queries
-from utils.pydantic_models import model_by_index
+from psycopg.rows import dict_row
 from utils.backoff import backoff
+from utils.pydantic_models import model_by_index
 
 
 class Extractor(Protocol):

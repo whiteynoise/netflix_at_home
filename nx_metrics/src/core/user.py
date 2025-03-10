@@ -1,6 +1,5 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, jsonify, request
 from marshmallow import ValidationError
-
 from schema import UserEventSchema
 from utils import send_to_kafka
 

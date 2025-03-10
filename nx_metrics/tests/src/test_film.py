@@ -1,7 +1,5 @@
 from unittest.mock import patch
 
-import requests
-
 BASE_URL = "http://test_api:5000"
 
 

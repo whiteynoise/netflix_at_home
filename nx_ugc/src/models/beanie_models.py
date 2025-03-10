@@ -1,13 +1,10 @@
 import uuid
+from datetime import datetime
 
 import pymongo
-from pymongo import IndexModel
-
-from beanie import Document, before_event, Update
-from datetime import datetime
-from pydantic import Field, BaseModel
-
 from models.entity_models import LikeEntry
+from pydantic import Field
+from pymongo import IndexModel
 
 
 class BaseCollection(Document):

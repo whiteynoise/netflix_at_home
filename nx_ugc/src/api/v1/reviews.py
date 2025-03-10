@@ -1,16 +1,15 @@
 from datetime import datetime
 from http import HTTPStatus
 from typing import Annotated
-from loguru import logger
 
 from beanie.odm.operators.update.general import Set
-from fastapi import APIRouter, HTTPException, Request, Body, Query
+from fastapi import APIRouter, Body, HTTPException, Query, Request
+from loguru import logger
+from models.beanie_models import Review
+from models.entity_models import CreateReview, UpdateReview
+from models.response_models import ListReview
 from pymongo import DESCENDING
 from pymongo.errors import DuplicateKeyError
-
-from models.beanie_models import Review
-from models.entity_models import UpdateReview, CreateReview
-from models.response_models import ListReview
 
 router = APIRouter()
 
@@ -33,8 +32,8 @@ async def create_review(
 async def update_review(
     request: Request, review_id: str, data: Annotated[UpdateReview, Body()]
 ) -> bool:
-    print(review_id, request.state.user.user_id)
     review = await Review.find_one(Review.review_id == review_id)
+
     if not review:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND, detail="Review does not found."
@@ -43,6 +42,7 @@ async def update_review(
     update_data = data.model_dump(exclude_none=True)
     update_data["edited_at"] = str(datetime.now())
     await review.update(Set(update_data))
+
     return True
 
 
@@ -57,11 +57,12 @@ async def delete_review(request: Request, film_id: str) -> bool:
             detail="Like in this review does not exists.",
         )
     await review.delete()
+
     return True
 
 
 @router.get("/me", summary="Получение моих рецензий")
-async def create_review(
+async def get_my_reviews(
     request: Request
 ) -> list[ListReview]:
     logger.info("Getting me reviews")

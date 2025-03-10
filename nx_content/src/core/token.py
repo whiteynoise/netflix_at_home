@@ -1,10 +1,10 @@
+from http import HTTPStatus
+
 import core.session as session
 from aiohttp import ClientError
-from http import HTTPStatus
+from core.config import AUTH_SERVICE_URL
 from fastapi import Header, HTTPException, Request
 from models.entity_models import TokenPayload
-
-from core.config import AUTH_SERVICE_URL
 
 
 async def get_user_from_auth_service(

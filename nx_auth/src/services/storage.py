@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from functools import lru_cache
-from redis.asyncio import Redis
 
 from constants import BLACKLIST
+from redis.asyncio import Redis
 
 
 class Storage(ABC):

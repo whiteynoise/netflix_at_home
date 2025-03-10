@@ -1,11 +1,10 @@
-from uuid import UUID
 from functools import lru_cache
-from sqlalchemy import select, insert, update, asc, delete
-from sqlalchemy.ext.asyncio import AsyncSession
+from uuid import UUID
 
-from models.entity import Users, Roles, user_roles
-
+from models.entity import Roles, Users, user_roles
 from services.token_service import TokenService
+from sqlalchemy import asc, delete, insert, select, update
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class ManagementService(TokenService):

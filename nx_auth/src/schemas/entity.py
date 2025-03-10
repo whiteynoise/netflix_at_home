@@ -1,7 +1,7 @@
-from fastapi import Query
-from typing import List, Annotated
+from typing import Annotated, List
 from uuid import UUID
 
+from fastapi import Query
 from pydantic import BaseModel, EmailStr, Field, field_validator
 from werkzeug.security import generate_password_hash
 
@@ -47,7 +47,6 @@ class UserHistory(BaseModel):
     user_id: UUID
 
 
-### ROLES ###
 class CreateRole(BaseModel):
     role_title: str
 
@@ -60,9 +59,6 @@ class AddUserRoles(BaseModel):
 class ChangeRole(BaseModel):
     role_id: UUID
     title: str
-
-
-### TOKEN ###
 
 
 class TokenData(BaseModel):
@@ -82,9 +78,6 @@ class TokenPayload(BaseModel):
     email: str
     roles: List[str]
     token: str
-
-
-### PAGINATION ###
 
 
 class PaginatedParams(BaseModel):

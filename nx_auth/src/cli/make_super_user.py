@@ -1,5 +1,6 @@
-import typer
 from asyncio import run as aiorun
+
+import typer
 from db.postgres import async_session
 from models.entity import Users
 from sqlalchemy import select

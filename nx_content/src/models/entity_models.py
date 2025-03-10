@@ -1,7 +1,7 @@
-from uuid import UUID
-from pydantic import BaseModel
 from typing import List
+from uuid import UUID
 
+from pydantic import BaseModel
 from src.models.utils_models import PaginatedParams
 
 

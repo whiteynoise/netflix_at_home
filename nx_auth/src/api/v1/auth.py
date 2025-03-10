@@ -1,37 +1,26 @@
-from secrets import token_urlsafe
 from http import HTTPStatus
+from secrets import token_urlsafe
 from typing import Annotated
 
-from jwt import InvalidSignatureError
-from fastapi import APIRouter, Depends, HTTPException, Body, Header
-from loguru import logger
-
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from constants import RoleName
-
-from models.entity import Users
 from db.postgres import get_session
-
-from schemas.response import Token, History, UserLoginFullInfo, SocialNetworks
-from schemas.entity import (
-    UserCreate,
-    TokenData,
-    UserChangeInfo,
-    TokenPayload,
-    PaginatedParams,
-    UserShortData,
-)
+from fastapi import APIRouter, Body, Depends, Header, HTTPException
+from integration.outer_oauth import get_user_info_oauth
+from jwt import InvalidSignatureError
+from loguru import logger
+from models.entity import Users
+from schemas.entity import (PaginatedParams, TokenData, TokenPayload,
+                            UserChangeInfo, UserCreate, UserShortData)
 from schemas.integration import UniUserOAuth
-
+from schemas.response import History, SocialNetworks, Token, UserLoginFullInfo
 from services.auth_service import AuthService, get_auth_service
-from services.managment_service import ManagementService, get_management_service
+from services.managment_service import (ManagementService,
+                                        get_management_service)
 from services.permissions import required
 from services.token_service import TokenService, get_token_service
 from services.tools import get_current_user
-
-from integration.outer_oauth import get_user_info_oauth
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter(tags=["auth"])
 

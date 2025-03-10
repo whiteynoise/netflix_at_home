@@ -1,15 +1,12 @@
 from abc import ABC, abstractmethod
-from json import dumps, loads
-
 from functools import lru_cache, wraps
+from json import dumps, loads
 from typing import Any, Callable
-from pydantic import TypeAdapter
 
-from redis.asyncio import Redis
 from db.redis import get_redis
-
+from pydantic import TypeAdapter
+from redis.asyncio import Redis
 from services.utils.constants import ignore_endpoint_params
-
 
 FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5
 

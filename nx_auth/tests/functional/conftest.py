@@ -1,18 +1,14 @@
 import asyncio
-import copy
-import json
+
 import pytest_asyncio
-
-from http import HTTPStatus
 from aiohttp import ClientSession, TCPConnector
-from redis.asyncio import Redis
-from sqlalchemy.orm import sessionmaker
-
-
 from db.postgres import Base
 from models.entity import Users
-from .settings import REDIS_CONFIG, URL_APP, dsn
+from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.orm import sessionmaker
+
+from .settings import REDIS_CONFIG, URL_APP, dsn
 
 
 @pytest_asyncio.fixture(name="aiohttp_session", scope="session")

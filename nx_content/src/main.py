@@ -1,16 +1,15 @@
+from contextlib import asynccontextmanager
+
 import core.session as session
 from aiohttp import ClientSession
+from api.v1 import films, genres, persons
+from core.config import ES_CONFIG, PROJECT_NAME, REDIS_CONFIG
+from core.token import get_user_from_auth_service
+from db import elastic, redis
 from elasticsearch import AsyncElasticsearch
-from contextlib import asynccontextmanager
-from fastapi import FastAPI, APIRouter, Depends
+from fastapi import APIRouter, Depends, FastAPI
 from fastapi.responses import ORJSONResponse
 from redis.asyncio import Redis
-
-from api.v1 import films, genres, persons
-from db import elastic, redis
-
-from core.config import REDIS_CONFIG, ES_CONFIG, PROJECT_NAME
-from core.token import get_user_from_auth_service
 
 
 @asynccontextmanager

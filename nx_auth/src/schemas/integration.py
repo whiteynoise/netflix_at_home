@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field, AliasChoices
+from pydantic import AliasChoices, BaseModel, EmailStr, Field
 
 
 class UniUserOAuth(BaseModel):

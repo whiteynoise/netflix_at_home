@@ -1,16 +1,14 @@
 from http import HTTPStatus
 from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException
-
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from db.postgres import get_session
-from services.token_service import TokenService, get_token_service
+from fastapi import APIRouter, Depends, HTTPException
 from schemas.entity import TokenPayload
-
-from services.managment_service import ManagementService, get_management_service
+from services.managment_service import (ManagementService,
+                                        get_management_service)
 from services.token_service import TokenService, get_token_service
 from services.tools import get_current_user
+from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter(tags=["token"])
 

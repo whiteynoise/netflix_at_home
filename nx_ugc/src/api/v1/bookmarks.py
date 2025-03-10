@@ -1,11 +1,11 @@
-from pymongo.errors import DuplicateKeyError
-from beanie.operators import In
-from fastapi import APIRouter, Request, HTTPException
 from http import HTTPStatus
 
+from beanie.operators import In
+from fastapi import APIRouter, HTTPException, Request
 from models.beanie_models import Bookmark
-from models.entity_models import BookmarkAdd, BookmarkDel, BookmarkBase
+from models.entity_models import BookmarkAdd, BookmarkBase, BookmarkDel
 from models.response_models import BookmarkResp
+from pymongo.errors import DuplicateKeyError
 
 router = APIRouter()
 

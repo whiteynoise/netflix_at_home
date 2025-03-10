@@ -1,20 +1,17 @@
+from contextlib import asynccontextmanager
 from pathlib import Path
-
-from loguru import logger
 
 import core.session as session
 from aiohttp import ClientSession
-from contextlib import asynccontextmanager
-from fastapi import FastAPI, APIRouter, Depends
-from fastapi.responses import ORJSONResponse
+from api.v1 import bookmarks, likes, ratings, reviews
 from beanie import init_beanie
-from motor.motor_asyncio import AsyncIOMotorClient
-
-from api.v1 import ratings, bookmarks, likes, reviews
-from models import beanie_models as bm
-
-from core.config import PROJECT_NAME, MONGODB_CONFIG
+from core.config import MONGODB_CONFIG, PROJECT_NAME
 from core.token import get_user_from_auth_service
+from fastapi import APIRouter, Depends, FastAPI
+from fastapi.responses import ORJSONResponse
+from loguru import logger
+from models import beanie_models as bm
+from motor.motor_asyncio import AsyncIOMotorClient
 
 
 @asynccontextmanager

@@ -1,7 +1,4 @@
-import os
-
 from config.settings import BASE_DIR
-
 
 DATABASES = {
     "default": {

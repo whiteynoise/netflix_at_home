@@ -1,11 +1,10 @@
 from functools import wraps
 from time import sleep
 
-from psycopg import Error as PGError
-from elasticsearch import ApiError, ConnectionError
-from redis.exceptions import RedisError
-
 from configs.logger_config import logger
+from elasticsearch import ApiError, ConnectionError
+from psycopg import Error as PGError
+from redis.exceptions import RedisError
 
 
 class MaxRetriesException(Exception):

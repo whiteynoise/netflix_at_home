@@ -1,22 +1,11 @@
 import uuid
 
-from sqlalchemy import (
-    Boolean,
-    Column,
-    DateTime,
-    String,
-    Table,
-    ForeignKey,
-    UniqueConstraint,
-    text,
-)
+from db.postgres import Base
+from sqlalchemy import (Boolean, Column, DateTime, ForeignKey, String, Table,
+                        UniqueConstraint, text)
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
-
 from werkzeug.security import check_password_hash, generate_password_hash
-
-from db.postgres import Base
-
 
 user_roles = Table(
     "user_roles",

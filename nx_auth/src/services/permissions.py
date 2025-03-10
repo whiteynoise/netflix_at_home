@@ -1,10 +1,10 @@
 from functools import wraps
 from http import HTTPStatus
 from typing import Callable
-from fastapi import HTTPException
 
-from schemas.entity import TokenPayload
+from fastapi import HTTPException
 from loguru import logger
+from schemas.entity import TokenPayload
 
 
 def required(verify_roles: list):

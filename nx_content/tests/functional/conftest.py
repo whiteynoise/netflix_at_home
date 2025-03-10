@@ -2,18 +2,16 @@ import asyncio
 import copy
 import json
 import uuid
-import pytest_asyncio
-
 from http import HTTPStatus
-from aiohttp import ClientSession
-from redis.asyncio import Redis
 
+import pytest_asyncio
+from aiohttp import ClientSession
 from elasticsearch import AsyncElasticsearch
 from elasticsearch.helpers import async_bulk
-
 from functional.settings import ES_CONFIG, REDIS_CONFIG, URL_APP
-from functional.testdata.es_indexes import base_index_settings, index_by_name
 from functional.testdata.base_test_rows import base_row_by_name
+from functional.testdata.es_indexes import base_index_settings, index_by_name
+from redis.asyncio import Redis
 
 
 @pytest_asyncio.fixture(scope="session")

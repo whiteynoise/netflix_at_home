@@ -1,10 +1,8 @@
 import asyncio
 import logging
-import time
-
-from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
 from functional.settings import PG_CONFIG
+from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
 logger = logging.getLogger(__name__)
 

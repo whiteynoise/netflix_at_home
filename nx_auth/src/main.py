@@ -1,22 +1,19 @@
-import logging
-
-import logstash
-
-import core.session as session
-from aiohttp import ClientSession
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, APIRouter
+import core.session as session
+import logstash
+from aiohttp import ClientSession
+from api.v1 import auth, managment, token
+from core.config import (ENABLE_TRACER, JAEGER_CONFIG, PROJECT_NAME,
+                         REDIS_CONFIG)
+from core.tracer import configure_tracer
+from db import redis
+from db.const import constants
+from fastapi import APIRouter, FastAPI
 from fastapi.responses import ORJSONResponse
 from loguru import logger
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
-
-from api.v1 import auth, managment, token
-from core.config import PROJECT_NAME, REDIS_CONFIG, JAEGER_CONFIG, ENABLE_TRACER
-from core.tracer import configure_tracer
-from db.const import constants
 from redis.asyncio import Redis
-from db import redis
 from services.middleware import RateLimitMiddleware, RequestIdMiddleware
 
 logger.remove()

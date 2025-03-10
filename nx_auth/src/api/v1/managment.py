@@ -1,23 +1,20 @@
-from uuid import UUID
 from http import HTTPStatus
-
 from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException, Body
+from uuid import UUID
 
+from constants import RoleName
+from db.postgres import get_session
+from fastapi import APIRouter, Body, Depends, HTTPException
+from models.entity import Roles
+from schemas.entity import AddUserRoles, ChangeRole, CreateRole, TokenPayload
+from schemas.response import GetRolesResponse
+from services.managment_service import (ManagementService,
+                                        get_management_service)
+from services.permissions import required
+from services.tools import get_current_user
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from constants import RoleName
-
-from models.entity import Roles
-from schemas.entity import ChangeRole, AddUserRoles, CreateRole, TokenPayload
-from schemas.response import GetRolesResponse
-from services.managment_service import ManagementService, get_management_service
-from db.postgres import get_session
-
-from services.permissions import required
-from services.tools import get_current_user
 
 router = APIRouter(tags=["managment"])
 

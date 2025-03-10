@@ -1,18 +1,13 @@
-import jwt
 import datetime
-
-from fastapi import HTTPException
 from functools import lru_cache
-from http import HTTPStatus
 
-from sqlalchemy import select, update, and_
-from sqlalchemy.ext.asyncio import AsyncSession
-
+import jwt
 from core.config import settings
 from db.redis import get_redis
-from schemas.entity import TokenData
-from services.storage import get_redis_storage
 from models.entity import LoginHistory
+from services.storage import get_redis_storage
+from sqlalchemy import and_, select, update
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class TokenService:

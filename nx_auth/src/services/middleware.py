@@ -1,12 +1,12 @@
 import time
 
 from fastapi import FastAPI, Request, status
+from fastapi.responses import ORJSONResponse
 from opentelemetry import trace
 from redis.asyncio import Redis
-from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
-from fastapi.responses import ORJSONResponse
-
-from starlette.responses import Response, JSONResponse
+from starlette.middleware.base import (BaseHTTPMiddleware,
+                                       RequestResponseEndpoint)
+from starlette.responses import JSONResponse, Response
 
 
 class RateLimitMiddleware(BaseHTTPMiddleware):

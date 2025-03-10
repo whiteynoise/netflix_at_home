@@ -1,11 +1,11 @@
 from http import HTTPStatus
-from fastapi import APIRouter, Depends, HTTPException
 
-from src.services.cacher import redis_caching
-from services.persons import PersonService, person_service
-from services.film import FilmService, film_service
-from src.models.entity_models import SearchParams
+from fastapi import APIRouter, Depends, HTTPException
 from models.response_models import Film, Person, PersonFilm
+from services.film import FilmService, film_service
+from services.persons import PersonService, person_service
+from src.models.entity_models import SearchParams
+from src.services.cacher import redis_caching
 
 router = APIRouter()
 

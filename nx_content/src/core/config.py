@@ -4,7 +4,6 @@ from logging import config as logging_config
 from core.logger import LOGGING
 from models.settings_model import NXBackendEnvSettings
 
-
 settings = NXBackendEnvSettings()
 
 REDIS_CONFIG = {

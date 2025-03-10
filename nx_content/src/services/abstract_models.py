@@ -1,4 +1,5 @@
 from typing import Generator, Protocol
+
 from async_lru import alru_cache
 
 

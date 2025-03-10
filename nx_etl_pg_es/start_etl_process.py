@@ -1,14 +1,10 @@
 import sentry_sdk
-from related.es_loader import ESLoader
-from related.pg_extractor import PGExtractor
-
-from related.storage import RedisStateStorage
-from configs.settings import redis_config, pg_config, elastic_config, sentry_dsn
+from configs.settings import (elastic_config, pg_config, redis_config,
+                              sentry_dsn)
+from related.es_loader import ESLoader, Loader
 from related.etl import Etl, PostgresToEsEtl
-
-from related.es_loader import Loader
-from related.pg_extractor import Extractor
-from related.storage import KeyValueStorage
+from related.pg_extractor import Extractor, PGExtractor
+from related.storage import KeyValueStorage, RedisStateStorage
 
 
 class ETLProcess:

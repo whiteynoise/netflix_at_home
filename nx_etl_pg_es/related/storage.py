@@ -28,7 +28,7 @@ class RedisStateStorage:
         """Пинг редиса с обходом возможного рейза."""
         try:
             self._redis_connection.ping()
-        except:
+        except Exception:
             return False
 
         return True

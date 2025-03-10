@@ -1,21 +1,17 @@
 from functools import lru_cache
 from uuid import UUID
 
-from sqlalchemy import insert, and_, update, desc, or_
-from sqlalchemy.future import select
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from db.redis import get_redis
 from db.const import constants
-
-from schemas.entity import UserCreate, TokenData, PaginatedParams
+from db.redis import get_redis
+from models.entity import LoginHistory, Users, UserSocial, user_roles
+from schemas.entity import PaginatedParams, TokenData, UserCreate
 from schemas.response import Token
-
-from models.entity import Users, LoginHistory, UserSocial, user_roles
-
 from services.managment_service import ManagementService
 from services.storage import get_redis_storage
 from services.token_service import TokenService
+from sqlalchemy import desc, insert, or_, update
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 
 
 class AuthService:

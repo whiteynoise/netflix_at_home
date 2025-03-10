@@ -1,8 +1,6 @@
 import os
-from logging import config as logging_config
 
 from models.settings_model import NXBackendEnvSettings
-
 
 settings = NXBackendEnvSettings()
 

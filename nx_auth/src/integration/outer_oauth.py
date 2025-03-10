@@ -1,13 +1,11 @@
-import backoff
-
-from aiohttp import ClientError
 from asyncio import TimeoutError as AsyncIoTimeout
-from fastapi import HTTPException
 from http import HTTPStatus
 
+import backoff
 import core.session as session
+from aiohttp import ClientError
 from core.config import PROVIDERS_URL
-
+from fastapi import HTTPException
 from schemas.integration import UniUserOAuth
 
 

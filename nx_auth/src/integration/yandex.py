@@ -1,12 +1,12 @@
-import backoff
-from aiohttp import ClientError
 from asyncio import TimeoutError as AsyncIoTimeout
 from http import HTTPStatus
 from typing import Annotated
-from fastapi import HTTPException, Header
 
+import backoff
 import core.session as session
+from aiohttp import ClientError
 from core.config import YNDX_AUTH_URL
+from fastapi import Header, HTTPException
 
 
 @backoff.on_exception(

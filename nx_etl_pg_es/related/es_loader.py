@@ -1,10 +1,8 @@
-import copy
-from elasticsearch import Elasticsearch, helpers
-
-from utils.backoff import backoff
-from utils.es_indexes import base_index_settings
 from typing import Protocol
-from utils.es_indexes import index_by_name
+
+from elasticsearch import Elasticsearch, helpers
+from utils.backoff import backoff
+from utils.es_indexes import base_index_settings, index_by_name
 
 
 class Loader(Protocol):

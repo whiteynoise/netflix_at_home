@@ -1,10 +1,11 @@
 from typing import Any
-from movies.models import FilmWork
+
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.db.models import Q, Value
+from django.db.models.functions import Coalesce
 from django.db.models.query import QuerySet
 from django.http import JsonResponse
-from django.db.models.functions import Coalesce
+from movies.models import FilmWork
 
 
 class MoviesApiMixin:

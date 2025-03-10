@@ -1,11 +1,11 @@
-from pymongo.errors import DuplicateKeyError
 from datetime import datetime
-from fastapi import APIRouter, Request, HTTPException
 from http import HTTPStatus
 
+from fastapi import APIRouter, HTTPException, Request
 from models.beanie_models import Rating
-from models.entity_models import RatingAdd, RatingBase, RatingUpd, RatingGet
-from models.response_models import RatingResp, AvgFilmRating
+from models.entity_models import RatingAdd, RatingBase, RatingGet, RatingUpd
+from models.response_models import AvgFilmRating, RatingResp
+from pymongo.errors import DuplicateKeyError
 
 router = APIRouter()
 

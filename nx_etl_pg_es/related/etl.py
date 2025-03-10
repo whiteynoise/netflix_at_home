@@ -1,9 +1,9 @@
-from typing import Protocol
 from time import sleep
+from typing import Protocol
 
+from configs.logger_config import logger
 from related.es_loader import Loader
 from related.pg_extractor import Extractor
-from configs.logger_config import logger
 from related.storage import KeyValueStorage
 
 

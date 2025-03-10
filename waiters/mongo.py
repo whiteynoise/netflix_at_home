@@ -21,7 +21,7 @@ async def wait_for_mongo(sleep_time: int = 3, limit: int = 10):
             client = AsyncIOMotorClient(uri)
             await client.server_info()
             return True
-        except Exception as e:
+        except Exception:
             retries += 1
             await asyncio.sleep(sleep_time)
     raise ConnectionError("Could not connect to MongoDB")

@@ -1,9 +1,9 @@
 from http import HTTPStatus
-from fastapi import APIRouter, Depends, HTTPException
 
+from fastapi import APIRouter, Depends, HTTPException
 from services.genre import GenreService, genre_service
-from src.services.cacher import redis_caching
 from src.models.response_models import Genre
+from src.services.cacher import redis_caching
 
 router = APIRouter()
 
