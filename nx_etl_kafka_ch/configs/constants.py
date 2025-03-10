@@ -11,10 +11,10 @@ class Settings(BaseSettings):
     CLICKHOUSE_NODE_MAIN: str
     SENTRY_DSN: str
 
-    @field_validator('BOOTSTRAP_SERVERS', mode='before')
+    @field_validator("BOOTSTRAP_SERVERS", mode="before")
     @classmethod
     def convert_bootstrap_servers(cls, value: str):
-        return value.split(',')
+        return value.split(",")
 
 
 settings = Settings()

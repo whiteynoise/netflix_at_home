@@ -1,5 +1,7 @@
 import time
+
 from functional.test_logger import logger
+
 
 def get_waiter(client, sleep_time: int = 10, limit: int = 10):
     retries = 0

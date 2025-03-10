@@ -1,11 +1,9 @@
+import backoff
 from clickhouse_driver import Client
 from clickhouse_driver.errors import NetworkError, SocketTimeoutError
-from kafka import KafkaConsumer
-
-import backoff
-from kafka.errors import NoBrokersAvailable
-
 from configs.constants import settings
+from kafka import KafkaConsumer
+from kafka.errors import NoBrokersAvailable
 
 
 @backoff.on_exception(backoff.expo, max_tries=10, exception=NoBrokersAvailable)
@@ -15,7 +13,7 @@ def kafka_consumer_create():
         bootstrap_servers=settings.BOOTSTRAP_SERVERS,
         auto_offset_reset="earliest",
         group_id=settings.GROUP_ID,
-        enable_auto_commit=False
+        enable_auto_commit=False,
     )
     return consumer
 

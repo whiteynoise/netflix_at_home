@@ -1,7 +1,7 @@
-from uuid import UUID
-from pydantic import BaseModel
 from typing import List
+from uuid import UUID
 
+from pydantic import BaseModel
 from src.models.utils_models import PaginatedParams
 
 
@@ -56,4 +56,3 @@ class TokenPayload(BaseModel):
     email: str
     roles: List[str]
     token: str
-    

@@ -1,12 +1,11 @@
 from http import HTTPStatus
 from typing import Annotated
 
-from fastapi import APIRouter, Request, Depends, HTTPException, Path, Query
-from pymongo.errors import DuplicateKeyError
-
-from models.beanie_models import Like, Review, LikeEntry
+from fastapi import APIRouter, HTTPException, Path, Query, Request
+from models.beanie_models import Like, LikeEntry, Review
 from models.entity_models import CreateLike
 from models.response_models import LikeList
+from pymongo.errors import DuplicateKeyError
 
 router = APIRouter()
 

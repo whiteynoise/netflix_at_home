@@ -1,5 +1,6 @@
-import pytest
 from http import HTTPStatus
+
+import pytest
 
 
 @pytest.mark.parametrize(
@@ -9,9 +10,7 @@ from http import HTTPStatus
             "/api/v1/films/search/",
             "movies_search_1_50",
         ),
-        (
-            "/api/v1/films/",
-            "movies_main_1_50_-imdb_rating"),
+        ("/api/v1/films/", "movies_main_1_50_-imdb_rating"),
         (
             "/api/v1/films/d7bfb1fb-3157-4beb-a58a-7a58daa01845",
             "movies_uuid_d7bfb1fb-3157-4beb-a58a-7a58daa01845",

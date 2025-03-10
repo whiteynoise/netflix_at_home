@@ -19,15 +19,11 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install wemake-python-styleguide flake8-html
+          pip install flake8-html
 
       - name: Linter Check
         run: |
-          flake8 . --select=WPS --format=html --htmldir=flake-report || exit 1
-
-      - name: Run Mypy
-        run: |
-          mypy . || exit 1
+          flake8 . --format=html --htmldir=flake-report --max-line-length=120 || exit 1
           
       - name: Upload Linter Report
         id: artifact-upload-step

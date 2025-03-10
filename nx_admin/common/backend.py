@@ -1,10 +1,9 @@
 import json
 
 import requests
+from config import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import BaseBackend
-
-from config import settings
 
 CustomUser = get_user_model()
 
@@ -33,7 +32,7 @@ class AuthBackend(BaseBackend):
             user.is_superuser = data.get("is_superuser")
             user.is_active = data.get("is_active")
             user.save()
-        except Exception as e:
+        except Exception:
             return
 
         return user

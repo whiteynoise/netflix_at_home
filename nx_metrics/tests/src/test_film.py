@@ -1,13 +1,12 @@
 from unittest.mock import patch
 
-import requests
-
 BASE_URL = "http://test_api:5000"
 
 
 @patch("producer.KafkaProducer")
 def test_user_event_valid(mock_send_to_kafka):
     from app import app
+
     client = app.test_client()
     payload = {
         "film_event_tag": "watch",
@@ -24,9 +23,8 @@ def test_user_event_valid(mock_send_to_kafka):
 @patch("core.film.send_to_kafka")
 def test_user_event_invalid(mock_send_to_kafka):
     from app import app
+
     client = app.test_client()
-    payload = {
-        "user_event_tag": None
-    }
+    payload = {"user_event_tag": None}
     response = client.post("film_event/", json=payload)
     assert response.status_code == 400

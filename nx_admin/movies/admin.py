@@ -1,8 +1,9 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import gettext_lazy as _
+from movies.models import (CustomUser, FilmWork, Genre, GenreFilmWork, Person,
+                           PersonFilmWork)
 
-from movies.models import FilmWork, Genre, GenreFilmWork, Person, PersonFilmWork, CustomUser
 
 class GenreFilmWorkInline(admin.TabularInline):
     model = GenreFilmWork

@@ -13,5 +13,5 @@ def send_to_kafka(topic: str, message: Any) -> None:
     """
     producer.send(
         topic=topic,
-        value=json.dumps(message).encode('utf-8'),
+        value=json.dumps(message).encode("utf-8"),
     )

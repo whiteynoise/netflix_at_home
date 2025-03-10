@@ -9,4 +9,4 @@ class MoviesConfig(AppConfig):
     verbose_name_prular = _("Movies")
 
     def ready(self):
-        import movies.signals
+        import movies.signals  # noqa: F401

@@ -1,11 +1,10 @@
 from unittest.mock import patch
 
-import requests
-
 
 @patch("core.user.send_to_kafka")
 def test_user_event_valid(mock_send_to_kafka):
     from app import app
+
     client = app.test_client()
     payload = {"user_event_tag": "login"}
     response = client.post("user_event/", json=payload)
@@ -18,6 +17,7 @@ def test_user_event_valid(mock_send_to_kafka):
 @patch("core.user.send_to_kafka")
 def test_user_event_invalid(mock_send_to_kafka):
     from app import app
+
     client = app.test_client()
     payload = {"user_event_tag": None}
     response = client.post("user_event/", json=payload)

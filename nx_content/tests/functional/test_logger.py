@@ -2,15 +2,15 @@ import logging
 
 
 class CustomFormatter(logging.Formatter):
-    green = '\033[92m'
-    yellow = '\033[93m'
-    bold_red = '\033[91m'
+    green = "\033[92m"
+    yellow = "\033[93m"
+    bold_red = "\033[91m"
     format = "%(asctime)s - %(levelname)s - %(message)s"
 
     FORMATS = {
         logging.INFO: green + format,
         logging.WARNING: yellow + format,
-        logging.ERROR: bold_red + format
+        logging.ERROR: bold_red + format,
     }
 
     def format(self, record):

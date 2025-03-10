@@ -1,5 +1,6 @@
-from pathlib import Path
 import os
+from pathlib import Path
+
 from split_settings.tools import include
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -90,8 +91,8 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 AUTHENTICATION_BACKENDS = [
-    'common.backend.AuthBackend',
-    'django.contrib.auth.backends.ModelBackend'
+    "common.backend.AuthBackend",
+    "django.contrib.auth.backends.ModelBackend",
 ]
 
 AUTH_API = os.environ.get("AUTH_API")

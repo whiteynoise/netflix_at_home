@@ -1,12 +1,12 @@
 from http import HTTPStatus
-from fastapi import APIRouter, Depends, HTTPException
 
+from fastapi import APIRouter, Depends, HTTPException
 from models.response_models import FilmWork
-from src.models.entity_models import SearchParams, SortFilms
-from src.services.cacher import redis_caching
 from services.film import FilmService, film_service
 from src.api.v1.constants import SORT_CHOICES
+from src.models.entity_models import SearchParams, SortFilms
 from src.models.response_models import Film
+from src.services.cacher import redis_caching
 
 router = APIRouter()
 
@@ -19,8 +19,7 @@ router = APIRouter()
 )
 @redis_caching(key_base="movies_uuid_", response_model=FilmWork, only_one=True)
 async def film_details(
-    film_id: str,
-    film_service: FilmService = Depends(film_service.get_service)
+    film_id: str, film_service: FilmService = Depends(film_service.get_service)
 ) -> FilmWork:
     """Возвращает информацию о кинопроизведении"""
 

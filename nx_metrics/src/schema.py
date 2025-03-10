@@ -1,7 +1,7 @@
 import time
 
 from flask import request
-from marshmallow import fields, Schema, pre_load
+from marshmallow import Schema, fields, pre_load
 
 
 class UserEventSchema(Schema):

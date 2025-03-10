@@ -1,14 +1,14 @@
 from abc import ABC, abstractmethod
 from functools import lru_cache
-from redis.asyncio import Redis
 
 from constants import BLACKLIST
+from redis.asyncio import Redis
 
 
 class Storage(ABC):
     @abstractmethod
     async def set_value(self, *args, **kwargs) -> None:
-        '''Положить данные в хранилище'''
+        """Положить данные в хранилище"""
         pass
 
 

@@ -1,20 +1,16 @@
-def get_max_time_across_tables(redis_date):
+def get_max_time_across_tables(redis_date: str) -> str:
     return f"""
         SELECT max(max_mod) as new_date
         FROM (
             SELECT max(modified) as max_mod
             FROM content.film_work
             WHERE modified > '{redis_date}'::timestamp
-        
             UNION
-        
             SELECT max(g.modified) as max_mod
             FROM content.genre g
             JOIN content.genre_film_work gfw ON g.id = gfw.genre_id
             WHERE g.modified > '{redis_date}'::timestamp
-        
             UNION
-        
             SELECT max(p.modified) as max_mod
             FROM content.person p
             JOIN content.person_film_work gfw ON p.id = gfw.person_id
@@ -23,7 +19,7 @@ def get_max_time_across_tables(redis_date):
     """
 
 
-def get_filmworks(redis_date):
+def get_filmworks(redis_date: str) -> str:
     return f"""
         SELECT
             fw.id,
@@ -65,7 +61,7 @@ def get_filmworks(redis_date):
     """
 
 
-def get_genres(redis_date):
+def get_genres(redis_date: str) -> str:
     return f"""
         SELECT
             g.id,
@@ -77,23 +73,24 @@ def get_genres(redis_date):
     """
 
 
-def get_persons(redis_date):
+def get_persons(redis_date: str) -> str:
     return f"""
         WITH pfw_agg AS (
-	        SELECT
-	        	pfw.person_id,
-	        	pfw.film_work_id,
-	        	array_agg(DISTINCT pfw.role) AS roles
-	        FROM content.person_film_work pfw
-	        GROUP BY pfw.person_id, pfw.film_work_id
+            SELECT
+                pfw.person_id,
+                pfw.film_work_id,
+                array_agg(DISTINCT pfw.role) AS roles
+            FROM content.person_film_work pfw
+            GROUP BY pfw.person_id, pfw.film_work_id
         )
         SELECT
-        	pfw.person_id as id,
+            pfw.person_id as id,
             p.full_name as name,
-            coalesce(json_agg(DISTINCT 
-            	jsonb_build_object(
-                	'id', pfw.film_work_id,
-                    'roles', pfw.roles
+            coalesce(
+                json_agg(DISTINCT
+                    jsonb_build_object(
+                        'id', pfw.film_work_id,
+                        'roles', pfw.roles
                 )
             ), '[]') AS films
         FROM pfw_agg AS pfw
@@ -103,8 +100,8 @@ def get_persons(redis_date):
     """
 
 
-quaries_by_index = {
-    'movies': get_filmworks,
-    'genres': get_genres,
-    'persons': get_persons
+quaries_by_index: dict = {
+    "movies": get_filmworks,
+    "genres": get_genres,
+    "persons": get_persons,
 }

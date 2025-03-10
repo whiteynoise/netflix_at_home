@@ -1,13 +1,12 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, jsonify, request
 from marshmallow import ValidationError
-
 from schema import FilmEventSchema
 from utils import send_to_kafka
 
 film_bp = Blueprint("/film_event", __name__, url_prefix="/film_event")
 
 
-@film_bp.route('/', methods=["POST"])
+@film_bp.route("/", methods=["POST"])
 def film_event():
     schema = FilmEventSchema()
     try:

@@ -1,7 +1,6 @@
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import text
-
 from db.postgres import engine
+from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class ConstManager:
@@ -18,18 +17,22 @@ class ConstManager:
     async def _load_roles(self, session):
         """Загрузка ролей."""
         result = (
-            await session.execute(
-                text("""
+            (
+                await session.execute(
+                    text(
+                        """
                     SELECT role_id, title
                     FROM auth.roles
-                """)
+                """
+                    )
+                )
             )
-        ).mappings().all()
+            .mappings()
+            .all()
+        )
 
         if not result:
-            raise Exception(
-                f"Константа ролей не может быть пустой"
-            )
+            raise Exception("Константа ролей не может быть пустой")
 
         return {row["title"]: row["role_id"] for row in result}
 

@@ -1,12 +1,12 @@
-import sentry_sdk
 from time import sleep
 
+import sentry_sdk
 from configs.constants import settings
 from configs.logger_config import logger
-from utils.waiters import clickhouse_client_create, kafka_consumer_create
 from related.ch_loader import ClickHouseLoader
 from related.kafka_extractor import KafkaExtractor
 from utils.ch_queries import queries_by_topic
+from utils.waiters import clickhouse_client_create, kafka_consumer_create
 
 
 def start_etl_process():
@@ -15,9 +15,7 @@ def start_etl_process():
     consumer = kafka_consumer_create()
 
     extractor: KafkaExtractor = KafkaExtractor(consumer=consumer)
-    loader: ClickHouseLoader = ClickHouseLoader(
-        client=clickhouse_client_create()
-    )
+    loader: ClickHouseLoader = ClickHouseLoader(client=clickhouse_client_create())
 
     while True:
         logger.info("Collecting data from Kafka...")
@@ -26,7 +24,7 @@ def start_etl_process():
             logger.info("Loading data to ClickHouse...")
             loader.load_data(batch=batch, query=query)
             consumer.commit()
-        
+
         logger.info("Data loaded. I'm going to sleep for %s seconds.", sleep_time_etl)
         sleep(sleep_time_etl)
 

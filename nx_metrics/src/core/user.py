@@ -1,13 +1,12 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, jsonify, request
 from marshmallow import ValidationError
-
 from schema import UserEventSchema
 from utils import send_to_kafka
 
 user_bp = Blueprint("/user_event", __name__, url_prefix="/user_event")
 
 
-@user_bp.route('/', methods=["POST"])
+@user_bp.route("/", methods=["POST"])
 def user_event():
     schema = UserEventSchema()
     try:
@@ -17,4 +16,3 @@ def user_event():
         return jsonify(validated_data), 200
     except ValidationError as err:
         return jsonify(err.messages), 400
-

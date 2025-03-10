@@ -1,6 +1,5 @@
-from datetime import datetime, timezone
-from pydantic import BaseModel, Field
-from typing import List
+from datetime import datetime
+from pydantic import BaseModel
 
 
 class BookmarkResp(BaseModel):
@@ -38,6 +37,7 @@ class LikeList(BaseModel):
 class LikeEntry(BaseModel):
     user_id: str
     action: bool
+
 
 class ListReview(BaseModel):
     review_id: str
