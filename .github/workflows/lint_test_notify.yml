@@ -24,10 +24,6 @@ jobs:
       - name: Linter Check
         run: |
           flake8 . --format=html --htmldir=flake-report --max-line-length=120 || exit 1
-
-      - name: Run Mypy
-        run: |
-          mypy . || exit 1
           
       - name: Upload Linter Report
         id: artifact-upload-step
@@ -49,7 +45,7 @@ jobs:
 
       - name: Run Mypy
         run: |
-          mypy . || exit 1
+          mypy . --explicit-package-bases || exit 1
 
   # notify:
   #   runs-on: ubuntu-latest
