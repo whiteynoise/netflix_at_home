@@ -2,9 +2,9 @@ name: LTN
 
 on:
   push:
-    branches: [ main ]
+    branches: [ black_fixes ]
   pull_request:
-    branches: [ main ]
+    branches: [ black_fixes ]
 
 jobs:
   lint:
