@@ -35,7 +35,7 @@ async def register(
     user: Annotated[UserCreate, Body()],
     auth_service: Annotated[AuthService, Depends(get_auth_service)],
     db: Annotated[AsyncSession, Depends(get_session)],
-):
+) -> bool:
     """Регистрация"""
     logger.info('{"message": "Hello"}')
 
@@ -60,7 +60,7 @@ async def register_via_oauth(
     provider: str,
     auth_service: Annotated[AuthService, Depends(get_auth_service)],
     db: Annotated[AsyncSession, Depends(get_session)],
-):
+) -> bool:
     """Регистрация через внешний OAuth."""
 
     user_info: UniUserOAuth = await get_user_info_oauth(
@@ -100,7 +100,7 @@ async def login_via_oauth(
     token_service: Annotated[TokenService, Depends(get_token_service)],
     management_service: Annotated[ManagementService, Depends(get_management_service)],
     db: Annotated[AsyncSession, Depends(get_session)],
-):
+) -> Token:
     """Логин через внешний OAuth."""
 
     user_info: UniUserOAuth = await get_user_info_oauth(
@@ -139,7 +139,7 @@ async def login(
     token_service: Annotated[TokenService, Depends(get_token_service)],
     management_service: Annotated[ManagementService, Depends(get_management_service)],
     db: Annotated[AsyncSession, Depends(get_session)],
-):
+) -> Token:
     """Логин"""
 
     user: Users | None = await auth_service.identificate_user(get_user, db)
@@ -203,14 +203,16 @@ async def extra_login(
 
 
 @router.post(
-    "/logout", summary="Логаутит пользователя", description="Логаутит пользователя"
+    "/logout",
+    summary="Логаутит пользователя",
+    description="Логаутит пользователя",
 )
 @required([RoleName.BASE_USER])
 async def logout(
     user: Annotated[TokenPayload, Depends(get_current_user)],
     token_service: Annotated[TokenService, Depends(get_token_service)],
     db: Annotated[AsyncSession, Depends(get_session)],
-):
+) -> None:
     """Логаут"""
 
     await token_service.revoke_refresh(id_user=user.id_user, db=db)
@@ -238,7 +240,7 @@ async def change_user_info(
     token_service: Annotated[TokenService, Depends(get_token_service)],
     auth_service: Annotated[AuthService, Depends(get_auth_service)],
     db: Annotated[AsyncSession, Depends(get_session)],
-):
+) -> dict:
     """Смена информации о пользователе"""
 
     if not change_info.username and not change_info.email and not change_info.password:
@@ -278,7 +280,7 @@ async def enter_history(
     pagination: Annotated[PaginatedParams, Depends()],
     auth_service: Annotated[AuthService, Depends(get_auth_service)],
     db: Annotated[AsyncSession, Depends(get_session)],
-):
+) -> list[History]:
     """История входов в аккаунт"""
 
     return await auth_service.get_login_history(
@@ -297,7 +299,7 @@ async def social_networks(
     user: Annotated[TokenPayload, Depends(get_current_user)],
     auth_service: Annotated[AuthService, Depends(get_auth_service)],
     db: Annotated[AsyncSession, Depends(get_session)],
-):
+) -> list[SocialNetworks]:
     """Получить список привязанных соц.сетей."""
 
     return await auth_service.get_user_social_networks(user_id=user.user_id, db=db)

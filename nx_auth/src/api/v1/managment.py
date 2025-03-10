@@ -23,6 +23,7 @@ router = APIRouter(tags=["managment"])
     "/create_role",
     summary="Создание роли",
     description="Создание роли для пользователя",
+    response_model=bool,
 )
 @required([RoleName.ADMIN])
 async def create_role(
@@ -30,16 +31,17 @@ async def create_role(
     role: Annotated[CreateRole, Body()],
     management_service: Annotated[ManagementService, Depends(get_management_service)],
     db: Annotated[AsyncSession, Depends(get_session)],
-):
+) -> bool:
     """Создание роли"""
 
     try:
-        return await management_service.create_role(**role.model_dump(), db=db)
-
+        await management_service.create_role(**role.model_dump(), db=db)
     except IntegrityError:
         raise HTTPException(
             status_code=HTTPStatus.CONFLICT, detail="Current role already exists."
         )
+    
+    return True
 
 
 @router.delete(
@@ -54,7 +56,7 @@ async def delete_role(
     role_id: UUID,
     management_service: Annotated[ManagementService, Depends(get_management_service)],
     db: Annotated[AsyncSession, Depends(get_session)],
-):
+) -> bool:
     role = await db.execute(select(Roles).where(Roles.role_id == role_id))
     role = role.scalar_one_or_none()
 
@@ -81,7 +83,7 @@ async def delete_user_role(
     params: Annotated[AddUserRoles, Body()],
     management_service: Annotated[ManagementService, Depends(get_management_service)],
     db: Annotated[AsyncSession, Depends(get_session)],
-):
+) -> dict:
     """Удаление роли"""
 
     if not await management_service.get_user_info_by_id(user_id=params.user_id, db=db):
@@ -113,6 +115,7 @@ async def delete_user_role(
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND, detail="Current user hasn't current role"
         )
+    
     return {"access_token": access_token}
 
 
@@ -128,7 +131,7 @@ async def change_role(
     role: Annotated[ChangeRole, Depends()],
     management_service: Annotated[ManagementService, Depends(get_management_service)],
     db: Annotated[AsyncSession, Depends(get_session)],
-):
+) -> bool:
     """Изменение роли."""
 
     result = await management_service.change_role(**role.model_dump(), db=db)
@@ -154,7 +157,7 @@ async def add_role_to_user(
     params: Annotated[AddUserRoles, Body()],
     management_service: Annotated[ManagementService, Depends(get_management_service)],
     db: Annotated[AsyncSession, Depends(get_session)],
-):
+) -> dict:
     """Добавить роль пользователю."""
 
     if not await management_service.get_user_info_by_id(user_id=params.user_id, db=db):
@@ -193,7 +196,7 @@ async def get_all_roles(
     user: Annotated[TokenPayload, Depends(get_current_user)],
     management_service: Annotated[ManagementService, Depends(get_management_service)],
     db: Annotated[AsyncSession, Depends(get_session)],
-):
+) -> list[GetRolesResponse]:
     """Получение всех ролей"""
 
     result = await management_service.get_all_roles(db=db)
@@ -215,7 +218,7 @@ async def get_user_roles(
     user_id: str,
     user: Annotated[TokenPayload, Depends(get_current_user)],
     management_service: ManagementService = Depends(get_management_service),
-):
+) -> list[GetRolesResponse]:
     """Получение всех ролей пользователя"""
 
     result = await management_service.get_user_roles(user_id=user_id)

@@ -23,7 +23,7 @@ async def refresh_access_token(
     token_service: Annotated[TokenService, Depends(get_token_service)],
     management_service: Annotated[ManagementService, Depends(get_management_service)],
     db: Annotated[AsyncSession, Depends(get_session)],
-):
+) -> dict:
     """Обновление аксесс токена по рефреш токену"""
 
     refresh_token = user.token
