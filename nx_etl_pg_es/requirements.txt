@@ -4,3 +4,4 @@ elasticsearch==8.6.2
 redis==5.2.0
 pydantic==2.9.2
 pydantic-settings==2.6.0
+sentry-sdk==0.10.2

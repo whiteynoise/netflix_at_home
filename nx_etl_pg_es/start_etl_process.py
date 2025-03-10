@@ -1,8 +1,9 @@
+import sentry_sdk
 from related.es_loader import ESLoader
 from related.pg_extractor import PGExtractor
 
 from related.storage import RedisStateStorage
-from configs.settings import redis_config, pg_config, elastic_config
+from configs.settings import redis_config, pg_config, elastic_config, sentry_dsn
 from related.etl import Etl, PostgresToEsEtl
 
 from related.es_loader import Loader
@@ -38,6 +39,8 @@ class ETLProcess:
 
 
 if __name__ == "__main__":
+    sentry_sdk.init(sentry_dsn)
+
     etl_process = ETLProcess(
         pg_config,
         elastic_config,

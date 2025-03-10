@@ -15,3 +15,5 @@ class EnvSettings(BaseSettings):
 
     elastic_host: str
     elastic_port: int
+
+    sentry_dsn_etl_pg_es: str
