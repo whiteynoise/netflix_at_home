@@ -19,7 +19,12 @@ def get_waiter(engine: AsyncEngine, sleep_time: int = 10, limit: int = 10):
                 logger.info("Success ping database")
                 return
             except Exception as e:
-                logger.warning("Try connect to database: attempt %d/%d, error: %s", retries + 1, limit, e)
+                logger.warning(
+                    "Try connect to database: attempt %d/%d, error: %s",
+                    retries + 1,
+                    limit,
+                    e,
+                )
                 retries += 1
                 await asyncio.sleep(sleep_time)
 
@@ -29,10 +34,12 @@ def get_waiter(engine: AsyncEngine, sleep_time: int = 10, limit: int = 10):
     return _wait
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # while True:
     #     time.sleep(1000)
-    dsn = 'postgresql+asyncpg://{user}:{password}@{host}:{port}/{db}'.format(**PG_CONFIG)
+    dsn = "postgresql+asyncpg://{user}:{password}@{host}:{port}/{db}".format(
+        **PG_CONFIG
+    )
     logger.info("DNS: %s" % dsn)
 
     engine = create_async_engine(dsn, echo=True, future=True)

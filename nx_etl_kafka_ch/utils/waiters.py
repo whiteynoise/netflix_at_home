@@ -15,7 +15,7 @@ def kafka_consumer_create():
         bootstrap_servers=settings.BOOTSTRAP_SERVERS,
         auto_offset_reset="earliest",
         group_id=settings.GROUP_ID,
-        enable_auto_commit=False
+        enable_auto_commit=False,
     )
     return consumer
 

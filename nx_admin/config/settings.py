@@ -90,8 +90,8 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 AUTHENTICATION_BACKENDS = [
-    'common.backend.AuthBackend',
-    'django.contrib.auth.backends.ModelBackend'
+    "common.backend.AuthBackend",
+    "django.contrib.auth.backends.ModelBackend",
 ]
 
 AUTH_API = os.environ.get("AUTH_API")

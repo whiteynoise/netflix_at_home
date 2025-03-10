@@ -24,7 +24,8 @@ class KafkaExtractor:
     def prepare_data(self, message: bytes) -> dict:
         """Конвертирует сообщение в словарь."""
         message: dict = json.loads(message.decode("utf-8"))
-        message['event_time'] = datetime.strptime(message['event_time'], "%Y-%m-%d %H:%M:%S")
-        
-        return message
+        message["event_time"] = datetime.strptime(
+            message["event_time"], "%Y-%m-%d %H:%M:%S"
+        )
 
+        return message

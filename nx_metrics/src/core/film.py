@@ -7,7 +7,7 @@ from utils import send_to_kafka
 film_bp = Blueprint("/film_event", __name__, url_prefix="/film_event")
 
 
-@film_bp.route('/', methods=["POST"])
+@film_bp.route("/", methods=["POST"])
 def film_event():
     schema = FilmEventSchema()
     try:

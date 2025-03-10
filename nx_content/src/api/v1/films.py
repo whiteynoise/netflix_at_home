@@ -19,8 +19,7 @@ router = APIRouter()
 )
 @redis_caching(key_base="movies_uuid_", response_model=FilmWork, only_one=True)
 async def film_details(
-    film_id: str,
-    film_service: FilmService = Depends(film_service.get_service)
+    film_id: str, film_service: FilmService = Depends(film_service.get_service)
 ) -> FilmWork:
     """Возвращает информацию о кинопроизведении"""
 

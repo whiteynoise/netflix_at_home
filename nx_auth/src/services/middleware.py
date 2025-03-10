@@ -19,14 +19,13 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         super().__init__(app)
         self.redis_ = redis_
 
-    async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
+    async def dispatch(
+        self, request: Request, call_next: RequestResponseEndpoint
+    ) -> Response:
         is_rate_limit: bool = await self.is_rate_limit(request.client.host)
 
         if is_rate_limit:
-            return JSONResponse(
-                {"detail": "Too many requests"},
-                status_code=429
-            )
+            return JSONResponse({"detail": "Too many requests"}, status_code=429)
         return await call_next(request)
 
     async def is_rate_limit(self, host: str) -> bool:
@@ -36,7 +35,9 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
         async with self.redis_.pipeline() as pipe:
             await pipe.lpush(host, time.time())
-            await pipe.ltrim(host, 0, self.WINDOW_SIZE - 1)  # нас интересуют запросы за прошедшие 60 сек
+            await pipe.ltrim(
+                host, 0, self.WINDOW_SIZE - 1
+            )  # нас интересуют запросы за прошедшие 60 сек
             await pipe.expire(host, self.WINDOW_SIZE)
             result = await pipe.execute()
 
@@ -54,14 +55,14 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
 class RequestIdMiddleware(BaseHTTPMiddleware):
     """Middleware для проверки request_id и записи его в спан"""
-    
+
     async def dispatch(self, request: Request, call_next):
         request_id = request.headers.get("X-Request-Id")
 
         if not request_id:
             return ORJSONResponse(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                content={"detail": "X-Request-Id is required"}
+                content={"detail": "X-Request-Id is required"},
             )
 
         tracer = trace.get_tracer(__name__)
@@ -69,8 +70,7 @@ class RequestIdMiddleware(BaseHTTPMiddleware):
         with tracer.start_as_current_span("auth-request-span") as span:
             if request_id:
                 span.set_attribute("http.request_id", request_id)
-            
+
             response = await call_next(request)
 
         return response
-    

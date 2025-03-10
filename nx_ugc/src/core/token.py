@@ -8,29 +8,26 @@ from core.config import AUTH_SERVICE_URL
 
 
 async def get_user_from_auth_service(
-        request: Request,
-        authorization: str = Header(None)
+    request: Request, authorization: str = Header(None)
 ) -> TokenPayload:
     """Запрос в nx_auth для получения информации о пользователе по токену."""
 
     if not authorization:
         raise HTTPException(
-            status_code=HTTPStatus.UNAUTHORIZED,
-            detail="Missing Authorization header"
+            status_code=HTTPStatus.UNAUTHORIZED, detail="Missing Authorization header"
         )
 
-    ENDPOINT = '/api/v1/token/get_user_from_token'
+    ENDPOINT = "/api/v1/token/get_user_from_token"
 
     try:
         async with session.aiohttp_session.get(
-            f'{AUTH_SERVICE_URL}{ENDPOINT}',
+            f"{AUTH_SERVICE_URL}{ENDPOINT}",
             headers={"Authorization": authorization},
-            timeout=5
+            timeout=5,
         ) as response:
             if response.status != 200:
                 raise HTTPException(
-                    status_code=HTTPStatus.UNAUTHORIZED,
-                    detail="Invalid token"
+                    status_code=HTTPStatus.UNAUTHORIZED, detail="Invalid token"
                 )
 
             data = await response.json()
@@ -38,6 +35,5 @@ async def get_user_from_auth_service(
 
     except ClientError:
         raise HTTPException(
-            status_code=HTTPStatus.UNAUTHORIZED,
-            detail="Auth-service is unavailable"
+            status_code=HTTPStatus.UNAUTHORIZED, detail="Auth-service is unavailable"
         )

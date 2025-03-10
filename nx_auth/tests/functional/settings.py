@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class TestSettings(BaseSettings):
-    model_config = SettingsConfigDict(env_file='.env', extra='ignore')
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     redis_host: str
     redis_port: int
@@ -18,8 +18,8 @@ class TestSettings(BaseSettings):
 test_settings = TestSettings()
 
 REDIS_CONFIG = {
-    'host': test_settings.redis_host,
-    'port': test_settings.redis_port,
+    "host": test_settings.redis_host,
+    "port": test_settings.redis_port,
 }
 
 PG_CONFIG = {
@@ -30,6 +30,6 @@ PG_CONFIG = {
     "port": test_settings.postgres_port,
 }
 
-dsn = 'postgresql+asyncpg://{user}:{password}@{host}:{port}/{db}'.format(**PG_CONFIG)
+dsn = "postgresql+asyncpg://{user}:{password}@{host}:{port}/{db}".format(**PG_CONFIG)
 
 URL_APP = test_settings.url_app

@@ -1,6 +1,7 @@
 from uuid import UUID
 from pydantic import BaseModel
 
+
 class PersonBase(BaseModel):
     id: UUID
     name: str
@@ -37,8 +38,4 @@ class Person(PersonBase):
     films: list[PersonFilms]
 
 
-model_by_index = {
-    'movies': FilmWork,
-    'genres': Genres,
-    'persons': Person
-}
+model_by_index = {"movies": FilmWork, "genres": Genres, "persons": Person}

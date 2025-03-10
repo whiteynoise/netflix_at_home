@@ -32,10 +32,9 @@ async def aiohttp_session():
 
 @pytest_asyncio.fixture(name="elastic_fill", scope="session", autouse=True)
 async def elastic_fill():
-    
+
     es_client = AsyncElasticsearch(
-        hosts=["{host}:{port}".format(**ES_CONFIG)],
-        verify_certs=False
+        hosts=["{host}:{port}".format(**ES_CONFIG)], verify_certs=False
     )
 
     len_of_prepared_data = 5
@@ -69,7 +68,7 @@ async def elastic_fill():
             raise Exception(
                 f"Ошибка записи данных в Elasticsearch в индексе {index_name}"
             )
-    
+
     yield es_client
 
     for index_name in indexes:
@@ -91,7 +90,7 @@ def make_get_request(aiohttp_session: ClientSession):
     async def inner(api_path: str, params: dict | None = None) -> dict:
         response_dict = {}
         url = URL_APP + api_path
-        
+
         async with aiohttp_session.get(url, params=params or {}) as response:
             response_dict["body"] = await response.json()
             response_dict["headers"] = response.headers
@@ -108,7 +107,7 @@ def cache_checkout(redis_client: Redis, make_get_request):
         redis_key: str,
         api_path: str,
         key_to_modify: str,
-        request_params: dict | None = None
+        request_params: dict | None = None,
     ):
         # TODO: разделить фикстуру на две (?)
         old_response: dict = await make_get_request(

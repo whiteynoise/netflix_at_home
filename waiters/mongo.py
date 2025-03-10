@@ -7,7 +7,7 @@ MONGO_CONFIG = {
     "host": "mongodb",
     "port": 27017,
     "user": os.getenv("MONGO_USER"),
-    "password": os.getenv("MONGO_PASSWORD")
+    "password": os.getenv("MONGO_PASSWORD"),
 }
 
 

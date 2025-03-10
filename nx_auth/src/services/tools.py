@@ -13,9 +13,9 @@ from services.storage import get_redis_storage
 
 
 async def get_current_user(
-    jwt_token: Annotated[str, Header(alias='Authorization')],
+    jwt_token: Annotated[str, Header(alias="Authorization")],
 ) -> TokenPayload | HTTPException:
-    '''Получение пользователя по токену'''
+    """Получение пользователя по токену"""
 
     credentials_exception = HTTPException(
         status_code=HTTPStatus.UNAUTHORIZED,
@@ -33,19 +33,17 @@ async def get_current_user(
             settings.secret_key,
             algorithms=[settings.algorithm],
         )
-        
+
         token = TokenPayload(
-            user_id=payload['user_id'],
-            email=payload['email'],
-            username=payload['username'],
-            roles=payload.get('roles'),
-            token=jwt_token
+            user_id=payload["user_id"],
+            email=payload["email"],
+            username=payload["username"],
+            roles=payload.get("roles"),
+            token=jwt_token,
         )
 
     except ExpiredSignatureError:
-        raise HTTPException(
-            status_code=HTTPStatus.UNAUTHORIZED
-        )
+        raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED)
     except (PyJWTError, KeyError):
         raise credentials_exception
 

@@ -5,10 +5,7 @@ from http import HTTPStatus
 @pytest.mark.parametrize(
     "api_path, redis_key",
     [
-        (
-            "/api/v1/genres/",
-            "genres_main_"
-        ),
+        ("/api/v1/genres/", "genres_main_"),
         (
             "/api/v1/genres/5a4d46b8-07ba-4d8f-b376-25ed30944094",
             "genres_uuid_5a4d46b8-07ba-4d8f-b376-25ed30944094",

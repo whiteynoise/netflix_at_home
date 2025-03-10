@@ -8,26 +8,19 @@ from http import HTTPStatus
         (
             "/api/v1/persons/a5232057-cf81-47ca-9e46-5ccf27300678",
             "persons_uuid_a5232057-cf81-47ca-9e46-5ccf27300678",
-            "name"
+            "name",
         ),
-        (
-            "/api/v1/persons/search/",
-            "persons_search_1_50",
-            "name"
-        ),
+        ("/api/v1/persons/search/", "persons_search_1_50", "name"),
         (
             "/api/v1/persons/a5232057-cf81-47ca-9e46-5ccf27300678/film/",
             "persons_film_a5232057-cf81-47ca-9e46-5ccf27300678",
-            "title"
+            "title",
         ),
     ],
 )
 @pytest.mark.asyncio
 async def test_persons_redis(
-    cache_checkout,
-    api_path: str,
-    redis_key: str,
-    key_to_modify: str
+    cache_checkout, api_path: str, redis_key: str, key_to_modify: str
 ):
     old_cache, modified_cache, old_response, new_response = await cache_checkout(
         redis_key=redis_key, api_path=api_path, key_to_modify=key_to_modify
@@ -46,11 +39,7 @@ async def test_persons_redis(
     ],
 )
 @pytest.mark.asyncio
-async def test_persons_specific(
-    make_get_request,
-    uuid_person: str,
-    status: dict
-):
+async def test_persons_specific(make_get_request, uuid_person: str, status: dict):
     api_path: str = f"/api/v1/persons/{uuid_person}"
 
     response: dict = await make_get_request(api_path=api_path)
@@ -67,11 +56,7 @@ async def test_persons_specific(
     ],
 )
 @pytest.mark.asyncio
-async def test_persons_films_specific(
-    make_get_request,
-    uuid_person: str,
-    status: dict
-):
+async def test_persons_films_specific(make_get_request, uuid_person: str, status: dict):
     api_path: str = f"/api/v1/persons/{uuid_person}/film/"
 
     response: dict = await make_get_request(api_path=api_path)
@@ -106,17 +91,12 @@ async def test_persons_films_specific(
 )
 @pytest.mark.asyncio
 async def test_persons_search(
-    make_get_request,
-    test_params: dict,
-    expected_answer: dict
+    make_get_request, test_params: dict, expected_answer: dict
 ):
     api_path: str = "/api/v1/persons/search/"
     request_params: dict = test_params
 
-    response: dict = await make_get_request(
-        api_path=api_path,
-        params=request_params
-    )
+    response: dict = await make_get_request(api_path=api_path, params=request_params)
 
     assert response["status"] == expected_answer["status"]
     assert len(response["body"]) == expected_answer["length"]

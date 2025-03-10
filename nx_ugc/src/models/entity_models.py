@@ -46,6 +46,7 @@ class CreateLike(BaseModel):
     review_id: str
     action: bool
 
+
 # review
 class LikeEntry(BaseModel):
     user_id: str

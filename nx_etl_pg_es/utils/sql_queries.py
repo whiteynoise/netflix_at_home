@@ -104,7 +104,7 @@ def get_persons(redis_date):
 
 
 quaries_by_index = {
-    'movies': get_filmworks,
-    'genres': get_genres,
-    'persons': get_persons
+    "movies": get_filmworks,
+    "genres": get_genres,
+    "persons": get_persons,
 }

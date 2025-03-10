@@ -17,7 +17,4 @@ insert_film_events: str = """
     VALUES
 """
 
-queries_by_topic = {
-    'user': insert_user_events,
-    'film': insert_film_events
-}
+queries_by_topic = {"user": insert_user_events, "film": insert_film_events}

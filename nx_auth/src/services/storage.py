@@ -8,7 +8,7 @@ from constants import BLACKLIST
 class Storage(ABC):
     @abstractmethod
     async def set_value(self, *args, **kwargs) -> None:
-        '''Положить данные в хранилище'''
+        """Положить данные в хранилище"""
         pass
 
 

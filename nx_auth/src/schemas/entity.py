@@ -6,7 +6,6 @@ from pydantic import BaseModel, EmailStr, Field, field_validator
 from werkzeug.security import generate_password_hash
 
 
-
 class UserCreate(BaseModel):
     username: str = Field(..., description="Никнейм")
     password: str = Field(..., min_length=8, max_length=32, description="Пароль")
@@ -47,6 +46,7 @@ class UserChangePassword(BaseModel):
 class UserHistory(BaseModel):
     user_id: UUID
 
+
 ### ROLES ###
 class CreateRole(BaseModel):
     role_title: str
@@ -64,14 +64,17 @@ class ChangeRole(BaseModel):
 
 ### TOKEN ###
 
+
 class TokenData(BaseModel):
     username: str | None
     email: str | None = None
     password: str | None = None
 
+
 class UserShortData(BaseModel):
     username: str | None
     password: str | None
+
 
 class TokenPayload(BaseModel):
     user_id: str
@@ -82,6 +85,7 @@ class TokenPayload(BaseModel):
 
 
 ### PAGINATION ###
+
 
 class PaginatedParams(BaseModel):
     page_number: Annotated[int, Query(ge=1)] = 1

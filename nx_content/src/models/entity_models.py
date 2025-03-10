@@ -56,4 +56,3 @@ class TokenPayload(BaseModel):
     email: str
     roles: List[str]
     token: str
-    

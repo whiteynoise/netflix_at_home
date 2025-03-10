@@ -8,4 +8,3 @@ def mock_kafka_producer():
         mock_instance = MagicMock()
         mock_producer.return_value = mock_instance
         yield mock_instance
-
