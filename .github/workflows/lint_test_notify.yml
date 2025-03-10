@@ -23,7 +23,7 @@ jobs:
 
       - name: Linter Check
         run: |
-          flake8 . --format=html --htmldir=flake-report || exit 1
+          flake8 . --format=html --htmldir=flake-report --max-line-length=120 || exit 1
 
       - name: Run Mypy
         run: |
