@@ -1,4 +1,4 @@
-def get_max_time_across_tables(redis_date) -> str:
+def get_max_time_across_tables(redis_date: str) -> str:
     return f"""
         SELECT max(max_mod) as new_date
         FROM (
@@ -19,7 +19,7 @@ def get_max_time_across_tables(redis_date) -> str:
     """
 
 
-def get_filmworks(redis_date) -> str:
+def get_filmworks(redis_date: str) -> str:
     return f"""
         SELECT
             fw.id,
@@ -61,7 +61,7 @@ def get_filmworks(redis_date) -> str:
     """
 
 
-def get_genres(redis_date) -> str:
+def get_genres(redis_date: str) -> str:
     return f"""
         SELECT
             g.id,
@@ -73,7 +73,7 @@ def get_genres(redis_date) -> str:
     """
 
 
-def get_persons(redis_date) -> str:
+def get_persons(redis_date: str) -> str:
     return f"""
         WITH pfw_agg AS (
             SELECT

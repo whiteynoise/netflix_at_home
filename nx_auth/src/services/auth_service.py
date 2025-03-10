@@ -37,7 +37,7 @@ class AuthService:
             db.add(new_user_social)
 
     @staticmethod
-    async def identificate_user(user: TokenData, db: AsyncSession):
+    async def identificate_user(user: TokenData, db: AsyncSession) -> Users | None:
         """Индетификация пользователя на основе юзернейма и почты"""
 
         query = select(Users).where(or_(Users.username == user.username))
@@ -46,7 +46,7 @@ class AuthService:
         return user
 
     @staticmethod
-    async def check_password(password: str, user: Users):
+    async def check_password(password: str, user: Users) -> bool:
         return user.check_password(password)
 
     async def login(
@@ -79,7 +79,7 @@ class AuthService:
 
         return Token(access_token=access_token, refresh_token=refresh_token)
 
-    async def update_user(self, user_id: UUID, data: dict, db: AsyncSession):
+    async def update_user(self, user_id: UUID, data: dict, db: AsyncSession) -> bool:
         """Обновление пользователя"""
         query = update(Users).where(Users.user_id == user_id).values(**data)
         await db.execute(query)
@@ -90,7 +90,7 @@ class AuthService:
         user_id: UUID,
         pagination: PaginatedParams,
         db: AsyncSession,
-    ):
+    ) -> LoginHistory | None:
         """Получает историю входов в систему"""
 
         return (
@@ -107,7 +107,7 @@ class AuthService:
             .all()
         )
 
-    async def get_user_social_networks(self, user_id: UUID, db: AsyncSession):
+    async def get_user_social_networks(self, user_id: UUID, db: AsyncSession) -> UserSocial | None:
         """Получает привязанные соц.сети по пользователю"""
 
         return (

@@ -40,7 +40,7 @@ async def create_role(
         raise HTTPException(
             status_code=HTTPStatus.CONFLICT, detail="Current role already exists."
         )
-    
+
     return True
 
 
@@ -115,7 +115,7 @@ async def delete_user_role(
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND, detail="Current user hasn't current role"
         )
-    
+
     return {"access_token": access_token}
 
 
