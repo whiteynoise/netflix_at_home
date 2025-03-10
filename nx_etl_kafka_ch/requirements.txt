@@ -1,3 +1,5 @@
 kafka-python==2.0.2
 clickhouse_driver==0.2.9
 backoff==2.2.1
+pydantic-settings==2.6.1
+sentry-sdk==0.10.2

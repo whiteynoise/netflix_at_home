@@ -19,3 +19,5 @@ elastic_config = {
     "host": settings.elastic_host,
     "port": settings.elastic_port,
 }
+
+sentry_dsn = settings.sentry_dsn_etl_pg_es

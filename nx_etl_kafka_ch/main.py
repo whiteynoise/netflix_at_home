@@ -1,3 +1,4 @@
+import sentry_sdk
 from time import sleep
 
 from configs.constants import settings
@@ -31,5 +32,6 @@ def start_etl_process():
 
 
 if __name__ == "__main__":
+    sentry_sdk.init(settings.SENTRY_DSN)
     logger.info("ETL process starting...")
     start_etl_process()

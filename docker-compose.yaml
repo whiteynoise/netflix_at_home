@@ -142,6 +142,8 @@ services:
     depends_on:
       - consumer_user
       - consumer_film
+    environment:
+        PYTHONUNBUFFERED: 1
     healthcheck:
       test: [ "CMD", "curl", "--fail", "http://localhost:5000/ping" ]
       interval: 30s
@@ -168,6 +170,9 @@ services:
       - TOPIC=film
       - GROUP_ID=film
       - PYTHONUNBUFFERED=1
+      - CLICKHOUSE_NODE_MAIN=clickhouse-node1
+      - BOOTSTRAP_SERVERS=kafka-0:9092
+      - SENTRY_DSN=${SENTRY_DSN_ETL_KAFKA_CH}
 
   consumer_user:
     build: nx_etl_kafka_ch/
@@ -175,6 +180,9 @@ services:
       - TOPIC=user
       - GROUP_ID=user
       - PYTHONUNBUFFERED=1
+      - CLICKHOUSE_NODE_MAIN=clickhouse-node1
+      - BOOTSTRAP_SERVERS=kafka-0:9092
+      - SENTRY_DSN=${SENTRY_DSN_ETL_KAFKA_CH}
 
 volumes:
   redis_volume:
