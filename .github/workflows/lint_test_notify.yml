@@ -45,7 +45,7 @@ jobs:
 
       - name: Run Mypy
         run: |
-          mypy . --explicit-package-bases || exit 1
+          mypy . || exit 1
 
   # notify:
   #   runs-on: ubuntu-latest
