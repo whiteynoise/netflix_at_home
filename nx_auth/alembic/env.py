@@ -12,8 +12,8 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-from db.postgres import Base, dsn_for_alembic
-from models.entity import *
+from db.postgres import Base, dsn_for_alembic # noqa
+from models.entity import * # noqa
 
 target_metadata = Base.metadata
 

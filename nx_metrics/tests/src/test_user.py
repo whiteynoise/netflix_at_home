@@ -1,5 +1,6 @@
 from unittest.mock import patch
 
+
 @patch("core.user.send_to_kafka")
 def test_user_event_valid(mock_send_to_kafka):
     from app import app

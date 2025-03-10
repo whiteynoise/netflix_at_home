@@ -2,6 +2,7 @@ import uuid
 from datetime import datetime
 
 import pymongo
+from beanie import Document
 from models.entity_models import LikeEntry
 from pydantic import Field
 from pymongo import IndexModel

@@ -80,8 +80,8 @@ def get_persons(redis_date):
                 pfw.person_id,
                 pfw.film_work_id,
                 array_agg(DISTINCT pfw.role) AS roles
-	        FROM content.person_film_work pfw
-	        GROUP BY pfw.person_id, pfw.film_work_id
+            FROM content.person_film_work pfw
+            GROUP BY pfw.person_id, pfw.film_work_id
         )
         SELECT
             pfw.person_id as id,
