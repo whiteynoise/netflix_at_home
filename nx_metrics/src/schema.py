@@ -10,7 +10,7 @@ class UserEventSchema(Schema):
     event_time = fields.Str(required=False)
 
     @pre_load
-    def extract_user_id(self, data, **kwargs):
+    def extract_user_id(self, data: dict, **kwargs) -> dict:
         token = request.headers.get("Authorization")
         data["event_time"] = time.strftime("%Y-%m-%d %H:%M:%S")
         if not token:
@@ -26,7 +26,7 @@ class FilmEventSchema(Schema):
     event_time = fields.Str(required=False)
 
     @pre_load
-    def extract_user_id(self, data, **kwargs):
+    def extract_user_id(self, data: dict, **kwargs) -> dict:
         token = request.headers.get("Authorization")
         data["event_time"] = time.strftime("%Y-%m-%d %H:%M:%S")
         if not token:

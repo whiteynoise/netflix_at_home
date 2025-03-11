@@ -16,7 +16,7 @@ class GenreService:
 
     async def get_genres(self) -> list[Genres] | None:
         "Отдает все жанры"
-        search_query = {"query": {"match_all": {}}}
+        search_query: dict[str, dict[str, dict]] = {"query": {"match_all": {}}}
         result = await self.storage.search(index="genres", body=search_query)
         hits = result["hits"]["hits"]
         if not hits:

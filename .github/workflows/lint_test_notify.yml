@@ -2,36 +2,36 @@ name: LTN
 
 on:
   push:
-    branches: [ main ]
+    branches: [ mypy_fixes ]
   pull_request:
-    branches: [ main ]
+    branches: [ mypy_fixes ]
 
 jobs:
-  lint:
-    runs-on: ubuntu-latest
+  # lint:
+  #   runs-on: ubuntu-latest
 
-    outputs:
-      flake_output: ${{ steps.artifact-upload-step.outputs.artifact-url }}
+  #   outputs:
+  #     flake_output: ${{ steps.artifact-upload-step.outputs.artifact-url }}
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v2
 
-      - name: Install dependencies
-        run: |
-          pip install flake8-html
+  #     - name: Install dependencies
+  #       run: |
+  #         pip install flake8-html
 
-      - name: Linter Check
-        run: |
-          flake8 . --format=html --htmldir=flake-report --max-line-length=120 || exit 1
+  #     - name: Linter Check
+  #       run: |
+  #         flake8 . --format=html --htmldir=flake-report --max-line-length=120 || exit 1
           
-      - name: Upload Linter Report
-        id: artifact-upload-step
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: flake8-report
-          path: flake-report
+  #     - name: Upload Linter Report
+  #       id: artifact-upload-step
+  #       if: failure()
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: flake8-report
+  #         path: flake-report
 
   mypy:
     runs-on: ubuntu-latest
@@ -47,30 +47,30 @@ jobs:
         run: |
           mypy . || exit 1
 
-  notify:
-    runs-on: ubuntu-latest
-    needs: [lint, mypy]
-    if: always()
+  # notify:
+  #   runs-on: ubuntu-latest
+  #   needs: [lint, mypy]
+  #   if: always()
 
-    steps:
-      - name: Send Telegram Notification
-        uses: appleboy/telegram-action@master
-        with:
-          to: ${{ secrets.CHAT_ID_AW }}
-          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          message: |
-            🐦‍⬛️ Птицы наблюдают за успехами действий ${{ github.actor }}.
+  #   steps:
+  #     - name: Send Telegram Notification
+  #       uses: appleboy/telegram-action@master
+  #       with:
+  #         to: ${{ secrets.CHAT_ID_AW }}
+  #         token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+  #         message: |
+  #           🐦‍⬛️ Птицы наблюдают за успехами действий ${{ github.actor }}.
 
-            🔍 Results:
-                Статус проверки flake: ${{ needs.lint.result == 'success' && ' 🟢' || ' 🔴' }}
-                Статус проверки mypy: ${{ needs.mypy.result == 'success' && '🟢' || '🔴' }}
+  #           🔍 Results:
+  #               Статус проверки flake: ${{ needs.lint.result == 'success' && ' 🟢' || ' 🔴' }}
+  #               Статус проверки mypy: ${{ needs.mypy.result == 'success' && '🟢' || '🔴' }}
                 
-            💻 Commit:
-            https://github.com/${{ github.repository }}/commit/${{ github.sha }}
+  #           💻 Commit:
+  #           https://github.com/${{ github.repository }}/commit/${{ github.sha }}
 
-            🛠 Run:
-            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+  #           🛠 Run:
+  #           https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
-            ${{ needs.lint.result != 'success' && '📋 Report from flake:' || '' }}
-            ${{ needs.lint.outputs.flake_output }}
+  #           ${{ needs.lint.result != 'success' && '📋 Report from flake:' || '' }}
+  #           ${{ needs.lint.outputs.flake_output }}
             

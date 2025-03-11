@@ -43,7 +43,7 @@ class PersonService:
         try:
             doc = await self.storage.get(index="persons", id=person_id)
         except Exception:
-            return None
+            return
         return Person(**doc["_source"])
 
 

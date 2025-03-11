@@ -75,7 +75,7 @@ class FilmService:
 
         return [FilmWork(**hit["_source"]) for hit in hits]
 
-    async def _get_films_by_person(self, person_id) -> list[FilmWork] | None:
+    async def _get_films_by_person(self, person_id: int) -> list[FilmWork] | None:
         """Возращает найденные фильмы по личности"""
         search_query = {
             "query": {

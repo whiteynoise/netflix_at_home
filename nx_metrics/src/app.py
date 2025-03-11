@@ -15,7 +15,7 @@ ma = Marshmallow(app)
 
 
 @app.route("/ping")
-def health():
+def health() -> tuple:
     return "Pong", 200
 
 

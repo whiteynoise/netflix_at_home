@@ -13,7 +13,7 @@ class ManagementService(TokenService):
         """Создание роли"""
         await db.execute(insert(Roles).values(title=role_title))
 
-    async def delete_role(self, role, db: AsyncSession) -> None:
+    async def delete_role(self, role: Roles, db: AsyncSession) -> None:
         """Удаление роли"""
         await db.delete(role)
 
