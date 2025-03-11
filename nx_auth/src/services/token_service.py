@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime, timedelta
 from functools import lru_cache
 
 import jwt
@@ -12,7 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 class TokenService:
 
-    def get_default_expire(self, access: bool = True):
+    def get_default_expire(self, access: bool = True) -> datetime:
         """Получение дефолтного expire для аксеса/рефреша"""
 
         minutes = (
@@ -20,9 +20,9 @@ class TokenService:
             if access
             else settings.refresh_token_expire_minutes
         )
-        return datetime.datetime.now() + datetime.timedelta(minutes=minutes)
+        return datetime.now() + timedelta(minutes=minutes)
 
-    def generate_access_refresh_token(self, payload) -> tuple[str, str]:
+    def generate_access_refresh_token(self, payload: dict) -> tuple[str, str]:
         """Генерация пары токенов"""
 
         payload["exp"] = self.get_default_expire()
@@ -66,7 +66,7 @@ class TokenService:
 
         return new_access_token
 
-    async def revoke_access(self, access_token: str):
+    async def revoke_access(self, access_token: str) -> None:
         """Отзыв аксеса путем добавления его в блэклист"""
         redis_storage = get_redis_storage(await get_redis())
         await redis_storage.add_in_blacklist(access_token)
@@ -77,7 +77,7 @@ class TokenService:
             update(LoginHistory).where(id_user=id_user).values(is_active=False)
         )
 
-    async def get_refresh_from_db(self, refresh_token: str, db: AsyncSession):
+    async def get_refresh_from_db(self, refresh_token: str, db: AsyncSession) -> LoginHistory | None:
         """Проверка активности рефреша в БД"""
         return (
             (

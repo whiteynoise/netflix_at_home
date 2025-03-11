@@ -51,5 +51,5 @@ async def refresh_access_token(
 )
 async def get_user_from_token(
     user: Annotated[TokenPayload, Depends(get_current_user)],
-):
+) -> TokenPayload:
     return user

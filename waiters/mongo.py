@@ -11,7 +11,7 @@ MONGO_CONFIG = {
 }
 
 
-async def wait_for_mongo(sleep_time: int = 3, limit: int = 10):
+async def wait_for_mongo(sleep_time: int = 3, limit: int = 10) -> bool:
     """Waiter для MongoDB."""
     retries = 0
     uri = f"mongodb://{MONGO_CONFIG['user']}:{MONGO_CONFIG['password']}@{MONGO_CONFIG['host']}:{MONGO_CONFIG['port']}"

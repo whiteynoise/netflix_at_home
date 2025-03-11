@@ -28,7 +28,7 @@ async def _create_super_user(username: str, password: str, email: str) -> None:
 
 
 @app.command()
-def create_super_user(username: str, password: str, email: str):
+def create_super_user(username: str, password: str, email: str) -> None:
     aiorun(_create_super_user(username=username, password=password, email=email))
 
 

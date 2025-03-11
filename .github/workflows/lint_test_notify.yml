@@ -72,5 +72,4 @@ jobs:
             https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
             ${{ needs.lint.result != 'success' && '📋 Report from flake:' || '' }}
-            ${{ needs.lint.outputs.flake_output }}
-            
+            ${{ needs.lint.outputs.flake_output }}      

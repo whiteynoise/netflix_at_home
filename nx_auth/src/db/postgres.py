@@ -1,4 +1,5 @@
 import sqlalchemy as sa
+from typing import AsyncGenerator
 from core.config import PG_CONFIG
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
@@ -18,7 +19,7 @@ engine = create_async_engine(dsn, echo=True, future=True)
 async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 
-async def get_session():
+async def get_session() -> AsyncGenerator[AsyncSession, None]:
     """Получение сессии"""
     async with async_session() as session:
         try:

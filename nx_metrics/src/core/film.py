@@ -7,7 +7,7 @@ film_bp = Blueprint("/film_event", __name__, url_prefix="/film_event")
 
 
 @film_bp.route("/", methods=["POST"])
-def film_event():
+def film_event() -> tuple:
     schema = FilmEventSchema()
     try:
         json_data = request.get_json()
