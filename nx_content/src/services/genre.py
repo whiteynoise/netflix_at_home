@@ -11,7 +11,7 @@ class GenreService:
         """Получение информации жанра по id"""
         genre = await self._get_genre_from_storage(genre_id)
         if not genre:
-            return
+            return None
         return genre
 
     async def get_genres(self) -> list[Genres] | None:
@@ -20,7 +20,7 @@ class GenreService:
         result = await self.storage.search(index="genres", body=search_query)
         hits = result["hits"]["hits"]
         if not hits:
-            return
+            return None
         genres = [Genres(**hit["_source"]) for hit in hits]
         return genres
 
@@ -29,7 +29,7 @@ class GenreService:
         try:
             doc = await self.storage.get(index="genres", id=genre_id)
         except Exception:
-            return
+            return None
         return Genres(**doc["_source"])
 
 

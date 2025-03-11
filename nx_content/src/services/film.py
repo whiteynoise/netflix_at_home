@@ -13,7 +13,7 @@ class FilmService:
         film = await self._get_film_from_storage(film_id)
 
         if not film:
-            return
+            return None
 
         return film
 
@@ -39,7 +39,7 @@ class FilmService:
         hits = result.get("hits", {}).get("hits", [])
 
         if not hits:
-            return
+            return None
 
         return [FilmWork(**hit["_source"]) for hit in hits]
 
@@ -71,7 +71,7 @@ class FilmService:
 
         hits = result.get("hits", {}).get("hits", [])
         if not hits:
-            return
+            return None
 
         return [FilmWork(**hit["_source"]) for hit in hits]
 
@@ -106,7 +106,7 @@ class FilmService:
         result = await self.storage.search(index="movies", body=search_query)
         hits = result.get("hits", {}).get("hits", [])
         if not hits:
-            return
+            return None
 
         return [FilmWork(**hit["_source"]) for hit in hits]
 
@@ -115,7 +115,7 @@ class FilmService:
         try:
             doc = await self.storage.get(index="movies", id=film_id)
         except Exception:
-            return
+            return None
         return FilmWork(**doc["_source"])
 
 

@@ -12,7 +12,7 @@ class PersonService:
         """Получение личности по id"""
         person = await self._get_person_from_storage(person_id)
         if not person:
-            return
+            return None
         return person
 
     async def search_persons(
@@ -34,7 +34,7 @@ class PersonService:
 
         hits = result.get("hits", {}).get("hits", [])
         if not hits:
-            return
+            return None
 
         return [Person(**hit["_source"]) for hit in hits]
 
@@ -43,7 +43,7 @@ class PersonService:
         try:
             doc = await self.storage.get(index="persons", id=person_id)
         except Exception:
-            return
+            return None
         return Person(**doc["_source"])
 
 

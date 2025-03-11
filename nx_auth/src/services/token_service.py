@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime, timedelta
 from functools import lru_cache
 
 import jwt
@@ -20,7 +20,7 @@ class TokenService:
             if access
             else settings.refresh_token_expire_minutes
         )
-        return datetime.datetime.now() + datetime.timedelta(minutes=minutes)
+        return datetime.now() + timedelta(minutes=minutes)
 
     def generate_access_refresh_token(self, payload: dict) -> tuple[str, str]:
         """Генерация пары токенов"""
