@@ -1,6 +1,6 @@
 from datetime import datetime
 from http import HTTPStatus
-from typing import Annotated
+from typing import Annotated, Optional
 
 from beanie.odm.operators.update.general import Set
 from fastapi import APIRouter, Body, HTTPException, Query, Request
@@ -71,7 +71,7 @@ async def get_my_reviews(
 
 @router.get("/{film_id}", summary="Получение всех рецензий на фильм")
 async def get_film_review(
-    film_id: str, sort: Annotated[str, Query()] = None
+    film_id: str, sort: Annotated[Optional[str], Query()] = None
 ) -> list[ListReview]:
     match sort:
         case "like" | "dislike":
