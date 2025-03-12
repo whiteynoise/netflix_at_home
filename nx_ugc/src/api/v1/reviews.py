@@ -17,7 +17,7 @@ router = APIRouter()
 @router.post("/create_review", summary="Создание рецензии", status_code=200)
 async def create_review(
     request: Request, review: Annotated[CreateReview, Body()]
-):
+) -> None:
     try:
         await Review(**review.model_dump(), user_id=request.state.user.user_id).insert()
     except DuplicateKeyError:
@@ -31,7 +31,7 @@ async def create_review(
 @router.patch("/update_review/{review_id}", summary="Обновление рецензии", status_code=200)
 async def update_review(
     review_id: str, data: Annotated[UpdateReview, Body()]
-):
+) -> None:
     review = await Review.find_one(Review.review_id == review_id)
 
     if not review:
@@ -43,11 +43,11 @@ async def update_review(
     update_data["edited_at"] = str(datetime.now())
     await review.update(Set(update_data))
 
-    return True
+    return
 
 
 @router.delete("/{film_id}/delete_review", summary="Удаление рецензии", status_code=200)
-async def delete_review(request: Request, film_id: str):
+async def delete_review(request: Request, film_id: str) -> None:
     review = await Review.find_one(
         Review.film_id == film_id, Review.user_id == request.state.user.user_id
     )

@@ -73,7 +73,7 @@ async def update_rating(
 async def delete_rating(
     request: Request,
     rating_info: RatingBase,
-):
+) -> None:
     """Удаление оценки фильма."""
 
     await Rating.find(
@@ -81,7 +81,7 @@ async def delete_rating(
         Rating.film_id == rating_info.film_id,
     ).delete()
 
-    return True
+    return
 
 
 @router.get(
