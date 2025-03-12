@@ -12,7 +12,7 @@ from starlette.responses import JSONResponse, Response
 class RateLimitMiddleware(BaseHTTPMiddleware):
     """Middleware для ограничения кол-ва поступаемых запросов"""
 
-    RATE_LIMIT = 20
+    RATE_LIMIT = 250
     WINDOW_SIZE = 60
 
     def __init__(self, app: FastAPI, redis_: Redis):

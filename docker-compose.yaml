@@ -101,14 +101,14 @@ services:
       - redis
       - elasticsearch
 
-  filebeat:
-    image: elastic/filebeat:8.10.2
-    user: root
-    volumes:
-      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
-      - ./nx_ugc/src/nx_ugc.log:/logs/nx_ugc.log
-    links:
-      - logstash
+  # filebeat:
+  #   image: elastic/filebeat:8.10.2
+  #   user: root
+  #   volumes:
+  #     - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+  #     - ./nx_ugc/src/nx_ugc.log:/logs/nx_ugc.log
+  #   links:
+  #     - logstash
 
   nx_ugc:
     build:
