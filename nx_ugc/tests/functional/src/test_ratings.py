@@ -73,7 +73,7 @@ async def test_update_rating(
         user_data,
         expected_status,
 ):
-    response = await make_patch_request(f"api/v1/rating/update_rating", user_data)
+    response = await make_patch_request("api/v1/rating/update_rating", user_data)
     assert response["status"] == expected_status
 
 

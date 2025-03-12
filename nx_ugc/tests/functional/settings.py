@@ -11,7 +11,7 @@ class TestSettings(BaseSettings):
     postgres_password: str
     postgres_host: str
     postgres_port: int
-    
+
     mongo_user: str
     mongo_password: str
     mongo_host: str

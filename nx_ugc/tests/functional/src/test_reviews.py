@@ -44,7 +44,7 @@ async def test_get_my_reviews(
         make_get_request,
         expected_status,
 ):
-    response = await make_get_request(f"api/v1/reviews/me", rest_style=True)
+    response = await make_get_request("api/v1/reviews/me", rest_style=True)
     assert response["status"] == expected_status
     assert len(response['body']) == result
 

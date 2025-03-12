@@ -32,7 +32,7 @@ async def auth_token(aiohttp_session: ClientSession):
         "last_name": "last_name",
         "username": "egsy_lo_542",
     }
-        
+
     login_url = AUTH_SERVICE_URL + '/login'
     log_data = {
         "username": "egsy_lo_542",
@@ -61,11 +61,11 @@ def make_get_request(aiohttp_session: ClientSession, auth_header):
             params: dict | None = None,
             headers: dict | None = None,
             rest_style: bool = False,
-        ) -> dict:
+    ) -> dict:
         response_dict = {}
         url = URL_APP + api_path
         headers = headers or auth_header
-        
+
         params = params or {}
         request_params = {'params': params} if rest_style else {'json': params}
 
