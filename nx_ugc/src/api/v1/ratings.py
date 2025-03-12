@@ -47,7 +47,7 @@ async def add_rating(
 async def update_rating(
     request: Request,
     rating_info: RatingUpd,
-) -> bool:
+) -> None:
     """Обновление оценки контента."""
 
     doc = await Rating.find_one(

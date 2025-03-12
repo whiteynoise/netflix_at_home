@@ -11,7 +11,7 @@ router = APIRouter()
 
 
 @router.post("/create_like", summary="Добавление лайка на рецензию", status_code=201)
-async def create_like(request: Request, like: CreateLike) -> bool:
+async def create_like(request: Request, like: CreateLike) -> None:
     """Доабвление лайка на рецензию"""
     if review := await Review.find_one(Review.review_id == like.review_id):
         try:
