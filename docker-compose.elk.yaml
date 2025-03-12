@@ -18,8 +18,22 @@ services:
     ports:
       - "5044:5044/tcp"
     volumes:
-      - ./logstash.conf:/config/logstash.conf:ro
+      - ./logstash.conf:/config/logstash.conf
     command: logstash -f /config/logstash.conf
+
+  filebeat_ugc:
+    image: elastic/filebeat:8.10.2
+    user: root
+    volumes:
+      - ./filebeats/filebeat.ugc.yml:/usr/share/filebeat/filebeat.yml
+      - ./nx_ugc/src/nx_ugc.log:/logs/nx_ugc.log
+
+  filebeat_content:
+    image: elastic/filebeat:8.10.2
+    user: root
+    volumes:
+      - ./filebeats/filebeat.content.yml:/usr/share/filebeat/filebeat.yml
+      - ./nx_content/src/nx_content.log:/logs/nx_content.log
 
   kibana:
     image: kibana:8.10.2
@@ -28,5 +42,7 @@ services:
     depends_on:
       - elasticsearchELK
       - logstash
+      - filebeat_content
+      - filebeat_ugc
     environment:
       - ELASTICSEARCH_HOSTS=http://elasticsearchELK:9200

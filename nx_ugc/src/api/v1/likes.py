@@ -10,7 +10,7 @@ from pymongo.errors import DuplicateKeyError
 router = APIRouter()
 
 
-@router.post("/create_like", summary="Добавление лайка на рецензию")
+@router.post("/create_like", summary="Добавление лайка на рецензию", status_code=201)
 async def create_like(request: Request, like: CreateLike) -> bool:
     """Доабвление лайка на рецензию"""
     if review := await Review.find_one(Review.review_id == like.review_id):
@@ -31,10 +31,10 @@ async def create_like(request: Request, like: CreateLike) -> bool:
             detail="Review wasn't found.",
         )
 
-    return True
+    return
 
 
-@router.get("/get_likes", summary="Получение всех лайков/дизлайков юзера на рецензии")
+@router.get("/get_likes", summary="Получение всех лайков/дизлайков юзера на рецензии", status_code=200)
 async def get_user_likes(
     request: Request, action: Annotated[bool, Query(title="Лайк или дизлайк")] = True
 ) -> list[LikeList]:
@@ -43,7 +43,7 @@ async def get_user_likes(
     ).to_list()
 
 
-@router.delete("/delete_like/{review_id}", summary="Удаление лайка на рецензию")
+@router.delete("/delete_like/{review_id}", summary="Удаление лайка на рецензию", status_code=200)
 async def delete_like(
     request: Request, review_id: Annotated[str, Path(title="Id ревью")]
 ) -> bool:

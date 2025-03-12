@@ -63,6 +63,11 @@ services:
     image: nginx:latest
     container_name: nginx
     restart: always
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://127.0.0.1:5044
+        tag: nginx
     expose:
       - 8000
     ports:
@@ -101,15 +106,6 @@ services:
       - redis
       - elasticsearch
 
-  # filebeat:
-  #   image: elastic/filebeat:8.10.2
-  #   user: root
-  #   volumes:
-  #     - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
-  #     - ./nx_ugc/src/nx_ugc.log:/logs/nx_ugc.log
-  #   links:
-  #     - logstash
-
   nx_ugc:
     build:
       dockerfile: Dockerfile
@@ -134,15 +130,17 @@ services:
       dockerfile: Dockerfile
       context: ./nx_content
     container_name: nx_backend
-    <<: *default-env 
+    <<: *default-env
+    volumes:
+      - ./nx_content/src:/app/src
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8000/api/openapi || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:8002/api/openapi || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
     depends_on:
       - redis
-      - elasticsearch
+      - elasticsearch # TODO вейтер дописать, иногда не дожидается
 
   nx_auth:
     build:

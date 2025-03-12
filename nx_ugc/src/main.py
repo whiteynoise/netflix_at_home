@@ -3,7 +3,7 @@ from pathlib import Path
 
 import core.session as session
 from aiohttp import ClientSession
-from api.v1 import bookmarks, likes, ratings, reviews
+from api.v1 import bookmarks, likes, ratings, reviews, heartbeat
 from beanie import init_beanie
 from core.config import MONGODB_CONFIG, PROJECT_NAME
 from core.token import get_user_from_auth_service
@@ -64,3 +64,4 @@ api_router_v1.include_router(reviews.router, prefix="/reviews", tags=["reviews"]
 api_router_main.include_router(api_router_v1)
 
 app.include_router(api_router_main)
+app.include_router(heartbeat.router, prefix="/lifecheck")

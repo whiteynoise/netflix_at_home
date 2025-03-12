@@ -16,7 +16,18 @@ from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from redis.asyncio import Redis
 from services.middleware import RateLimitMiddleware, RequestIdMiddleware
 
+
+DEFAULT_TAG = 'nx_auth'
+
+
+def add_tag(record):
+    """Добавляет tag в каждый логт"""
+    record['extra'].setdefault('tag', DEFAULT_TAG)
+
+
 logger.remove()
+
+logger = logger.patch(add_tag)
 logger.add(
     logstash.TCPLogstashHandler("logstash", 5044, version=1),
     serialize=True,

@@ -1,0 +1,13 @@
+filebeat.inputs:
+- type: filestream
+  enabled: true
+  paths:
+    - /logs/nx_content.log
+  tags: ["nx_content"]
+  json:
+    keys_under_root: true
+    add_error_key: true
+
+output.logstash:
+  enabled: true
+  hosts: ["logstash:5044"]

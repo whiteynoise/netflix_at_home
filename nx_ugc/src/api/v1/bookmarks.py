@@ -15,11 +15,12 @@ router = APIRouter()
     response_model=bool,
     summary="Добавление контента в закладку",
     description="Добавление контента в пользовательскую закладку",
+    status_code=201
 )
 async def add_to_bookmark(
     request: Request,
     bookmark_info: BookmarkAdd,
-) -> bool:
+) -> None:
     """Создание контентной закладки."""
 
     try:
@@ -32,7 +33,7 @@ async def add_to_bookmark(
             detail="Film in this bookmark already exists.",
         )
 
-    return True
+    return
 
 
 @router.post(
@@ -40,11 +41,12 @@ async def add_to_bookmark(
     response_model=bool,
     summary="Удаление контента из закладки",
     description="Удаление контента из пользовательской закладки",
+    status_code=200
 )
 async def delete_from_bookmark(
     request: Request,
     bookmark_info: BookmarkDel,
-) -> bool:
+) -> None:
     """Удаление контента из закладки."""
 
     await Bookmark.find(
@@ -53,7 +55,7 @@ async def delete_from_bookmark(
         In(Bookmark.film_id, bookmark_info.film_ids),
     ).delete()
 
-    return True
+    return
 
 
 @router.get(
@@ -61,6 +63,7 @@ async def delete_from_bookmark(
     response_model=list[BookmarkResp],
     summary="Получение списка контента в закладке",
     description="Получение списка контента в пользовательской закладке",
+    status_code=200
 )
 async def get_bookmark_info(
     request: Request,

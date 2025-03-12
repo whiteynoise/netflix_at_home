@@ -14,10 +14,10 @@ from pymongo.errors import DuplicateKeyError
 router = APIRouter()
 
 
-@router.post("/create_review", summary="Создание рецензии")
+@router.post("/create_review", summary="Создание рецензии", status_code=200)
 async def create_review(
     request: Request, review: Annotated[CreateReview, Body()]
-) -> bool:
+):
     try:
         await Review(**review.model_dump(), user_id=request.state.user.user_id).insert()
     except DuplicateKeyError:
@@ -25,13 +25,13 @@ async def create_review(
             status_code=HTTPStatus.CONFLICT, detail="Review already exists."
         )
 
-    return True
+    return
 
 
-@router.patch("/update_review/{review_id}", summary="Обновление рецензии")
+@router.patch("/update_review/{review_id}", summary="Обновление рецензии", status_code=200)
 async def update_review(
-    request: Request, review_id: str, data: Annotated[UpdateReview, Body()]
-) -> bool:
+    review_id: str, data: Annotated[UpdateReview, Body()]
+):
     review = await Review.find_one(Review.review_id == review_id)
 
     if not review:
@@ -46,8 +46,8 @@ async def update_review(
     return True
 
 
-@router.delete("/{film_id}/delete_review", summary="Удаление рецензии")
-async def delete_review(request: Request, film_id: str) -> bool:
+@router.delete("/{film_id}/delete_review", summary="Удаление рецензии", status_code=200)
+async def delete_review(request: Request, film_id: str):
     review = await Review.find_one(
         Review.film_id == film_id, Review.user_id == request.state.user.user_id
     )
@@ -58,10 +58,10 @@ async def delete_review(request: Request, film_id: str) -> bool:
         )
     await review.delete()
 
-    return True
+    return
 
 
-@router.get("/me", summary="Получение моих рецензий")
+@router.get("/me", summary="Получение моих рецензий", status_code=200)
 async def get_my_reviews(
     request: Request
 ) -> list[ListReview]:
@@ -69,7 +69,7 @@ async def get_my_reviews(
     return await Review.find(Review.user_id == request.state.user.user_id).to_list()
 
 
-@router.get("/{film_id}", summary="Получение всех рецензий на фильм")
+@router.get("/{film_id}", summary="Получение всех рецензий на фильм", status_code=200)
 async def get_film_review(
     film_id: str, sort: Annotated[Optional[str], Query()] = None
 ) -> list[ListReview]:

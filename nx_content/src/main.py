@@ -1,8 +1,11 @@
 from contextlib import asynccontextmanager
+from pathlib import Path
+
+from loguru import logger
 
 import core.session as session
 from aiohttp import ClientSession
-from api.v1 import films, genres, persons
+from api.v1 import films, genres, persons, heartbeat
 from core.config import ES_CONFIG, PROJECT_NAME, REDIS_CONFIG
 from core.token import get_user_from_auth_service
 from db import elastic, redis
@@ -15,6 +18,7 @@ from redis.asyncio import Redis
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # setup connections to es and redis on startup
+    logger.info("Start content service!")
     session.aiohttp_session = ClientSession()
     redis.redis = Redis(**REDIS_CONFIG)
     elastic.es = AsyncElasticsearch(hosts=["{host}:{port}".format(**ES_CONFIG)])
@@ -35,6 +39,16 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# logger
+BASE_DIR = Path(__file__).resolve().parent
+logger.remove()
+logger.add(
+    BASE_DIR / "nx_content.log",
+    level="INFO",
+    format="{message}",
+    serialize=True,
+)
+
 
 # routing
 api_router_main = APIRouter(
@@ -50,3 +64,4 @@ api_router_v1.include_router(persons.router, prefix="/persons", tags=["persons"]
 api_router_main.include_router(api_router_v1)
 
 app.include_router(api_router_main)
+app.include_router(heartbeat.router)

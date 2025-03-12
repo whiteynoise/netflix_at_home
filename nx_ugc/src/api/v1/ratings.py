@@ -15,11 +15,12 @@ router = APIRouter()
     response_model=bool,
     summary="Добавление оценки",
     description="Добавление оценки пользователя",
+    status_code=201
 )
 async def add_rating(
     request: Request,
     rating_info: RatingAdd,
-) -> bool:
+) -> None:
     """Добавление оценки контенту."""
 
     try:
@@ -33,7 +34,7 @@ async def add_rating(
             detail="Rating for this movie already exists.",
         )
 
-    return True
+    return
 
 
 @router.patch(
@@ -41,6 +42,7 @@ async def add_rating(
     response_model=bool,
     summary="Обновление оценки",
     description="Обновление оценки пользователя",
+    status_code=200
 )
 async def update_rating(
     request: Request,
@@ -58,7 +60,7 @@ async def update_rating(
         doc.rating = rating_info.rating
         await doc.save()
 
-    return True
+    return
 
 
 @router.post(
@@ -66,11 +68,12 @@ async def update_rating(
     response_model=bool,
     summary="Удаление оценки",
     description="Удаление оценки пользователя",
+    status_code=200
 )
 async def delete_rating(
     request: Request,
     rating_info: RatingBase,
-) -> bool:
+):
     """Удаление оценки фильма."""
 
     await Rating.find(
@@ -86,6 +89,7 @@ async def delete_rating(
     response_model=list[RatingResp],
     summary="Получение оценок",
     description="Получение оценок пользователя",
+    status_code=200
 )
 async def get_rating(
     request: Request,
@@ -110,6 +114,7 @@ async def get_rating(
     response_model=AvgFilmRating,
     summary="Получение средней оценки фильма",
     description="Получение средней оценки фильма",
+    status_code=200
 )
 async def get_avg_film_rating(
     rating_info: RatingBase,
