@@ -13,18 +13,23 @@ router = APIRouter()
 @router.post("/create_like", summary="Добавление лайка на рецензию")
 async def create_like(request: Request, like: CreateLike) -> bool:
     """Доабвление лайка на рецензию"""
-    try:
-        await Like(**like.model_dump(), user_id=request.state.user.user_id).insert()
-    except DuplicateKeyError:
-        raise HTTPException(
-            status_code=HTTPStatus.CONFLICT,
-            detail="Like in this review already exists.",
-        )
-    review = await Review.find_one(Review.review_id == like.review_id)
+    if review := await Review.find_one(Review.review_id == like.review_id):
+        try:
+            await Like(**like.model_dump(), user_id=request.state.user.user_id).insert()
+        except DuplicateKeyError:
+            raise HTTPException(
+                status_code=HTTPStatus.CONFLICT,
+                detail="Like in this review already exists.",
+            )
 
-    like_entry = LikeEntry(user_id=request.state.user.user_id, action=like.action)
-    review.likes.append(like_entry)
-    await review.save()
+        like_entry = LikeEntry(user_id=request.state.user.user_id, action=like.action)
+        review.likes.append(like_entry)
+        await review.save()
+    else:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND,
+            detail="Review wasn't found.",
+        )
 
     return True
 

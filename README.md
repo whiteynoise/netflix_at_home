@@ -65,3 +65,7 @@ https://github.com/whiteynoise/netflix_at_home/blob/main/DB_research.md
 
 # Спринт 9 Исследование по выбору хранилища:
 https://github.com/whiteynoise/netflix_at_home/blob/main/DB_research_2.md
+
+---
+Запуск тестов:
+nx_ugc: docker-compose -f docker-compose.yaml -f docker-compose.override.yaml -f nx_ugc/tests/functional/docker-compose.tests.yaml up nx_auth mongodb app tests

@@ -147,7 +147,7 @@ async def login(
     if not user:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND,
-            detail="User with this email or username does not exists",
+            detail="User with this email or username does not exist",
         )
     if not await auth_service.check_password(get_user.password, user):
         raise HTTPException(
