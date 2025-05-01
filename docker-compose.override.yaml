@@ -19,6 +19,28 @@ services:
     command:
       ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8005"]
 
+  events_admin:
+    ports:
+      - "8088:8088"
+    command:
+      ["sh", "-c", "python src/waiter.py && alembic upgrade head && uvicorn src.main:app --host 0.0.0.0 --port 8088 --reload"]
+
+  instance_notification_api:
+    ports:
+      - "8888:8888"
+    command:
+      [ "sh", "-c", "python src/waiter.py && alembic upgrade head && uvicorn src.main:app --host 0.0.0.0 --port 8888 --reload" ]
+
+  regular_notification_api:
+    ports:
+      - "8889:8889"
+    command:
+      [ "sh", "-c", "python src/waiter.py && alembic upgrade head && uvicorn src.main:app --host 0.0.0.0 --port 8889 --reload" ]
+
+  rabbitmq:
+    ports:
+      - "5672:5672"
+      - "15672:15672"
   # ugc:
   #   ports:
   #     - "5000:5000"
