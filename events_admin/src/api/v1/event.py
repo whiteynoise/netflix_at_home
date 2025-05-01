@@ -36,7 +36,7 @@ async def create_event(event: Annotated[CreateEventSchema, Body(...)]) -> None:
     # смотрим отправить ли сразу на апи или в шедулер
     match event.time_type:
         case TimeEventType.INSTANT.value:
-            async with session.aiohttp_session.post(url) as response:
+            async with session.aiohttp_session.post(url, json=event.model_dump()) as response:
                 if response.status not in (200, 201):
                     raise HTTPException(
                         status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
