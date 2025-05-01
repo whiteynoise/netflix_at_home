@@ -6,7 +6,7 @@ from fastapi import FastAPI, APIRouter
 from fastapi.responses import ORJSONResponse
 from loguru import logger
 
-from api.v1 import template
+from api.v1 import template, event
 from config import session
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -38,5 +38,6 @@ app = FastAPI(
 
 api_router_v1 = APIRouter(prefix="/api/v1")
 api_router_v1.include_router(template.router)
+api_router_v1.include_router(event.router)
 
 app.include_router(api_router_v1)

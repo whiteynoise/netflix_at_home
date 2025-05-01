@@ -1,13 +1,12 @@
 import datetime
 from uuid import UUID
 
-from pydantic import BaseModel, model_validator
-
-from models.constants import EventType
+from pydantic import BaseModel
 
 
 class EventCreate(BaseModel):
     template_id: str
+    user_id: str | None = None
     title: str
     description: str | None
     time: datetime.datetime | None

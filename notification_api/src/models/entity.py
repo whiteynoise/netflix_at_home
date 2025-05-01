@@ -19,5 +19,6 @@ class Event(Base):
     description = Column(Text, nullable=True)
     time = Column(DateTime(timezone=True), nullable=True)
     type = Column(Enum(EventType), nullable=False)
+    user_id = Column(UUID(as_uuid=True), nullable=True)
     roles = Column(JSON, nullable=False, default=list)
     template_id = Column(UUID(as_uuid=True), nullable=False)

@@ -4,7 +4,6 @@ from fastapi import APIRouter, Depends
 from loguru import logger
 
 from db.producer import get_rmq_producer
-from models.constants import EventType
 from models.response import EventCreate
 
 from models.entity import Event
@@ -26,11 +25,12 @@ async def create_event(
     db.add(entity_event)
     await db.commit()
     logger.info({"message": f"Event {event.dict()} created"})
-    match event.type:
-        case EventType.INSTANCE.value:
-            await rmq.publish({"template_id": event.template_id, "roles": event.roles})
-            pass
-        case EventType.REGULAR.value:
-            pass
+    await rmq.publish(
+        {
+            "template_id": event.template_id,
+            "roles": event.roles,
+            "user_id": event.user_id,
+            "type": event.type,
+        }
+    )
     return
-

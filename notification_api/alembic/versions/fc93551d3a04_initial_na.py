@@ -28,6 +28,7 @@ def upgrade() -> None:
     sa.Column('time', sa.DateTime(timezone=True), nullable=True),
     sa.Column('type', sa.Enum('regular', 'instance', name='eventtype'), nullable=False),
     sa.Column('roles', sa.JSON(), nullable=False),
+    sa.Column('user_id', sa.UUID(), nullable=True),
     sa.Column('template_id', sa.UUID(), nullable=False),
     sa.PrimaryKeyConstraint('id'),
     schema='notification_api'

@@ -1,18 +1,11 @@
 import os
 import shutil
-from http import HTTPStatus
 from typing import Annotated, List
 
-from fastapi import APIRouter, UploadFile, File, HTTPException, Depends, Body
+from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.v1.constants import (
-    REGULAR_NOTIFICATION_SERVICE_API,
-    INSTANCE_NOTIFICATION_SERVICE_API,
-    EventType,
-)
-from config import session
 from db.postgres import get_session
 from models.entity import Template
 
@@ -54,21 +47,3 @@ async def get_templates(
     result = await db.execute(select(Template))
     templates = result.scalars().all()
     return templates
-
-
-@router.post("/create_event", summary="Отправить событие", status_code=201)
-async def create_event(event: Annotated[CreateEventSchema, Body(...)]) -> None:
-    print(event.model_dump())
-
-    match event.type:
-        case EventType.INSTANCE.value:
-            url = INSTANCE_NOTIFICATION_SERVICE_API
-        case EventType.REGULAR.value:
-            url = REGULAR_NOTIFICATION_SERVICE_API
-
-    async with session.aiohttp_session.post(url, json=event.model_dump(mode='json')) as response:
-        if response.status not in (200, 201):
-            raise HTTPException(
-                status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
-                detail="Create event: error",
-            )
