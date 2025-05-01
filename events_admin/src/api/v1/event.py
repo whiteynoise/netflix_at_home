@@ -36,11 +36,11 @@ async def create_event(event: Annotated[CreateEventSchema, Body(...)]) -> None:
     # смотрим отправить ли сразу на апи или в шедулер
     match event.time_type:
         case TimeEventType.INSTANT.value:
-            async with session.aiohttp_session.post(url, json=event.model_dump(mode='json')) as response:
+            async with session.aiohttp_session.post(url) as response:
                 if response.status not in (200, 201):
                     raise HTTPException(
                         status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
-                        detail="Create event: error",
+                        detail="Ошибка получения топ фильмов!",
                     )
         case TimeEventType.DEFERRED.value:
             pass # отправить в шелудер

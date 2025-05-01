@@ -1,0 +1,7 @@
+aiohttp==3.10.0
+APScheduler==3.11.0
+fastapi==0.115.6
+loguru==0.7.3
+alembic==1.14.0
+uvicorn==0.32.0
+pydantic-settings==2.8.1
