@@ -1,6 +1,8 @@
+import datetime
 from functools import lru_cache
 from uuid import UUID
 
+from constants import TEMPLATE_ID, SINGLE_NOTIFICATION_SERVICE_API
 from db.const import constants
 from db.redis import get_redis
 from models.entity import LoginHistory, Users, UserSocial, user_roles
@@ -13,9 +15,10 @@ from sqlalchemy import desc, insert, or_, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
+from session import aiohttp_session
+
 
 class AuthService:
-
     async def register(
         self, user: UserCreate, db: AsyncSession, provider: str | None = None
     ) -> None:
@@ -35,6 +38,22 @@ class AuthService:
         if provider:
             new_user_social = UserSocial(user_id=new_user.user_id, provider=provider)
             db.add(new_user_social)
+
+        body = {
+            "template_id": TEMPLATE_ID,
+            "title": f"Регистрация {new_user.user_id}",
+            "description": None,
+            "time": datetime.now().isoformat(),
+            "volume_type": "single",
+        }
+        async with aiohttp_session.post(
+            SINGLE_NOTIFICATION_SERVICE_API, json=body
+        ) as response:
+            if response.status not in (200, 201):
+                print(
+                    f" Ошибка при отправки события на регистрацию {new_user.user_id}: {response.status}"
+                )
+                return
 
     @staticmethod
     async def identificate_user(user: TokenData, db: AsyncSession) -> Users | None:
@@ -107,7 +126,9 @@ class AuthService:
             .all()
         )
 
-    async def get_user_social_networks(self, user_id: UUID, db: AsyncSession) -> UserSocial | None:
+    async def get_user_social_networks(
+        self, user_id: UUID, db: AsyncSession
+    ) -> UserSocial | None:
         """Получает привязанные соц.сети по пользователю"""
 
         return (

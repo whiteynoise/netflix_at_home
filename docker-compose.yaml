@@ -235,6 +235,19 @@ services:
       timeout: 5s
       retries: 5
 
+  scheduler_events:
+    build: scheduler_events
+    container_name: scheduler_events
+    <<: *default-env
+    volumes:
+      - ./scheduler_events:/app
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8887/api/openapi || exit 1" ]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+
+
   single_notification_api:
     build: notification_api
     container_name: single_notification_api

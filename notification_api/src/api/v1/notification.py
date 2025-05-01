@@ -43,13 +43,6 @@ async def create_event(
     await db.commit()
 
     logger.info({"message": f"Event {event.dict()} created"})
-    print({
-            "template_path": template_path,
-            "roles": event.roles,
-            "user_id": event.user_id,
-            "volume_type": event.volume_type,
-        })
-
     await rmq.publish(
         {
             "template_path": template_path,

@@ -40,7 +40,7 @@ async def create_event(event: Annotated[CreateEventSchema, Body(...)]) -> None:
                 if response.status not in (200, 201):
                     raise HTTPException(
                         status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
-                        detail="Create event: error",
+                        detail="Ошибка отправки!",
                     )
         case TimeEventType.DEFERRED.value:
             pass # отправить в шелудер
