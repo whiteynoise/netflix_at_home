@@ -10,7 +10,8 @@ from api.v1.constants import (
     SINGLE_NOTIFICATION_SERVICE_API,
     MASSIVE_NOTIFICATION_SERVICE_API,
     VolumeEventType,
-    TimeEventType
+    TimeEventType,
+    SCHEDULER_URL
 )
 
 from models.response import CreateEventSchema
@@ -43,4 +44,9 @@ async def create_event(event: Annotated[CreateEventSchema, Body(...)]) -> None:
                         detail="Ошибка отправки!",
                     )
         case TimeEventType.DEFERRED.value:
-            pass # отправить в шелудер
+            async with session.aiohttp_session.post(SCHEDULER_URL, json=event.model_dump(mode='json')) as response:
+                if response.status not in (200, 201):
+                    raise HTTPException(
+                        status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
+                        detail="Ошибка отправки!",
+                    )
