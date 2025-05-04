@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 from config import pg_config
+from config.sqlalchemy import sqlalchemy_config
 
 
 class Base(DeclarativeBase):
@@ -18,7 +19,7 @@ dsn_for_alembic = "postgresql+psycopg2://{user}:{password}@{host}:{port}/{db}".f
     **pg_config.dict()
 )
 
-engine = create_async_engine(dsn, echo=True)
+engine = create_async_engine(dsn, **sqlalchemy_config)
 
 async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 

@@ -10,6 +10,7 @@ class CreateEventSchema(BaseModel):
     description: str | None
     time: datetime.datetime | None = None
     volume_type: str
+    notification_type: str
     roles: list[str]
 
     model_config = ConfigDict(use_enum_values=True)

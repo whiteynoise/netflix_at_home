@@ -4,7 +4,7 @@ from sqlalchemy import Column, UUID, String, DateTime, Enum, Text, JSON
 
 
 from db.postgres import Base
-from models.constants import VolumeEventType
+from models.constants import VolumeEventType, NotificationEventType
 
 
 class Event(Base):
@@ -19,6 +19,7 @@ class Event(Base):
     description = Column(Text, nullable=True)
     time = Column(DateTime(timezone=True), nullable=True)
     volume_type = Column(Enum(VolumeEventType), nullable=False)
+    notification_type = Column(Enum(NotificationEventType), nullable=False)
     user_id = Column(UUID(as_uuid=True), nullable=True)
     roles = Column(JSON, nullable=False, default=list)
     template_id = Column(UUID(as_uuid=True), nullable=False)

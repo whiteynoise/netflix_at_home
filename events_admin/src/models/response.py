@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, model_validator, ConfigDict
 
-from api.v1.constants import TimeEventType, VolumeEventType
+from api.v1.constants import TimeEventType, VolumeEventType, NotificationEventType
 
 
 class TemplateCommon(BaseModel):
@@ -22,6 +22,7 @@ class CreateEventSchema(BaseModel):
     time: datetime.datetime | None = None
     volume_type: VolumeEventType
     time_type: TimeEventType
+    notification_type: NotificationEventType
     roles: list[str]
 
     @model_validator(mode="after")
@@ -33,4 +34,3 @@ class CreateEventSchema(BaseModel):
         return self
 
     model_config = ConfigDict(use_enum_values=True)
-    

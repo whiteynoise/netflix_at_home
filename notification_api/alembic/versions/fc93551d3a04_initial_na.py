@@ -28,6 +28,7 @@ def upgrade() -> None:
         sa.Column('description', sa.Text(), nullable=True),
         sa.Column('time', sa.DateTime(timezone=True), nullable=True),
         sa.Column('volume_type', sa.Enum('single', 'massive', name='volumeeventtype'), nullable=False),
+        sa.Column('notification_type', sa.Enum('email', 'sms', name='notificationeventtype'), nullable=False),
         sa.Column('roles', sa.JSON(), nullable=False),
         sa.Column('user_id', sa.UUID(), nullable=True),
         sa.Column('template_id', sa.UUID(), nullable=False),

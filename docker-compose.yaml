@@ -282,6 +282,8 @@ services:
       - rabbitmq
       - events_admin
 
+  # для отправки другим путем добавьте инстанс для массовой и единичной рассылки
+
   mail_worker:
     build: nx_notification_worker
     container_name: mail_worker_instant

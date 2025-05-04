@@ -47,6 +47,7 @@ def schedule_biweekly_film_fetch() -> None:
             "title": f"Топ-фильмов за две недели {datetime.now().isoformat()}",
             "description": "События топ-фильмов за две недели!",
             "time": datetime.now().isoformat(),
+            "notification_type": "email",
             "volume_type": "massive",
             "roles": ["base_user"],
         }
