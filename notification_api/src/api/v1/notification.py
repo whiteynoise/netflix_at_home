@@ -81,7 +81,7 @@ async def stream_db_user_data(db: AsyncSession, batch_size: int, event: EventCre
         if len(batch) >= batch_size:
             yield batch
             batch = []
-    
+
     if batch:
         yield batch
 

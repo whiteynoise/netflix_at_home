@@ -33,3 +33,4 @@ class CreateEventSchema(BaseModel):
         return self
 
     model_config = ConfigDict(use_enum_values=True)
+    

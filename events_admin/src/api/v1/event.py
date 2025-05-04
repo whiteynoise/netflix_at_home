@@ -18,6 +18,7 @@ from models.response import CreateEventSchema
 
 router = APIRouter(tags=["События"])
 
+
 @router.post("/create_event", summary="Отправить событие", status_code=201)
 async def create_event(event: Annotated[CreateEventSchema, Body(...)]) -> None:
     logger.info({"message": f"Направлено событие {event.model_dump()}"})

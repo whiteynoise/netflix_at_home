@@ -10,7 +10,7 @@ from api.v1.constants import TEMPLATE_PATH
 from db.postgres import get_session
 from models.entity import Template
 
-from models.response import TemplateCommon, CreateEventSchema
+from models.response import TemplateCommon
 
 router = APIRouter(tags=["Шаблоны"])
 
@@ -22,8 +22,8 @@ async def upload_file(
 ):
     _, ext = os.path.splitext(file.filename)
 
-    if ext != ".html":
-        raise HTTPException(status_code=400, detail="Можно загружать только .html")
+    if ext != ".jinja2":
+        raise HTTPException(status_code=400, detail="Можно загружать только .jinja2")
 
     upload_dir = os.path.join(os.getcwd(), TEMPLATE_PATH)
     if not os.path.exists(upload_dir):

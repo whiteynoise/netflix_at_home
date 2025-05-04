@@ -65,7 +65,7 @@ class MailWorker(RabbitMQConsumer):
 
         await self.smtp_server.send_message(message)
         logger.info("The message has been sent")
-    
+
     async def start_worker(self) -> None:
         """Точка входа в воркер."""
         logger.info("Wake up, samurai, we have mail to send...")
@@ -77,7 +77,7 @@ class MailWorker(RabbitMQConsumer):
         """Рендер сообщения по выбранному шаблону."""
         template = templates.get_template(notification_info['template_name'])
         return template.render(**notification_info['render_params'])
-        
+
 
 async def main() -> None:
     worker = MailWorker(

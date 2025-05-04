@@ -1,9 +1,9 @@
+import aio_pika
 import json
 
 from loguru import logger
 
 from config.rabbit import RabbitMQConfig
-import aio_pika
 
 
 class RabbitMqProducer:
@@ -11,6 +11,7 @@ class RabbitMqProducer:
         self.config = config
         self.connection: aio_pika.abc.AbstractRobustConnection | None = None
         self.queue_name: str | None = None
+        self.channel: aio_pika.RobustChannel | None = None
 
     async def connect(self):
         self.connection: aio_pika.abc.AbstractRobustConnection = (

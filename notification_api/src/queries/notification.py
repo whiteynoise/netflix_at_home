@@ -1,6 +1,7 @@
-from sqlalchemy import text
+from sqlalchemy import text, TextClause
 
-def users_by_roles():
+
+def users_by_roles() -> TextClause:
     return text("""
         SELECT u.username, u.email, u.first_name, u.last_name
         FROM auth.user_roles ur
@@ -10,7 +11,7 @@ def users_by_roles():
     """)
 
 
-def users_by_user_id():
+def users_by_user_id() -> TextClause:
     return text("""
         SELECT u.username, u.email, u.first_name, u.last_name
         FROM auth.users u
@@ -18,7 +19,7 @@ def users_by_user_id():
     """)
 
 
-def get_template_by_id():
+def get_template_by_id() -> TextClause:
     return text("""
         SELECT path
         FROM events_admin.template

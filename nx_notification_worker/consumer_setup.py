@@ -10,7 +10,7 @@ class RabbitMQConsumer:
         self.broker_config = broker_config
         self.connection: RobustConnection | None = None
         self.channel: RobustChannel | None = None
-    
+
     async def setup_connection(self) -> None:
         """Установка соединения клиента с брокером."""
         self.connection = await connect_robust(
@@ -21,7 +21,7 @@ class RabbitMQConsumer:
         )
         self.channel = await self.connection.channel()
         await self.channel.set_qos(prefetch_count=100)
-    
+
     async def process_message(self, notification_info: dict):
         """Обработка сообщений, переопределяется в наследнике."""
         ...

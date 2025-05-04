@@ -74,7 +74,7 @@ def run_migrations_online() -> None:
     with connectable.connect() as connection:
 
         with connection.begin():
-            connection.execute(text(f'CREATE SCHEMA IF NOT EXISTS events_admin'))
+            connection.execute(text('CREATE SCHEMA IF NOT EXISTS events_admin'))
 
         context.configure(
             connection=connection,

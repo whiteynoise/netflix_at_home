@@ -1,8 +1,7 @@
-import datetime
-
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 from apscheduler.triggers.date import DateTrigger
+
 from datetime import datetime
 
 from constants import MASSIVE_NOTIFICATION_SERVICE_API, TEMPLATE_ID
@@ -12,7 +11,7 @@ from session import aiohttp_session
 scheduler = AsyncIOScheduler()
 
 
-def schedule_event(event: CreateEventSchema):
+def schedule_event(event: CreateEventSchema) -> None:
     """Отложенное однократное событие"""
 
     async def task():
@@ -24,20 +23,25 @@ def schedule_event(event: CreateEventSchema):
                 print(
                     f"Ошибка при отправки события {event.model_dump()}: {response.status}"
                 )
-                return
+                return None
 
     trigger = DateTrigger(run_date=event.time)
     scheduler.add_job(task, trigger)
 
 
-def schedule_biweekly_film_fetch():
+def schedule_biweekly_film_fetch() -> None:
     """Периодическая задача"""
 
     trigger = CronTrigger(
-        day_of_week="sun", hour=9, minute=0, second=0, timezone="UTC", week="2" # каждые две недели
+        day_of_week="sun",
+        hour=9,
+        minute=0,
+        second=0,
+        timezone="UTC",
+        week="2",
     )
 
-    async def fetch_films_task():
+    async def fetch_films_task() -> None:
         body = {
             "template_id": TEMPLATE_ID,
             "title": f"Топ-фильмов за две недели {datetime.now().isoformat()}",
@@ -53,10 +57,10 @@ def schedule_biweekly_film_fetch():
                 print(
                     f" Ошибка при отправки события на топ-фильмов месяца: {response.status}"
                 )
-                return
+                return None
 
     scheduler.add_job(fetch_films_task, trigger, name="top_films")
 
 
-def start_scheduler():
+def start_scheduler() -> None:
     scheduler.start()
