@@ -2,7 +2,7 @@ import datetime
 
 from pydantic import BaseModel
 
-from models.constants import VolumeEventType
+from models.constants import VolumeEventType, NotificationEventType
 
 
 class EventCreate(BaseModel):
@@ -12,4 +12,5 @@ class EventCreate(BaseModel):
     description: str | None
     time: datetime.datetime | None
     volume_type: VolumeEventType
+    notification_type: NotificationEventType
     roles: list[str]

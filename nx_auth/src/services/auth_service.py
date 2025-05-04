@@ -42,6 +42,7 @@ class AuthService:
         body = {
             "template_id": TEMPLATE_ID,
             "title": f"Регистрация {new_user.user_id}",
+            "notification_api": "email",
             "description": None,
             "time": datetime.now().isoformat(),
             "volume_type": "single",

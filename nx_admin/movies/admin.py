@@ -46,6 +46,7 @@ class FilmWorkAdmin(admin.ModelAdmin):
                     "title": f"Новый фильм: {obj.title}",
                     "description": f"Фильм добавлен: {obj.description or ''}",
                     "time": now().isoformat(),
+                    "notification_type": "email",
                     "volume_type": "massive",
                     "roles": ["base_user"],
                 }
