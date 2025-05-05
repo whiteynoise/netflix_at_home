@@ -4,13 +4,14 @@ from models.response import EventCreate
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from mq.producer import RabbitMqProducer
+from models.notification_model import NotificationMessage
 
 
 async def msg_generation(
         db: AsyncSession,
         rmq: RabbitMqProducer,
         event: EventCreate,
-        template_name: str,
+        template_name: str | None = None,
 ) -> None:
     """Хендлер подготовки и публикации сообщений в брокер."""
     async for batch in stream_db_user_data(db=db, batch_size=1000, event=event):
@@ -47,15 +48,11 @@ async def send_to_rmq(
     """Публикация сообщений в брокер."""
     for row in batch:
         await rmq.publish(
-            {
-                "subject": event.title,
-                "email": row['email'],
-                "template_name": template_name,
-                "render_params": {
-                    "username": row['username'],
-                    "first_name": row['first_name'],
-                    "last_name": row['last_name'],
-                },
-                "user_id": event.user_id,
-            }
+            NotificationMessage(
+                subject=event.title,
+                user_id=event.user_id,
+                recipient_data=row,
+                template_name=template_name,
+                msg_text=event.msg_text,
+            ).model_dump()
         )

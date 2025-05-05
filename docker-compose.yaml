@@ -284,10 +284,10 @@ services:
 
   # для отправки другим путем добавьте инстанс для массовой и единичной рассылки
 
-  mail_worker:
+  worker:
     build: nx_notification_worker
     container_name: mail_worker_instant
-    command: python mail_worker.py
+    command: python main.py
     <<: *default-env
     depends_on:
       - rabbitmq
