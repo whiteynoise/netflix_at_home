@@ -19,7 +19,7 @@ router = APIRouter(tags=["Шаблоны"])
 async def upload_file(
     db: Annotated[AsyncSession, Depends(get_session)],
     file: UploadFile = File(...),
-):
+) -> dict:
     _, ext = os.path.splitext(file.filename)
 
     if ext != ".jinja2":

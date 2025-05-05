@@ -40,7 +40,7 @@ async def create_event(
                 status_code=HTTPStatus.NOT_FOUND,
                 detail="Шаблон не найден!",
             )
-        
+
         template_name = template_path.split('/')[-1]
 
     entity_event = Event(**event.model_dump())
