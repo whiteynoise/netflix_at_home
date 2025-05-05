@@ -1,5 +1,6 @@
 from queries import notification as sql
 from models.response import EventCreate
+from typing import AsyncGenerator, Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -23,7 +24,11 @@ async def msg_generation(
         )
 
 
-async def stream_db_user_data(db: AsyncSession, batch_size: int, event: EventCreate):
+async def stream_db_user_data(
+        db: AsyncSession,
+        batch_size: int,
+        event: EventCreate,
+) -> AsyncGenerator[list, Any, None]:
     """Получение пользовательских данных с базы."""
     batch = []
 
@@ -43,7 +48,7 @@ async def send_to_rmq(
         rmq: RabbitMqProducer,
         batch: list[dict],
         event: EventCreate,
-        template_name: str,
+        template_name: str | None,
 ) -> None:
     """Публикация сообщений в брокер."""
     for row in batch:
