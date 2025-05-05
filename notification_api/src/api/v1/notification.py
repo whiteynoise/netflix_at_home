@@ -25,19 +25,23 @@ async def create_event(
         rmq: Annotated[RabbitMqProducer, Depends(get_rmq_producer)],
 ) -> None:
     """Создание события и отправка в очередь"""
+    template_name = None
 
-    template_path = (
-        await db.execute(
-            sql.get_template_by_id(),
-            {"template_id": event.template_id},
-        )
-    ).scalar_one_or_none()
+    if event.template_id:
+        template_path = (
+            await db.execute(
+                sql.get_template_by_id(),
+                {"template_id": event.template_id},
+            )
+        ).scalar_one_or_none()
 
-    if not template_path:
-        raise HTTPException(
-            status_code=HTTPStatus.NOT_FOUND,
-            detail="Шаблон не найден!",
-        )
+        if not template_path:
+            raise HTTPException(
+                status_code=HTTPStatus.NOT_FOUND,
+                detail="Шаблон не найден!",
+            )
+
+        template_name = template_path.split('/')[-1]
 
     entity_event = Event(**event.model_dump())
     db.add(entity_event)
@@ -47,7 +51,7 @@ async def create_event(
         db=db,
         rmq=rmq,
         event=event,
-        template_name=template_path.split('/')[-1],
+        template_name=template_name,
     )
 
     logger.info({"message": f"Event {event.model_dump()} created"})

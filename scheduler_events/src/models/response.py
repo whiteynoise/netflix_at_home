@@ -14,4 +14,3 @@ class CreateEventSchema(BaseModel):
     roles: list[str]
 
     model_config = ConfigDict(use_enum_values=True)
-    

@@ -14,7 +14,7 @@ scheduler = AsyncIOScheduler()
 def schedule_event(event: CreateEventSchema) -> None:
     """Отложенное однократное событие"""
 
-    async def task():
+    async def task() -> None:
         """Таска"""
         async with aiohttp_session.post(
             MASSIVE_NOTIFICATION_SERVICE_API, json=event.model_dump()
