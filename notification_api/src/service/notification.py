@@ -28,7 +28,7 @@ async def stream_db_user_data(
         db: AsyncSession,
         batch_size: int,
         event: EventCreate,
-) -> AsyncGenerator[list, Any, None]:
+) -> AsyncGenerator[list[dict[str, Any]], None]:
     """Получение пользовательских данных с базы."""
     batch = []
 
