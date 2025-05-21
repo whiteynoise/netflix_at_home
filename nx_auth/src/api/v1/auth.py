@@ -77,8 +77,6 @@ async def register_via_oauth(
     user = UserCreate(
         username=username,
         email=email or f"{token_urlsafe(5)}@netflix_at_home.com",
-        first_name=user_info.first_name,
-        last_name=user_info.last_name,
         password=token_urlsafe(16),
         outer_oauth_only=True,
     )
@@ -193,8 +191,6 @@ async def extra_login(
         user_id=user.user_id,
         username=user.username,
         email=user.email,
-        first_name=user.first_name,
-        last_name=user.last_name,
         roles=roles,
         is_active=user.is_active,
         is_stuff=user.is_stuff,

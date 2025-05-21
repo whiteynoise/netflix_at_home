@@ -19,6 +19,24 @@ services:
       timeout: 15s
       retries: 5
 
+  database_nup:
+    image: postgres:16
+    container_name: database_nup
+    environment:
+      - POSTGRES_DB=${NUP_POSTGRES_DB}
+      - POSTGRES_USER=${NUP_POSTGRES_USER}
+      - POSTGRES_PASSWORD=${NUP_POSTGRES_PASSWORD}
+      - POSTGRES_HOST=${NUP_POSTGRES_HOST}
+      - POSTGRES_PORT=${NUP_POSTGRES_PORT}
+    volumes:
+      - nup_volume:/var/lib/postgresql/data
+    restart: always
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-d", "${NUP_POSTGRES_DB}", "-U", "${NUP_POSTGRES_USER}" ]
+      interval: 15s
+      timeout: 15s
+      retries: 5
+
   elasticsearch:
     image: elasticsearch:8.6.2
     container_name: elasticsearch
@@ -161,6 +179,20 @@ services:
       database:
         condition: service_healthy
 
+  nx_user_profile:
+    build:
+      dockerfile: Dockerfile
+      context: ./nx_user_profile
+    container_name: nx_user_profile
+    <<: *default-env
+    volumes:
+      - ./nx_user_profile:/app
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:9000/api/openapi || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   ugc:
     build: nx_metrics/
     container_name: ugc
@@ -302,3 +334,4 @@ volumes:
   mongo_data:
   static_volume:
   rabbitmq:
+  nup_volume:
