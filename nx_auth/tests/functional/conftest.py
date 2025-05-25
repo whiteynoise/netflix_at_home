@@ -57,8 +57,6 @@ async def db_session_with_data(db_session: AsyncSession):
     test_user = Users(
         email="yamle@google.com",
         username="yamle",
-        first_name="Test",
-        last_name="User",
         password="1234567910",
     )
 

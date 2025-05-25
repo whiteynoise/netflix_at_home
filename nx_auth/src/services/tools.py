@@ -36,6 +36,7 @@ async def get_current_user(
             user_id=payload["user_id"],
             email=payload["email"],
             username=payload["username"],
+            phone=payload["phone"],
             roles=payload.get("roles"),
             token=jwt_token,
         )

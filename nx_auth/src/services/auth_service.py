@@ -15,7 +15,7 @@ from sqlalchemy import desc, insert, or_, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
-from session import aiohttp_session
+from core.session import aiohttp_session
 
 
 class AuthService:
@@ -60,7 +60,13 @@ class AuthService:
     async def identificate_user(user: TokenData, db: AsyncSession) -> Users | None:
         """Индетификация пользователя на основе юзернейма и почты"""
 
-        query = select(Users).where(or_(Users.username == user.username))
+        query = select(Users).where(
+            or_(
+                Users.username == user.username,
+                Users.phone == user.phone,
+                Users.email == user.email,
+            )
+        )
         result = await db.execute(query)
         user = result.scalar_one_or_none()
         return user
@@ -84,6 +90,7 @@ class AuthService:
             "user_id": str(user.user_id),
             "username": user.username,
             "email": user.email,
+            "phone": user.phone,
             "roles": [role.title for role in roles],
         }
         access_token, refresh_token = token_service.generate_access_refresh_token(

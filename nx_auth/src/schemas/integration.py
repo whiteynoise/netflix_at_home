@@ -6,5 +6,3 @@ class UniUserOAuth(BaseModel):
     email: EmailStr | None = Field(
         validation_alias=AliasChoices("email", "default_email")
     )
-    first_name: str | None = None
-    last_name: str | None = None

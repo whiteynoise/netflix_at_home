@@ -8,8 +8,6 @@ import pytest
             {
                 "email": "user@example.com",
                 "password": "securepass",
-                "first_name": "first_name",
-                "last_name": "last_name",
                 "username": "username_666",
             },
             200,
@@ -18,8 +16,6 @@ import pytest
             {
                 "email": "test@example.com",
                 "password": "securepass",
-                "first_name": "strin1g",
-                "last_name": "string1",
                 "username": "username666",
             },
             409,

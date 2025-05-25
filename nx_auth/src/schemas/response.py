@@ -22,8 +22,6 @@ class UserLoginFullInfo(BaseModel):
     user_id: UUID
     username: str
     email: str
-    first_name: str
-    last_name: str
     roles: List[str]
     is_active: bool
     is_stuff: bool

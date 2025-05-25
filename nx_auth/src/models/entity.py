@@ -30,9 +30,8 @@ class Users(Base):
     user_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     username = Column(String(255), unique=True, nullable=False)
     password = Column(String(255), nullable=False)
+    phone = Column(String, nullable=False)
     email = Column(String, unique=True, nullable=False)
-    first_name = Column(String(50))
-    last_name = Column(String(50))
 
     is_active = Column(Boolean, nullable=False, default=True)
     is_stuff = Column(Boolean, nullable=False, default=False)
@@ -51,16 +50,14 @@ class Users(Base):
         username: str,
         password: str,
         email: str | None = None,
-        first_name: str | None = None,
-        last_name: str | None = None,
+        phone: str | None = None,
         is_superuser: bool = False,
         outer_oauth_only: bool = False,
     ) -> None:
         self.username = username
         self.password = generate_password_hash(password)
         self.email = email
-        self.first_name = first_name
-        self.last_name = last_name
+        self.phone = phone
         self.is_superuser = is_superuser
         self.outer_oauth_only = outer_oauth_only
 
