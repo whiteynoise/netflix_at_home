@@ -30,6 +30,7 @@ class UserChangeInfo(BaseModel):
     username: str = None
     email: str = None
     password: str = None
+    phone: str = None
 
     @field_validator("password", mode="after")
     def hash_password(value: str) -> str:

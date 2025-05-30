@@ -39,22 +39,22 @@ class AuthService:
             new_user_social = UserSocial(user_id=new_user.user_id, provider=provider)
             db.add(new_user_social)
 
-        body = {
-            "template_id": TEMPLATE_ID,
-            "title": f"Регистрация {new_user.user_id}",
-            "notification_api": "email",
-            "description": None,
-            "time": datetime.now().isoformat(),
-            "volume_type": "single",
-        }
-        async with aiohttp_session.post(
-            SINGLE_NOTIFICATION_SERVICE_API, json=body
-        ) as response:
-            if response.status not in (200, 201):
-                print(
-                    f" Ошибка при отправки события на регистрацию {new_user.user_id}: {response.status}"
-                )
-                return
+        # body = {
+        #     "template_id": TEMPLATE_ID,
+        #     "title": f"Регистрация {new_user.user_id}",
+        #     "notification_api": "email",
+        #     "description": None,
+        #     "time": datetime.now().isoformat(),
+        #     "volume_type": "single",
+        # }
+        # async with aiohttp_session.post(
+        #     SINGLE_NOTIFICATION_SERVICE_API, json=body
+        # ) as response:
+        #     if response.status not in (200, 201):
+        #         print(
+        #             f" Ошибка при отправки события на регистрацию {new_user.user_id}: {response.status}"
+        #         )
+        #         return
 
     @staticmethod
     async def identificate_user(user: TokenData, db: AsyncSession) -> Users | None:

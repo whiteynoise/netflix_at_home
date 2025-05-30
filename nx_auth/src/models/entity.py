@@ -30,7 +30,7 @@ class Users(Base):
     user_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     username = Column(String(255), unique=True, nullable=False)
     password = Column(String(255), nullable=False)
-    phone = Column(String, nullable=False)
+    phone = Column(String, nullable=True)
     email = Column(String, unique=True, nullable=False)
 
     is_active = Column(Boolean, nullable=False, default=True)

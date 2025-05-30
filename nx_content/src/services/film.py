@@ -3,6 +3,8 @@ from models.response_models import FilmWork
 from services.abstract_models import ServiceManager, Storage
 from services.utils.paginator_ import get_offset
 
+from nx_content.src.models.entity_models import SimpleFilmWork
+
 
 class FilmService:
     def __init__(self, storage: Storage):
@@ -117,6 +119,27 @@ class FilmService:
         except Exception:
             return None
         return FilmWork(**doc["_source"])
+
+    async def get_films_by_ids(self, film_ids: list[str]) -> list[FilmWork]:
+        """Получение списка фильмов по списку ID"""
+        search_query = {
+            "query": {"bool": {"filter": [{"terms": {"id": film_ids}}]}},
+            "size": len(film_ids),
+        }
+
+        result = await self.storage.search(index="movies", body=search_query)
+        hits = result.get("hits", {}).get("hits", [])
+        if not hits:
+            return []
+
+        return [
+            SimpleFilmWork(
+                id=hit["_source"]["id"],
+                imdb_rating=hit["_source"]["imdb_rating"],
+                title=hit["_source"]["title"],
+            )
+            for hit in hits
+        ]
 
 
 film_service = ServiceManager(FilmService, get_elastic)

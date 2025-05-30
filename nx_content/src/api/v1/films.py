@@ -1,12 +1,17 @@
 from http import HTTPStatus
+from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from models.response_models import FilmWork
 from services.film import FilmService, film_service
 from src.api.v1.constants import SORT_CHOICES
 from src.models.entity_models import SearchParams, SortFilms
 from src.models.response_models import Film
 from src.services.cacher import redis_caching
+
+from models.entity_models import GetFilmIds
+
+from nx_content.src.models.entity_models import SimpleFilmWork
 
 router = APIRouter()
 
@@ -28,6 +33,25 @@ async def film_details(
     if not film:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="film not found")
     return film
+
+
+@router.get(
+    "/get_fav_films",
+    summary="Получить любимые фильмы пользователя",
+    description="Возвращает список всех любимых фильмов пользователя с полной информацией",
+    response_model=list[FilmWork],
+)
+async def get_films_by_ids(
+    film_service: Annotated[FilmService, Depends(film_service.get_service)],
+    films: Annotated[GetFilmIds, Query()],
+) -> list[SimpleFilmWork]:
+
+    film_ids: list[str] = await film_service.get_films_by_ids(films.film_ids)
+
+    if not film_ids:
+        return []
+    films = await film_service.get_films_by_ids(film_ids)
+    return films
 
 
 @router.get(

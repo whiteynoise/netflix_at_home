@@ -5,16 +5,16 @@ from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
-from config.settings import pg_settings
+from config import settings
 
 
 class Base(DeclarativeBase):
-    metadata = sa.MetaData(schema="auth")
+    metadata = sa.MetaData()
 
 
-dsn = "postgresql+asyncpg://{user}:{password}@{host}:{port}/{db}".format(**pg_settings.model_dump())
+dsn = "postgresql+asyncpg://{user}:{password}@{host}:{port}/{db}".format(**settings.pg_settings.model_dump())
 dsn_for_alembic = "postgresql+psycopg2://{user}:{password}@{host}:{port}/{db}".format(
-    **pg_settings.model_dump()
+    **settings.pg_settings.model_dump()
 )
 
 engine = create_async_engine(dsn, echo=True, future=True)

@@ -35,6 +35,12 @@ class FilmWork(BaseModel):
     writers: list[PersonBase]
 
 
+class SimpleFilmWork(BaseModel):
+    id: UUID
+    imdb_rating: float | None
+    title: str
+
+
 class Genres(BaseModel):
     id: UUID
     name: str
@@ -56,3 +62,7 @@ class TokenPayload(BaseModel):
     email: str
     roles: List[str]
     token: str
+
+
+class GetFilmIds(BaseModel):
+    film_ids: list[str]

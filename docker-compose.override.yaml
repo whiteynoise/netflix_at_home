@@ -52,7 +52,8 @@ services:
     ports:
       - "9000:9000"
     command:
-      [ "sh", "-c", "uvicorn src.main:app --host 0.0.0.0 --port 9000 --reload" ]
+      [ "sh", "-c", "alembic upgrade head && uvicorn src.main:app --host 0.0.0.0 --port 9000 --reload" ]
+
   # ugc:
   #   ports:
   #     - "5000:5000"

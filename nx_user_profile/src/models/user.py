@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import Column, UUID, String
+from sqlalchemy import Column, UUID, String, PrimaryKeyConstraint
 
 from db.postgres import Base
 
@@ -18,3 +18,12 @@ class UserProfile(Base):
 
     def __repr__(self) -> str:
         return f"<User {self.user_id}>"
+
+
+class PinFilm(Base):
+    __tablename__ = "pin_film"
+
+    user_id = Column(UUID(as_uuid=True), default=uuid.uuid4, index=True)
+    film_id = Column(UUID(as_uuid=True), default=uuid.uuid4)
+
+    __table_args__ = (PrimaryKeyConstraint("user_id", "film_id"),)
