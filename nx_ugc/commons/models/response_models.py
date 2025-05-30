@@ -6,14 +6,12 @@ class BookmarkResp(BaseModel):
     bookmark_name: str
     user_id: str
     film_id: str
-    film_name: str
     created_at: datetime
 
 
 class RatingResp(BaseModel):
     film_id: str
     user_id: str
-    film_name: str
     rating: int
     created_at: datetime
 
@@ -30,7 +28,7 @@ class LikeList(BaseModel):
     created_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 # review

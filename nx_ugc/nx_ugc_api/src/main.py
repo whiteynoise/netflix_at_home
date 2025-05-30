@@ -6,7 +6,7 @@ from aiohttp import ClientSession
 from api.v1 import bookmarks, likes, ratings, reviews, heartbeat
 from beanie import init_beanie
 from core.config import MONGODB_CONFIG, PROJECT_NAME
-from core.token import get_user_from_auth_service
+from commons.token_checker import get_user_from_auth_service
 from fastapi import APIRouter, Depends, FastAPI
 from fastapi.responses import ORJSONResponse
 from loguru import logger

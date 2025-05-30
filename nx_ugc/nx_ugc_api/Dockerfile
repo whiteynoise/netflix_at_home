@@ -2,13 +2,14 @@ FROM python:3.10
 
 WORKDIR /app
 
-COPY requirements.txt .
+COPY ./nx_ugc_api/requirements.txt .
 
 RUN pip install --upgrade pip \
     && pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+COPY ./nx_ugc_api/src /app/src
+COPY ./commons /app/src/commons
 
 ENV PYTHONPATH=/app/src
 
-EXPOSE 8001
+EXPOSE 9003

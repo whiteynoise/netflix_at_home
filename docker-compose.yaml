@@ -19,23 +19,23 @@ services:
       timeout: 15s
       retries: 5
 
-  database_nup:
-    image: postgres:16
-    container_name: database_nup
-    environment:
-      - POSTGRES_DB=${NUP_POSTGRES_DB}
-      - POSTGRES_USER=${NUP_POSTGRES_USER}
-      - POSTGRES_PASSWORD=${NUP_POSTGRES_PASSWORD}
-      - POSTGRES_HOST=${NUP_POSTGRES_HOST}
-      - POSTGRES_PORT=${NUP_POSTGRES_PORT}
-    volumes:
-      - nup_volume:/var/lib/postgresql/data
-    restart: always
-    healthcheck:
-      test: [ "CMD", "pg_isready", "-d", "${NUP_POSTGRES_DB}", "-U", "${NUP_POSTGRES_USER}" ]
-      interval: 15s
-      timeout: 15s
-      retries: 5
+  # database_nup:
+  #   image: postgres:16
+  #   container_name: database_nup
+  #   environment:
+  #     - POSTGRES_DB=${NUP_POSTGRES_DB}
+  #     - POSTGRES_USER=${NUP_POSTGRES_USER}
+  #     - POSTGRES_PASSWORD=${NUP_POSTGRES_PASSWORD}
+  #     - POSTGRES_HOST=${NUP_POSTGRES_HOST}
+  #     - POSTGRES_PORT=${NUP_POSTGRES_PORT}
+  #   volumes:
+  #     - nup_volume:/var/lib/postgresql/data
+  #   restart: always
+  #   healthcheck:
+  #     test: [ "CMD", "pg_isready", "-d", "${NUP_POSTGRES_DB}", "-U", "${NUP_POSTGRES_USER}" ]
+  #     interval: 15s
+  #     timeout: 15s
+  #     retries: 5
 
   elasticsearch:
     image: elasticsearch:8.6.2
@@ -325,6 +325,18 @@ services:
       - rabbitmq
     volumes:
       - templates:/app/templates
+
+  nx_ugc_worker:
+    build:
+      context: nx_ugc/
+      dockerfile: nx_ugc_worker/Dockerfile
+    container_name: nx_ugc_worker_ratings
+    command: python src/main.py
+    <<: *default-env
+    environment:
+      - TOPIC=ugc_ratings
+      - GROUP_ID=ugc_group_ratings
+      - BOOTSTRAP_SERVERS=kafka-0:9092
 
 volumes:
   templates:
