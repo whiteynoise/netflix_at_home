@@ -1,62 +1,44 @@
+from datetime import datetime
+
+from commons.models.beanie_models import Like, Review, LikeEntry
+from commons.models.entity_models import AddLike
+from commons.models.response_models import LikeList
+from pymongo.errors import DuplicateKeyError
+
+
 class LikeService():
-    # TODO
-    ...
-#     async def create_like(
-#             self,
-#             user_id: int,
-#             like: CreateLike,
-#     ) -> None:
-#         """Добавление лайка на рецензию."""
+    @staticmethod
+    async def create_like(
+            like_info: AddLike,
+    ) -> None:
+        """Добавление лайка на рецензию."""
 
-#         if review := await Review.find_one(Review.review_id == like.review_id):
-#             try:
-#                 await Like(**like.model_dump(), user_id=user_id).insert()
-#             except DuplicateKeyError:
-#                 raise HTTPException(
-#                     status_code=HTTPStatus.CONFLICT,
-#                     detail="Like in this review already exists.",
-#                 )
+        if review := await Review.find_one(Review.review_id == like_info.review_id):
+            try:
+                await Like(**like_info.model_dump()).insert()
+            except DuplicateKeyError:
+                return None
 
-#             like_entry = LikeEntry(user_id=user_id, action=like.action)
-#             review.likes.append(like_entry)
-#             await review.save()
-#         else:
-#             raise HTTPException(
-#                 status_code=HTTPStatus.NOT_FOUND,
-#                 detail="Review wasn't found.",
-#             )
+            like_entry = LikeEntry(user_id=like_info.user_id, action=like_info.action)
+            review.likes.append(like_entry)
+            await review.save()
 
-#         return None
-
-#     async def get_user_likes(
-#             self,
-#             user_id: int,
-#             action: bool,
-#     ) -> list[LikeList]:
-#         """Получение пользовательских лайков на рецензии."""
-
-#         return await Like.find(
-#             Like.user_id == user_id,
-#             Like.action == action,
-#         ).to_list()
-
-#     async def delete_like(
-#             self,
-#             user_id: int,
-#             review_id: str,
-
-#                    ReviewUserBase
-#     ) -> bool:
-#         """Удаление лайка с рецензии."""
-
-#         if not (
-#             like := await Like.find_one(
-#                 Like.review_id == review_id,
-#                 Like.user_id == user_id,
-#             )
-#         ):
-#             return False
+    @staticmethod
+    async def delete_like(
+            ReviewUserBase,
+    ) -> None:
+        """Удаление лайка с рецензии."""
         
-#         await like.delete()
+        await Like.find_one(**ReviewUserBase.model_dump()).delete()
+    
+    @staticmethod
+    async def get_user_likes(
+            user_id: int,
+            action: bool,
+    ) -> list[LikeList]:
+        """Получение пользовательских лайков на рецензии."""
 
-#         return True
+        return await Like.find(
+            Like.user_id == user_id,
+            Like.action == action,
+        ).to_list()

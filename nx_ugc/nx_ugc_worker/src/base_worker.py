@@ -1,7 +1,7 @@
 from abstracts import AbstractWorker
 
 
-class BaseWorker():
+class BaseWorker(AbstractWorker):
     def __init__(
         self,
         service_class: object,

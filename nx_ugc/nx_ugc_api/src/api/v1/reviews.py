@@ -1,9 +1,8 @@
-from http import HTTPStatus
 from typing import Annotated, Optional
 
-from fastapi import APIRouter, Query, Request, Depends
-from models.response_models import ListReview
-from services.reviews import ReviewService, review_service
+from fastapi import APIRouter, Query, Request
+from commons.models.response_models import ListReview
+from commons.services.reviews import ReviewService as rs
 
 router = APIRouter()
 
@@ -16,9 +15,10 @@ router = APIRouter()
 )
 async def get_my_reviews(
         request: Request,
-        rs: ReviewService = Depends(review_service.get_service()),
 ) -> list[ListReview]:
-    return await rs.get_my_reviews(user_id=request.state.user.user_id)
+    return await rs.get_my_reviews(
+        user_id=request.state.user.user_id,
+    )
 
 
 @router.get(
@@ -30,7 +30,6 @@ async def get_my_reviews(
 async def get_film_review(
         film_id: str,
         sort: Annotated[Optional[str], Query()] = None,
-        rs: ReviewService = Depends(review_service.get_service()),
 ) -> list[ListReview]:
     return await rs.get_film_review(
         film_id=film_id,

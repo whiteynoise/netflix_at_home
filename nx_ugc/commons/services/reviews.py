@@ -1,31 +1,30 @@
 from datetime import datetime
 
 from beanie.odm.operators.update.general import Set
-from commons.models.beanie_models import Review
-from commons.models.entity_models import AddReview, UpdReview, UserFilmBase
-from commons.models.response_models import ListReview
 from pymongo import DESCENDING
 from pymongo.errors import DuplicateKeyError
 
+from commons.models.beanie_models import Review
+from commons.models.entity_models import AddReview, UpdReview, UserFilmBase
+from commons.models.response_models import ListReview
+
 
 class ReviewService():
+    @staticmethod
     async def add_review(
             review_info: AddReview,
-    ) -> bool:
+    ) -> None:
         """Создать рецензию."""
-
-        result = True
 
         try:
             await Review(**review_info.model_dump()).insert()
         except DuplicateKeyError:
-            result = False
-
-        return result
-
+            pass
+    
+    @staticmethod
     async def update_review(
             review_info: UpdReview,
-    ) -> bool:
+    ) -> None:
         """Обновить рецензию."""
 
         if not (
@@ -33,29 +32,21 @@ class ReviewService():
                 Review.review_id == review_info.review_id,
             )
         ):
-            return False
+            return None
 
         update_data = review_info.model_dump(exclude_none=True)
-        update_data["edited_at"] = str(datetime.now())
+        update_data["updated_at"] = str(datetime.now())
         await review.update(Set(update_data))
 
-        return True
-
+    @staticmethod
     async def delete_review(
             review_info: UserFilmBase,
-    ) -> bool:
+    ) -> None:
         """Удалить рецензию."""
 
-        if not (
-            review := await Review.find_one(
-                **review_info.model_dump(),
-            )
-        ):
-            return False
-        
-        await review.delete()
-        return True
+        await Review.find_one(**review_info.model_dump()).delete()
 
+    @staticmethod
     async def get_my_reviews(
             user_id: int,
     ) -> list[ListReview]:
@@ -65,6 +56,7 @@ class ReviewService():
             Review.user_id == user_id,
         ).to_list()
     
+    @staticmethod
     async def get_film_review(
             film_id: str,
             sort: str | None = None,
