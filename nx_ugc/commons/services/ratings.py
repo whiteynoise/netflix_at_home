@@ -3,53 +3,50 @@ from datetime import datetime
 from commons.models.beanie_models import Rating
 from commons.models.entity_models import UserFilmBase, RatingChange
 from commons.models.response_models import AvgFilmRating, RatingResp
+
 from pymongo.errors import DuplicateKeyError
 
 
 class RatingService():
+    @staticmethod
     async def add_rating(
-            self,
             rating_info: RatingChange,
-    ) -> bool:
+    ) -> None:
         """Добавление оценки контенту."""
-
-        result = True
 
         try:
             await Rating(**rating_info.model_dump()).insert()
         except DuplicateKeyError:
-            result = False
-
-        return result
-
+            pass
+    
+    @staticmethod
     async def update_rating(
-            self,
             rating_info: RatingChange,
-    ) -> bool:
+    ) -> None:
         """Обновление оценки контента."""
 
-        doc = await Rating.find_one(**rating_info.model_dump())
-
-        if not doc:
-            return False
+        if not (
+            rating := await Rating.find_one(
+                Rating.film_id == rating_info.film_id,
+                Rating.user_id == rating_info.user_id,
+            )
+        ):
+            return None
         
-        doc.updated_at = datetime.now()
-        doc.rating = rating_info.rating
-        await doc.save()
+        rating.updated_at = datetime.now()
+        rating.rating = rating_info.rating
+        await rating.save()
 
-        return True
-
+    @staticmethod
     async def delete_rating(
-            self,
             rating_info: UserFilmBase,
-    ) -> bool:
+    ) -> None:
         """Удаление оценки фильма."""
 
         await Rating.find(**rating_info.model_dump()).delete()
-        return True
     
+    @staticmethod
     async def get_rating(
-            self,
             user_id: int,
             film_id: int | None = None,
     ) -> list[RatingResp]:
@@ -66,8 +63,8 @@ class RatingService():
 
         return user_ratings
 
+    @staticmethod
     async def get_avg_film_rating(
-            self,
             film_id: str,
     ) -> AvgFilmRating:
         """Получение средней оценки фильма."""

@@ -70,7 +70,7 @@ class Review(BaseCollection):
     review_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     film_id: str
     review_text: str
-    edited_at: None | datetime = None
+    updated_at: None | datetime = None
     rating_by_user: int
     likes: list[LikeEntry] = Field(default_factory=list)
 

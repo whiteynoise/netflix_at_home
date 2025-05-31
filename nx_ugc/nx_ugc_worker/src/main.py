@@ -1,16 +1,19 @@
 import asyncio
+from contextlib import asynccontextmanager
+from typing import AsyncGenerator
 
-from consumers.kafka_consumer import KafkaConsumer
-from base_worker import BaseWorker
-from configs.settings import settings
-from commons.models.beanie_models import Bookmark, Rating, Like, Review
 from beanie import init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient
+
+from abstracts import AbstractConsumer, AbstractWorker
+from base_worker import BaseWorker
+from commons.models.beanie_models import Bookmark, Rating, Like, Review
 from commons.shared_config import MONGODB_CONFIG, SERVICE_INFO_BY_TOPIC
-from contextlib import asynccontextmanager
+from configs.settings import settings
+from consumers.kafka_consumer import KafkaConsumer
 
 
-def get_consumer():
+def get_consumer() -> AbstractConsumer:
     """Хендлер получения консьюмера."""
     return KafkaConsumer(
         topic=settings.TOPIC,
@@ -19,7 +22,7 @@ def get_consumer():
     )
 
 
-def get_worker():
+def get_worker() -> AbstractWorker:
     """Хендлер создания воркера."""
     if not (service_info := SERVICE_INFO_BY_TOPIC.get(settings.TOPIC)):
         raise ValueError("Unknown service.")
@@ -28,7 +31,7 @@ def get_worker():
 
 
 @asynccontextmanager
-async def db_connection_handler():
+async def db_connection_handler() -> AsyncGenerator[None, None]:
     """Хендлер коннекта к БД."""
     client = AsyncIOMotorClient(
         "mongodb://{user}:{password}@{host}:{port}".format(**MONGODB_CONFIG),

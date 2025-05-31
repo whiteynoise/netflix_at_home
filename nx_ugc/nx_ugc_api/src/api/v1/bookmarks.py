@@ -1,9 +1,8 @@
-from http import HTTPStatus
+from fastapi import APIRouter, Request
 
-from fastapi import APIRouter, HTTPException, Request, Depends
-from models.entity_models import BookmarkAdd, BookmarkBase, BookmarkDel
-from models.response_models import BookmarkResp
-from services.bookmarks import bookmark_service, BookmarkService
+from commons.models.entity_models import BookmarkBase
+from commons.models.response_models import BookmarkResp
+from commons.services.bookmarks import BookmarkService as bs
 
 router = APIRouter()
 
@@ -18,7 +17,6 @@ router = APIRouter()
 async def get_bookmark_info(
         request: Request,
         bookmark_info: BookmarkBase,
-        bs: BookmarkService = Depends(bookmark_service.get_service),
 ) -> list[BookmarkResp]:
     return await bs.get_bookmark_info(
         user_id=request.state.user.user_id,

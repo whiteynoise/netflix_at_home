@@ -4,8 +4,10 @@ from loguru import logger
 from typing import Callable, Awaitable
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 
+from abstracts import AbstractConsumer
 
-class KafkaConsumer():
+
+class KafkaConsumer(AbstractConsumer):
     def __init__(
         self,
         topic: str,

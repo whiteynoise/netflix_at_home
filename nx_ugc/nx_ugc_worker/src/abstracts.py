@@ -1,21 +1,29 @@
 from abc import ABC, abstractmethod
-from typing import Callable, Awaitable
+from typing import Awaitable, Callable, Any
 
 
-class AbstractBrokerConsumer(ABC):
+class AbstractConsumer(ABC):
     @abstractmethod
-    async def setup_connection(self) -> None:
-        """Устанавливает соединение с брокером сообщений."""
+    async def __aenter__(self) -> "AbstractConsumer":
+        """Инициализация подключения."""
         pass
 
     @abstractmethod
-    async def start_consumption(self, callback: Callable[[dict], Awaitable[None]]) -> None:
-        """Запускает потребление сообщений и вызывает callback для обработки каждого сообщения."""
+    async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
+        """Завершение подключения."""
+        pass
+
+    @abstractmethod
+    async def start_consumption(
+        self,
+        callback: Callable[[dict], Awaitable[None]]
+    ) -> None:
+        """Запуск потребления сообщений с передачей callback."""
         pass
 
 
 class AbstractWorker(ABC):
     @abstractmethod
-    async def process_message(self, notification_info: dict) -> None:
-        """Логика обработки сообщения."""
+    async def __call__(self, message: dict[str, Any]) -> None:
+        """Обработка входящего сообщения."""
         pass

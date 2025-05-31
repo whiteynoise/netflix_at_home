@@ -41,10 +41,6 @@ class RatingChange(UserFilmBase):
     rating: int = Field(ge=1, le=10)
 
 
-class RatingGet(BaseModel):
-    film_id: str | None = None
-
-
 # REVIEW
 class AddReview(UserFilmBase):
     review_text: str

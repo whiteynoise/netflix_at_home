@@ -1,7 +1,11 @@
-import commons.services as services
 import commons.models.entity_models as schemes
 
 from commons.models.settings_model import NXUgcEnvSettings
+
+from commons.services.bookmarks import BookmarkService
+from commons.services.likes import LikeService
+from commons.services.ratings import RatingService
+from commons.services.reviews import ReviewService
 
 
 settings = NXUgcEnvSettings()
@@ -20,7 +24,7 @@ MONGODB_CONFIG = {
 
 SERVICE_INFO_BY_TOPIC: dict = {
     'ugc_ratings': {
-        'service_class': services.RatingService,
+        'service_class': RatingService,
         'service_methods_schemes': {
             'add_rating': schemes.RatingChange,
             'update_rating': schemes.RatingChange,
@@ -28,7 +32,7 @@ SERVICE_INFO_BY_TOPIC: dict = {
         },
     },
     'ugc_reviews': {
-        'service_class': services.ReviewService,
+        'service_class': ReviewService,
         'service_methods_schemes': {
             'add_review': schemes.AddReview,
             'update_review': schemes.UpdReview,
@@ -36,14 +40,14 @@ SERVICE_INFO_BY_TOPIC: dict = {
         }
     },
     'ugc_likes': {
-        'service_class': services.LikeService,
+        'service_class': LikeService,
         'service_methods_schemes': {
             'add_like': schemes.AddLike,
             'delete_like': schemes.ReviewUserBase,
         },
     },
     'ugc_bookmarks': {
-        'service_class': services.BookmarkService,
+        'service_class': BookmarkService,
         'service_methods_schemes': {
             'add_to_bookmark': schemes.AddToBookmark,
             'delete_from_bookmark': schemes.DelFromBookmark,
