@@ -19,23 +19,23 @@ services:
       timeout: 15s
       retries: 5
 
-  # database_nup:
-  #   image: postgres:16
-  #   container_name: database_nup
-  #   environment:
-  #     - POSTGRES_DB=${NUP_POSTGRES_DB}
-  #     - POSTGRES_USER=${NUP_POSTGRES_USER}
-  #     - POSTGRES_PASSWORD=${NUP_POSTGRES_PASSWORD}
-  #     - POSTGRES_HOST=${NUP_POSTGRES_HOST}
-  #     - POSTGRES_PORT=${NUP_POSTGRES_PORT}
-  #   volumes:
-  #     - nup_volume:/var/lib/postgresql/data
-  #   restart: always
-  #   healthcheck:
-  #     test: [ "CMD", "pg_isready", "-d", "${NUP_POSTGRES_DB}", "-U", "${NUP_POSTGRES_USER}" ]
-  #     interval: 15s
-  #     timeout: 15s
-  #     retries: 5
+  database_nup:
+   image: postgres:16
+   container_name: database_nup
+   environment:
+     - POSTGRES_DB=${NUP_POSTGRES_DB}
+     - POSTGRES_USER=${NUP_POSTGRES_USER}
+     - POSTGRES_PASSWORD=${NUP_POSTGRES_PASSWORD}
+     - POSTGRES_HOST=${NUP_POSTGRES_HOST}
+     - POSTGRES_PORT=${NUP_POSTGRES_PORT}
+   volumes:
+     - nup_volume:/var/lib/postgresql/data
+   restart: always
+   healthcheck:
+     test: [ "CMD", "pg_isready", "-d", "${NUP_POSTGRES_DB}", "-U", "${NUP_POSTGRES_USER}" ]
+     interval: 15s
+     timeout: 15s
+     retries: 5
 
   elasticsearch:
     image: elasticsearch:8.6.2
@@ -337,6 +337,21 @@ services:
       - TOPIC=ugc_ratings
       - GROUP_ID=ugc_group_ratings
       - BOOTSTRAP_SERVERS=kafka-0:9092
+
+  nx_ugc_gateway:
+    build:
+      dockerfile: nx_ugc_gateway/Dockerfile
+      context: nx_ugc/
+    container_name: nx_ugc_gateway
+    <<: *default-env
+    volumes:
+      - ./nx_ugc/nx_ugc_gateway/src:/app/src
+      - ./nx_ugc/commons:/app/src/commons
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:9009/api/openapi || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   templates:
