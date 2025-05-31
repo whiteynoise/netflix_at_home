@@ -12,4 +12,4 @@ COPY ./commons /app/src/commons
 
 ENV PYTHONPATH=/app/src
 
-EXPOSE 9001
+EXPOSE 9009

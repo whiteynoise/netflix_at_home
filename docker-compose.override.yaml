@@ -54,6 +54,13 @@ services:
     command:
       [ "sh", "-c", "alembic upgrade head && uvicorn src.main:app --host 0.0.0.0 --port 9000 --reload" ]
 
+  nx_ugc_gateway:
+    ports:
+      - "9009:9009"
+    command:
+      [ "sh", "-c", "uvicorn src.main:app --host 0.0.0.0 --port 9009 --reload" ]
+
+
   # ugc:
   #   ports:
   #     - "5000:5000"
