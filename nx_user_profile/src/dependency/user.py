@@ -19,7 +19,7 @@ async def get_user_from_auth_service(
         )
     try:
         async with session.aiohttp_session.get(
-            f"http://nx_auth:8001/auth-service/api/v1/token/get_user_from_token",
+            "http://nx_auth:8001/auth-service/api/v1/token/get_user_from_token",
             headers={"Authorization": authorization},
             timeout=5,
         ) as response:

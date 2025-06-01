@@ -1,3 +1,4 @@
+# flake8: noqa
 """002_favfilm
 
 Revision ID: dd87be929be5

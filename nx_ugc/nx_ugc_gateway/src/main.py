@@ -51,4 +51,3 @@ api_router_v1.include_router(gateway.router)
 api_router_main.include_router(api_router_v1)
 
 app.include_router(api_router_main)
-
