@@ -1,8 +1,5 @@
-from datetime import datetime
-
 from commons.models.beanie_models import Like, Review, LikeEntry
 from commons.models.entity_models import AddLike
-from commons.models.response_models import LikeList
 from pymongo.errors import DuplicateKeyError
 
 
@@ -28,14 +25,14 @@ class LikeService():
             ReviewUserBase,
     ) -> None:
         """Удаление лайка с рецензии."""
-        
+
         await Like.find_one(**ReviewUserBase.model_dump()).delete()
-    
+
     @staticmethod
     async def get_user_likes(
             user_id: int,
             action: bool,
-    ) -> list[LikeList]:
+    ) -> list[Like]:
         """Получение пользовательских лайков на рецензии."""
 
         return await Like.find(

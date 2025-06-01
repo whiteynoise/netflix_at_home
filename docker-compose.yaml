@@ -124,25 +124,6 @@ services:
       - redis
       - elasticsearch
 
-  nx_ugc:
-    build:
-      dockerfile: Dockerfile
-      context: ./nx_ugc
-    container_name: nx_ugc
-    <<: *default-env
-    depends_on:
-      nx_auth:
-        condition: service_healthy
-      mongodb:
-        condition: service_healthy
-    volumes:
-      - ./nx_ugc/src:/app/src
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8005/api/openapi || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-
   nx_backend:
     build:
       dockerfile: Dockerfile
@@ -314,8 +295,6 @@ services:
       - rabbitmq
       - events_admin
 
-  # для отправки другим путем добавьте инстанс для массовой и единичной рассылки
-
   worker:
     build: nx_notification_worker
     container_name: mail_worker_instant
@@ -326,7 +305,26 @@ services:
     volumes:
       - templates:/app/templates
 
-  nx_ugc_worker:
+  nx_ugc_api:
+    build:
+      context: nx_ugc/
+      dockerfile: nx_ugc_api/Dockerfile
+    container_name: nx_ugc_api
+    <<: *default-env
+    depends_on:
+      nx_auth:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+    volumes:
+      - ./nx_ugc/src:/app/src
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8005/api/openapi || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  nx_ugc_worker_ratings:
     build:
       context: nx_ugc/
       dockerfile: nx_ugc_worker/Dockerfile
@@ -337,11 +335,47 @@ services:
       - TOPIC=ugc_ratings
       - GROUP_ID=ugc_group_ratings
       - BOOTSTRAP_SERVERS=kafka-0:9092
+  
+  nx_ugc_worker_likes:
+    build:
+      context: nx_ugc/
+      dockerfile: nx_ugc_worker/Dockerfile
+    container_name: nx_ugc_worker_likes
+    command: python src/main.py
+    <<: *default-env
+    environment:
+      - TOPIC=ugc_likes
+      - GROUP_ID=ugc_group_likes
+      - BOOTSTRAP_SERVERS=kafka-0:9092
+  
+  nx_ugc_worker_bookmarks:
+    build:
+      context: nx_ugc/
+      dockerfile: nx_ugc_worker/Dockerfile
+    container_name: nx_ugc_worker_bookmarks
+    command: python src/main.py
+    <<: *default-env
+    environment:
+      - TOPIC=ugc_bookmarks
+      - GROUP_ID=ugc_group_bookmarks
+      - BOOTSTRAP_SERVERS=kafka-0:9092
+  
+  nx_ugc_worker_reviews:
+    build:
+      context: nx_ugc/
+      dockerfile: nx_ugc_worker/Dockerfile
+    container_name: nx_ugc_worker_reviews
+    command: python src/main.py
+    <<: *default-env
+    environment:
+      - TOPIC=ugc_reviews
+      - GROUP_ID=ugc_group_reviews
+      - BOOTSTRAP_SERVERS=kafka-0:9092
 
   nx_ugc_gateway:
     build:
-      dockerfile: nx_ugc_gateway/Dockerfile
       context: nx_ugc/
+      dockerfile: nx_ugc_gateway/Dockerfile
     container_name: nx_ugc_gateway
     <<: *default-env
     volumes:

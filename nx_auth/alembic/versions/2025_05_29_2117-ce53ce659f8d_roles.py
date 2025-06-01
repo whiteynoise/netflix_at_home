@@ -1,3 +1,4 @@
+# flake8: noqa
 """roles
 
 Revision ID: ce53ce659f8d
@@ -8,7 +9,6 @@ Create Date: 2025-05-29 21:17:11.359274
 from typing import Sequence, Union
 
 from alembic import op
-import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.

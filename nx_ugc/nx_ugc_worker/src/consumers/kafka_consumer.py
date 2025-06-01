@@ -26,14 +26,19 @@ class KafkaConsumer(AbstractConsumer):
         await self._start_dlq_prod()
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
+    async def __aexit__(
+            self,
+            exc_type: type[BaseException] | None,
+            exc_val: BaseException | None,
+            exc_tb: object | None,
+    ) -> None:
         await self._consumer.stop()
         logger.info('Kafka consumer stopped')
 
         await self._dlq_producer.stop()
         logger.info('Kafka producer (DLQ) stopped')
 
-    async def _start_consumer(self):
+    async def _start_consumer(self) -> None:
         """Запуск консьюмера топика."""
 
         self._consumer = AIOKafkaConsumer(
@@ -48,7 +53,7 @@ class KafkaConsumer(AbstractConsumer):
 
         logger.info(f'Kafka consumer started to read topic: {self.topic}')
 
-    async def _start_dlq_prod(self):
+    async def _start_dlq_prod(self) -> None:
         """Запуск продюсера для DLQ топика."""
 
         self._dlq_producer = AIOKafkaProducer(

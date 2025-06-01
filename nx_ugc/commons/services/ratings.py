@@ -2,7 +2,7 @@ from datetime import datetime
 
 from commons.models.beanie_models import Rating
 from commons.models.entity_models import UserFilmBase, RatingChange
-from commons.models.response_models import AvgFilmRating, RatingResp
+from commons.models.response_models import AvgFilmRating
 
 from pymongo.errors import DuplicateKeyError
 
@@ -18,7 +18,7 @@ class RatingService():
             await Rating(**rating_info.model_dump()).insert()
         except DuplicateKeyError:
             pass
-    
+
     @staticmethod
     async def update_rating(
             rating_info: RatingChange,
@@ -32,7 +32,7 @@ class RatingService():
             )
         ):
             return None
-        
+
         rating.updated_at = datetime.now()
         rating.rating = rating_info.rating
         await rating.save()
@@ -44,12 +44,12 @@ class RatingService():
         """Удаление оценки фильма."""
 
         await Rating.find(**rating_info.model_dump()).delete()
-    
+
     @staticmethod
     async def get_rating(
             user_id: int,
             film_id: int | None = None,
-    ) -> list[RatingResp]:
+    ) -> Rating:
         """Получение оценок пользователя."""
 
         query_filter: dict = {
@@ -59,14 +59,12 @@ class RatingService():
         if film_id:
             query_filter["film_id"] = film_id
 
-        user_ratings = await Rating.find(query_filter).to_list()
-
-        return user_ratings
+        return await Rating.find(query_filter).to_list()
 
     @staticmethod
     async def get_avg_film_rating(
             film_id: str,
-    ) -> AvgFilmRating:
+    ) -> Rating:
         """Получение средней оценки фильма."""
 
         avg_rating = await Rating.find(

@@ -6,7 +6,6 @@ from pymongo.errors import DuplicateKeyError
 
 from commons.models.beanie_models import Review
 from commons.models.entity_models import AddReview, UpdReview, UserFilmBase
-from commons.models.response_models import ListReview
 
 
 class ReviewService():
@@ -20,7 +19,7 @@ class ReviewService():
             await Review(**review_info.model_dump()).insert()
         except DuplicateKeyError:
             pass
-    
+
     @staticmethod
     async def update_review(
             review_info: UpdReview,
@@ -49,20 +48,20 @@ class ReviewService():
     @staticmethod
     async def get_my_reviews(
             user_id: int,
-    ) -> list[ListReview]:
+    ) -> list[Review]:
         """Получить рецензию по пользователю."""
 
         return await Review.find(
             Review.user_id == user_id,
         ).to_list()
-    
+
     @staticmethod
     async def get_film_review(
             film_id: str,
             sort: str | None = None,
-    ) -> list[ListReview]:
+    ) -> list[Review]:
         """Получить все рецензии на фильм."""
-        
+
         match sort:
             case "like" | "dislike":
                 pipeline = [

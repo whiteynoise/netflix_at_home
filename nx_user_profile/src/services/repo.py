@@ -1,4 +1,4 @@
-import uuid
+from uuid import UUID
 from functools import lru_cache
 from http import HTTPStatus
 
@@ -14,10 +14,10 @@ from models.user import PinFilm
 
 
 class FavFilmService:
-    """Сервис пройслойка для Любимых фильмов"""
+    """Сервис пройслойка для Любимых фильмов."""
 
     async def add_fav_film(
-        self, db: AsyncSession, fav_film: FavFilmCreate
+        self, db: AsyncSession, fav_film: FavFilmCreate,
     ) -> FavFilmCreate:
         """Добавление фильма в любимые"""
 
@@ -29,7 +29,7 @@ class FavFilmService:
         count = result.scalar_one()
 
         if count >= 10:
-            raise ValueError("Нельзя добавить больше 10 любимых фильмов!!!")
+            raise ValueError("Нельзя добавить больше 10 любимых фильмов!")
 
         new_fav_film = PinFilm(**fav_film.model_dump())
 
@@ -37,7 +37,8 @@ class FavFilmService:
         return new_fav_film
 
     async def delete_fav_film(self, db: AsyncSession, fav_film: FavFilmCreate) -> None:
-        """Удаление фильма из любимых"""
+        """Удаление фильма из любимых."""
+
         await db.execute(
             delete(PinFilm).where(
                 and_(
@@ -48,28 +49,30 @@ class FavFilmService:
         )
         await db.commit()
 
-    async def get_fav_films_by_user(self, db: AsyncSession, user_id: uuid) -> list[uuid]:
-        """Получение id фильмов"""
+    async def get_fav_films_by_user(self, db: AsyncSession, user_id: UUID) -> list[UUID]:
+        """Получение id фильмов."""
+        # TODO: сюда фиксы
         films = select(PinFilm.film_id).where(PinFilm.user_id == user_id)
         result = await db.execute(films)
         result = result.scalars().all()
 
         try:
             async with session.aiohttp_session.get(
-                    f"http://nx_content:8002/content-service/api/v1//films/get_films_by_ids",
+                    "http://nx_content:8002/content-service/api/v1//films/get_films_by_ids",
                     timeout=5,
             ) as response:
                 if response.status != 200:
                     raise HTTPException(
-                        status_code=HTTPStatus.UNAUTHORIZED, detail="Invalid token"
+                        status_code=HTTPStatus.UNAUTHORIZED,
+                        detail="Invalid token",
                     )
 
                 data = await response.json()
-                request.state.user = TokenPayload(**data)
 
         except ClientError as e:
             raise HTTPException(
-                status_code=HTTPStatus.UNAUTHORIZED, detail="Auth-service is unavailable"
+                status_code=HTTPStatus.UNAUTHORIZED,
+                detail="Auth-service is unavailable",
             ) from e
 
 

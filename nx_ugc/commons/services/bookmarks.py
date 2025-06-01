@@ -3,7 +3,6 @@ from pymongo.errors import DuplicateKeyError
 
 from commons.models.beanie_models import Bookmark
 from commons.models.entity_models import AddToBookmark, DelFromBookmark, BookmarkBase
-from commons.models.response_models import BookmarkResp
 
 
 class BookmarkService():
@@ -17,7 +16,7 @@ class BookmarkService():
             await Bookmark(**bookmark_info.model_dump()).insert()
         except DuplicateKeyError:
             pass
-    
+
     @staticmethod
     async def delete_from_bookmark(
             bookmark_info: DelFromBookmark,
@@ -34,7 +33,7 @@ class BookmarkService():
     async def get_bookmark_info(
             user_id: int,
             bookmark_info: BookmarkBase,
-    ) -> list[BookmarkResp]:
+    ) -> list[Bookmark]:
         """Получение списка контента в закладке."""
 
         bm_movies = await Bookmark.find(

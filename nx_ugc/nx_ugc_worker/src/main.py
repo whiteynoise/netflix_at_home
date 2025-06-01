@@ -26,7 +26,7 @@ def get_worker() -> AbstractWorker:
     """Хендлер создания воркера."""
     if not (service_info := SERVICE_INFO_BY_TOPIC.get(settings.TOPIC)):
         raise ValueError("Unknown service.")
-    
+
     return BaseWorker(**service_info)
 
 
