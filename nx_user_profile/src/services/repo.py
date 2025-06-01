@@ -8,7 +8,8 @@ from sqlalchemy import delete, and_, select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from config import session
-from schemas.fav_film import FavFilmCreate
+from constants import CONTENT_URL
+from schemas.fav_film import FavFilmCreate, FilmWork
 
 from models.user import PinFilm
 
@@ -49,16 +50,15 @@ class FavFilmService:
         )
         await db.commit()
 
-    async def get_fav_films_by_user(self, db: AsyncSession, user_id: UUID) -> list[UUID]:
+    async def get_fav_films_by_user(self, db: AsyncSession, user_id: UUID) -> list[FilmWork]:
         """Получение id фильмов."""
-        # TODO: сюда фиксы
         films = select(PinFilm.film_id).where(PinFilm.user_id == user_id)
         result = await db.execute(films)
         result = result.scalars().all()
 
         try:
             async with session.aiohttp_session.get(
-                    "http://nx_content:8002/content-service/api/v1//films/get_films_by_ids",
+                    CONTENT_URL + ','.join(result),
                     timeout=5,
             ) as response:
                 if response.status != 200:
@@ -74,6 +74,8 @@ class FavFilmService:
                 status_code=HTTPStatus.UNAUTHORIZED,
                 detail="Auth-service is unavailable",
             ) from e
+
+        return [FilmWork(**film) for film in data]
 
 
 @lru_cache()

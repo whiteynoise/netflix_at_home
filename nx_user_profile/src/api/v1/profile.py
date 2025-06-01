@@ -30,3 +30,18 @@ async def update_user_profile(
     await db.commit()
     await db.refresh(profile)
     return data
+
+
+@router.get('/profile/{user_id}', response_model=UserProfileUpdate)
+async def get_user_profile(
+        user_id: UUID,
+        db: AsyncSession = Depends(get_session),
+) -> UserProfileUpdate:
+    """Получение профиля пользователя"""
+    result = await db.execute(select(UserProfile).where(UserProfile.user_id == user_id))
+    profile = result.scalar_one_or_none()
+
+    if not profile:
+        raise HTTPException(status_code=404, detail='Профиля не существует')
+
+    return UserProfileUpdate.model_validate(profile)
