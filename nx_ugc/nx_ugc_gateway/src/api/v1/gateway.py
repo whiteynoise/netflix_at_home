@@ -22,7 +22,7 @@ async def send_ugc_event(
         topic: str = Body(..., embed=True),
         method: str = Body(..., embed=True),
         payload: dict = Body(..., embed=True),
-):
+) -> dict:
     """Обработчик событий UGC"""
     topic_info = SERVICE_INFO_BY_TOPIC.get(topic)
     if not topic_info:

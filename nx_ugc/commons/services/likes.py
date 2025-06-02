@@ -2,6 +2,8 @@ from commons.models.beanie_models import Like, Review, LikeEntry
 from commons.models.entity_models import AddLike
 from pymongo.errors import DuplicateKeyError
 
+from nx_ugc.commons.models.entity_models import ReviewUserBase
+
 
 class LikeService():
     @staticmethod
@@ -22,11 +24,11 @@ class LikeService():
 
     @staticmethod
     async def delete_like(
-            ReviewUserBase,
+            review_base: ReviewUserBase,
     ) -> None:
         """Удаление лайка с рецензии."""
 
-        await Like.find_one(**ReviewUserBase.model_dump()).delete()
+        await Like.find_one(**review_base.model_dump()).delete()
 
     @staticmethod
     async def get_user_likes(
