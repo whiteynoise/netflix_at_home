@@ -7,7 +7,7 @@ from configs.smtp_settings import transfer_setup_data
 from configs.worker_settings import rabbit_mq_config, start_settings
 
 
-def create_worker():
+def create_worker() -> mail_worker.MailWorker:
     """Хендлер создания воркера."""
     if start_settings.consumer_type == 'rmq':
         broker = RabbitMQConsumer(rabbit_mq_config)
