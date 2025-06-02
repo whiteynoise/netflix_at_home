@@ -1,8 +1,6 @@
-from datetime import datetime
 from functools import lru_cache
 from uuid import UUID
 
-from constants import TEMPLATE_ID, SINGLE_NOTIFICATION_SERVICE_API
 from db.const import constants
 from db.redis import get_redis
 from models.entity import LoginHistory, Users, UserSocial, user_roles
@@ -14,8 +12,6 @@ from services.token_service import TokenService
 from sqlalchemy import desc, insert, or_, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-
-from core.session import aiohttp_session
 
 
 class AuthService:

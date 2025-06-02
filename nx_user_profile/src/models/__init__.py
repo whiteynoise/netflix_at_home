@@ -1,1 +1,1 @@
-from .user import UserProfile # noqa: F401
+from .user import UserProfile  # noqa: F401
