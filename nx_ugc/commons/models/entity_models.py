@@ -48,8 +48,8 @@ class AddReview(UserFilmBase):
 
 
 class UpdReview(ReviewUserBase):
-    review_text: str = None
-    rating_by_user: str = None
+    review_text: str | None = None
+    rating_by_user: str | None = None
 
 
 # LIKE
