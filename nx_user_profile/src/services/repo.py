@@ -7,8 +7,7 @@ from fastapi import HTTPException
 from sqlalchemy import delete, and_, select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from config import session
-from constants import CONTENT_URL
+from config import session, settings
 from schemas.fav_film import FavFilmCreate, FilmWork
 
 from models.user import PinFilm
@@ -58,7 +57,7 @@ class FavFilmService:
 
         try:
             async with session.aiohttp_session.get(
-                    CONTENT_URL + ','.join(result),
+                    settings.content_url + ','.join(result),
                     timeout=5,
             ) as response:
                 if response.status != 200:

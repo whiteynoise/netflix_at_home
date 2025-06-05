@@ -25,6 +25,8 @@ class Settings(BaseSettings):
     auth_service_settings: AuthServiceSettings = AuthServiceSettings()
     pg_settings: PGSettings = PGSettings()
 
+    content_url: str
+
 
 @lru_cache(maxsize=1, typed=True)
 def get_settings() -> Settings:

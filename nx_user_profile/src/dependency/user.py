@@ -5,7 +5,7 @@ from fastapi import Header, HTTPException, Request
 
 from schemas.user import TokenPayload
 
-from config import session
+from config import session, settings
 
 
 async def get_user_from_auth_service(
@@ -19,7 +19,7 @@ async def get_user_from_auth_service(
         )
     try:
         async with session.aiohttp_session.get(
-            "http://nx_auth:8001/auth-service/api/v1/token/get_user_from_token",
+            settings.auth_service_settings.auth_service_url,
             headers={"Authorization": authorization},
             timeout=5,
         ) as response:

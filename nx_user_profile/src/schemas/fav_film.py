@@ -1,18 +1,19 @@
 import uuid
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class FilmBody(BaseModel):
     film_id: uuid.UUID
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class FavFilmCreate(BaseModel):
     user_id: uuid.UUID
     film_id: uuid.UUID
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class FilmWork(BaseModel):
@@ -20,5 +21,4 @@ class FilmWork(BaseModel):
     imdb_rating: float | None
     title: str
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)

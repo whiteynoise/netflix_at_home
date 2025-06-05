@@ -13,7 +13,7 @@ router = APIRouter(tags=["p"])
 
 
 @router.post(
-    "/add_fav_film",
+    "/fav_film",
     summary="Добавить любимый фильм на витрину",
     description="Добавление любимого фильма на витрину. Максимум может быть 10.",
 )
@@ -28,7 +28,7 @@ async def add_fav_film(
 
 
 @router.delete(
-    "/delete_fav_film/{film_id}",
+    "/fav_film/{film_id}",
     summary="Удалить любимый фильм с витрины",
     description="Удаление любимого фильма с витрины. Максимум может быть 10.",
 )
